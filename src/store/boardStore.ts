@@ -29,6 +29,13 @@ interface BoardState {
 
   isCreateProjectModalOpen: boolean
   setIsCreateProjectModalOpen: (open: boolean) => void
+  isCreateOrgModalOpen: boolean
+  setIsCreateOrgModalOpen: (open: boolean) => void
+  isInviteModalOpen: boolean
+  setIsInviteModalOpen: (open: boolean) => void
+
+  boardGroupBy: 'none' | 'priority' | 'type'
+  setBoardGroupBy: (g: 'none' | 'priority' | 'type') => void
 }
 
 export const useBoardStore = create<BoardState>((set) => ({
@@ -52,5 +59,12 @@ export const useBoardStore = create<BoardState>((set) => ({
   setRecents: (recents) => set({ recents }),
 
   isCreateProjectModalOpen: false,
-  setIsCreateProjectModalOpen: (open) => set({ isCreateProjectModalOpen: open })
+  setIsCreateProjectModalOpen: (open) => set({ isCreateProjectModalOpen: open }),
+  isCreateOrgModalOpen: false,
+  setIsCreateOrgModalOpen: (open) => set({ isCreateOrgModalOpen: open }),
+  isInviteModalOpen: false,
+  setIsInviteModalOpen: (open) => set({ isInviteModalOpen: open }),
+
+  boardGroupBy: 'none',
+  setBoardGroupBy: (g) => set({ boardGroupBy: g })
 }))

@@ -1,42 +1,235 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { Briefcase, Search, Grid, Share2, Maximize2, MoreHorizontal, Star } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import {
+  Briefcase, Search, SlidersHorizontal, Share2, Maximize2,
+  Minimize2, MoreHorizontal, Star, Check, Link2,
+  LayoutGrid, Flag, Tag, Printer, Download
+} from 'lucide-react'
 import Board, { type ProjectWithColumns } from '@/components/board/Board'
 import { getProjectData } from '@/actions/board'
 import { toggleStar, getUserStarsAndRecents, recordRecentView } from '@/actions/stars'
 import { useBoardStore } from '@/store/boardStore'
 
+// ─── tiny Tooltip ──────────────────────────────────────────────────────
+function Tooltip({ label, children }: { label: string; children: React.ReactNode }) {
+  const [visible, setVisible] = useState(false)
+  return (
+    <div
+      className="relative"
+      onMouseEnter={() => setVisible(true)}
+      onMouseLeave={() => setVisible(false)}
+    >
+      {children}
+      {visible && (
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-[#172B4D] text-white text-xs rounded whitespace-nowrap pointer-events-none z-50 animate-in fade-in duration-100">
+          {label}
+          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#172B4D]" />
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Group dropdown ─────────────────────────────────────────────────────
+type GroupBy = 'none' | 'priority' | 'type'
+
+const GROUP_OPTIONS: { value: GroupBy; label: string; icon: React.ReactNode }[] = [
+  { value: 'none',     label: 'No grouping',     icon: <LayoutGrid size={14} /> },
+  { value: 'priority', label: 'Priority',         icon: <Flag size={14} /> },
+  { value: 'type',     label: 'Issue type',       icon: <Tag size={14} /> },
+]
+
+function GroupDropdown({ current, onChange }: { current: GroupBy; onChange: (v: GroupBy) => void }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen(v => !v)}
+        className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+          open || current !== 'none'
+            ? 'bg-[#0C66E4] text-white'
+            : 'text-[#42526E] bg-[#F4F5F7] hover:bg-[#EBECF0]'
+        }`}
+      >
+        <LayoutGrid size={14} />
+        Group{current !== 'none' && `: ${GROUP_OPTIONS.find(o => o.value === current)?.label}`}
+      </button>
+      {open && (
+        <div className="absolute top-full right-0 mt-1.5 w-52 bg-white border border-border shadow-xl rounded-xl py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+          <p className="px-3 py-1 text-[11px] font-bold text-[#6B778C] uppercase tracking-wider">Group by</p>
+          {GROUP_OPTIONS.map(opt => (
+            <button
+              key={opt.value}
+              onClick={() => { onChange(opt.value); setOpen(false) }}
+              className="w-full flex items-center gap-3 px-3 py-2 text-sm text-[#172B4D] hover:bg-[#F4F5F7] transition-colors"
+            >
+              <span className="text-[#6B778C]">{opt.icon}</span>
+              <span className="flex-1 text-left">{opt.label}</span>
+              {current === opt.value && <Check size={14} className="text-[#0C66E4]" />}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Share button ────────────────────────────────────────────────────────
+function ShareButton() {
+  const [copied, setCopied] = useState(false)
+
+  const handleShare = async () => {
+    const url = window.location.href
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // Fallback: select the URL from a temp input
+      const input = document.createElement('input')
+      input.value = url
+      document.body.appendChild(input)
+      input.select()
+      document.execCommand('copy')
+      document.body.removeChild(input)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
+  }
+
+  return (
+    <Tooltip label={copied ? 'Link copied!' : 'Copy link'}>
+      <button
+        onClick={handleShare}
+        className={`p-1.5 rounded-md transition-all ${
+          copied
+            ? 'bg-green-100 text-green-600'
+            : 'text-[#42526E] bg-[#F4F5F7] hover:bg-[#EBECF0]'
+        }`}
+      >
+        {copied ? <Check size={16} /> : <Share2 size={16} />}
+      </button>
+    </Tooltip>
+  )
+}
+
+// ─── More menu ───────────────────────────────────────────────────────────
+function MoreMenu({ projectName }: { projectName: string }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  const actions = [
+    {
+      icon: <Link2 size={15} />,
+      label: 'Copy link',
+      action: () => { navigator.clipboard.writeText(window.location.href); setOpen(false) }
+    },
+    {
+      icon: <Printer size={15} />,
+      label: 'Print board',
+      action: () => { window.print(); setOpen(false) }
+    },
+    {
+      icon: <Download size={15} />,
+      label: 'Export as CSV',
+      action: () => {
+        // Basic CSV export of the project board tasks
+        setOpen(false)
+        alert(`Exporting "${projectName}" — coming soon!`)
+      }
+    },
+  ]
+
+  return (
+    <div ref={ref} className="relative">
+      <Tooltip label="More actions">
+        <button
+          onClick={() => setOpen(v => !v)}
+          className={`p-1.5 rounded-md transition-colors ${open ? 'bg-[#EBECF0] text-[#172B4D]' : 'text-[#42526E] bg-[#F4F5F7] hover:bg-[#EBECF0]'}`}
+        >
+          <MoreHorizontal size={16} />
+        </button>
+      </Tooltip>
+      {open && (
+        <div className="absolute top-full right-0 mt-1.5 w-52 bg-white border border-border shadow-xl rounded-xl py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+          {actions.map((a, i) => (
+            <button
+              key={i}
+              onClick={a.action}
+              className="w-full flex items-center gap-3 px-3 py-2 text-sm text-[#172B4D] hover:bg-[#F4F5F7] transition-colors"
+            >
+              <span className="text-[#6B778C]">{a.icon}</span>
+              {a.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Main component ──────────────────────────────────────────────────────
 export default function ProjectClient({ projectId }: { projectId: string }) {
-  const { projectData, setProjectData, stars, setStars, setRecents } = useBoardStore()
+  const { projectData, setProjectData, stars, setStars, setRecents, boardGroupBy, setBoardGroupBy } = useBoardStore()
   const [loading, setLoading] = useState(true)
+  const [fullscreen, setFullscreen] = useState(false)
 
   useEffect(() => {
     let isMounted = true
-    
+
     const init = async () => {
       setLoading(true)
-      
       try {
-        // Record recent view
         await recordRecentView(projectId, 'PROJECT')
         const { recents } = await getUserStarsAndRecents()
         if (isMounted) setRecents(recents)
 
-        // Fetch project data
         const data = await getProjectData(projectId)
-        if (isMounted) {
-          setProjectData(data as ProjectWithColumns)
-        }
+        if (isMounted) setProjectData(data as ProjectWithColumns)
       } finally {
         if (isMounted) setLoading(false)
       }
     }
 
     init()
-    
     return () => { isMounted = false }
   }, [projectId, setProjectData, setRecents])
+
+  // Fullscreen via browser API
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.()
+      setFullscreen(true)
+    } else {
+      document.exitFullscreen?.()
+      setFullscreen(false)
+    }
+  }
+
+  useEffect(() => {
+    const handler = () => setFullscreen(!!document.fullscreenElement)
+    document.addEventListener('fullscreenchange', handler)
+    return () => document.removeEventListener('fullscreenchange', handler)
+  }, [])
 
   if (loading) {
     return (
@@ -65,74 +258,77 @@ export default function ProjectClient({ projectId }: { projectId: string }) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-[#172B4D]">{projectData.name}</h1>
-            <button 
-              onClick={async () => {
-                await toggleStar(projectData.id, 'PROJECT')
-                const { stars } = await getUserStarsAndRecents()
-                setStars(stars)
-              }}
-              className={`p-1.5 rounded-md transition-colors ${isStarred ? 'bg-yellow-100 text-yellow-500' : 'text-[#6B778C] hover:bg-[#F4F5F7]'}`}
-            >
-              <Star size={18} className={isStarred ? 'fill-yellow-500' : ''} />
-            </button>
+            <Tooltip label={isStarred ? 'Unstar project' : 'Star project'}>
+              <button
+                onClick={async () => {
+                  await toggleStar(projectData.id, 'PROJECT')
+                  const { stars } = await getUserStarsAndRecents()
+                  setStars(stars)
+                }}
+                className={`p-1.5 rounded-md transition-colors ${isStarred ? 'bg-yellow-100 text-yellow-500' : 'text-[#6B778C] hover:bg-[#F4F5F7]'}`}
+              >
+                <Star size={18} className={isStarred ? 'fill-yellow-500' : ''} />
+              </button>
+            </Tooltip>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-6 text-sm font-medium text-[#42526E] mt-4">
-          <button className="pb-2 border-b-2 border-transparent hover:text-[#172b4d] transition-colors">Summary</button>
-          <button className="pb-2 border-b-2 border-transparent hover:text-[#172b4d] transition-colors">List</button>
-          <button className="pb-2 border-b-2 border-primary text-primary transition-colors">Board</button>
-          <button className="pb-2 border-b-2 border-transparent hover:text-[#172b4d] transition-colors">Code</button>
-          <button className="pb-2 border-b-2 border-transparent hover:text-[#172b4d] transition-colors">Forms</button>
-          <button className="pb-2 border-b-2 border-transparent hover:text-[#172b4d] transition-colors">Timeline</button>
-          <button className="pb-2 border-b-2 border-transparent hover:text-[#172b4d] transition-colors">Docs</button>
+          {(['Summary', 'List', 'Board', 'Code', 'Forms', 'Timeline', 'Docs'] as const).map(tab => (
+            <button
+              key={tab}
+              className={`pb-2 border-b-2 transition-colors ${tab === 'Board' ? 'border-primary text-primary' : 'border-transparent hover:text-[#172b4d]'}`}
+            >
+              {tab}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Project Toolbar & Content */}
-      <div className="flex-1 overflow-hidden relative flex flex-col">
-        <div className="px-8 py-3 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <Search size={16} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#6B778C]" />
-              <input 
-                type="text" 
-                placeholder="Search board" 
-                className="w-48 pl-9 pr-3 py-1.5 bg-white border border-[#DFE1E6] hover:bg-[#F4F5F7] focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary rounded-md text-sm outline-none transition-all"
-              />
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-8 h-8 rounded-full bg-slate-200 border-2 border-white z-10 flex items-center justify-center overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="avatar" />
-              </div>
-              <div className="w-8 h-8 rounded-full bg-slate-800 border-2 border-white -ml-3 z-20 flex items-center justify-center text-xs text-white">M</div>
-              <div className="w-8 h-8 rounded-full bg-orange-400 border-2 border-white -ml-3 z-30 flex items-center justify-center text-xs text-white font-medium">ME</div>
-            </div>
-            <button className="ml-2 flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-[#42526E] bg-[#F4F5F7] hover:bg-[#EBECF0] rounded-md transition-colors">
-              <Grid size={14} /> Filter
-            </button>
+      {/* Toolbar */}
+      <div className="px-8 py-3 flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <Search size={16} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#6B778C]" />
+            <input
+              type="text"
+              placeholder="Search board"
+              className="w-48 pl-9 pr-3 py-1.5 bg-white border border-[#DFE1E6] hover:bg-[#F4F5F7] focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary rounded-md text-sm outline-none transition-all"
+            />
           </div>
-          
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <div className="w-8 h-8 rounded-full bg-slate-200 border-2 border-white z-10 flex items-center justify-center overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="avatar" />
+            </div>
+            <div className="w-8 h-8 rounded-full bg-slate-800 border-2 border-white -ml-3 z-20 flex items-center justify-center text-xs text-white">M</div>
+            <div className="w-8 h-8 rounded-full bg-orange-400 border-2 border-white -ml-3 z-30 flex items-center justify-center text-xs text-white font-medium">ME</div>
+          </div>
+          <Tooltip label="Filter board">
             <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-[#42526E] bg-[#F4F5F7] hover:bg-[#EBECF0] rounded-md transition-colors">
-              Group <Grid size={14} />
+              <SlidersHorizontal size={14} /> Filter
             </button>
-            <button className="p-1.5 text-[#42526E] bg-[#F4F5F7] hover:bg-[#EBECF0] rounded-md transition-colors">
-              <Share2 size={16} />
-            </button>
-            <button className="p-1.5 text-[#42526E] bg-[#F4F5F7] hover:bg-[#EBECF0] rounded-md transition-colors">
-              <Maximize2 size={16} />
-            </button>
-            <button className="p-1.5 text-[#42526E] bg-[#F4F5F7] hover:bg-[#EBECF0] rounded-md transition-colors">
-              <MoreHorizontal size={16} />
-            </button>
-          </div>
+          </Tooltip>
         </div>
 
-        <div className="flex-1 overflow-hidden relative">
-          <Board />
+        <div className="flex items-center gap-2">
+          <GroupDropdown current={boardGroupBy} onChange={setBoardGroupBy} />
+          <ShareButton />
+          <Tooltip label={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}>
+            <button
+              onClick={toggleFullscreen}
+              className="p-1.5 text-[#42526E] bg-[#F4F5F7] hover:bg-[#EBECF0] rounded-md transition-colors"
+            >
+              {fullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+            </button>
+          </Tooltip>
+          <MoreMenu projectName={projectData.name} />
         </div>
+      </div>
+
+      {/* Board */}
+      <div className="flex-1 overflow-hidden relative">
+        <Board groupBy={boardGroupBy} />
       </div>
     </div>
   )

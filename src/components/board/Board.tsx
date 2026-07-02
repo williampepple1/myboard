@@ -26,7 +26,9 @@ import { useBoardStore } from '@/store/boardStore'
 export type ColumnWithTasks = PrismaColumn & { tasks: Task[] }
 export type ProjectWithColumns = Project & { columns: ColumnWithTasks[] }
 
-export default function Board() {
+type GroupBy = 'none' | 'priority' | 'type'
+
+export default function Board({ groupBy = 'none' }: { groupBy?: GroupBy }) {
   const project = useBoardStore(s => s.projectData)
   const setProjectData = useBoardStore(s => s.setProjectData)
 
@@ -211,8 +213,53 @@ export default function Board() {
     setSelectedTask(updatedTask)
   }
 
+  // Derive display columns based on groupBy
+  const allTasks = project.columns.flatMap(c => c.tasks)
+
+  const PRIORITY_ORDER = ['URGENT', 'HIGH', 'MEDIUM', 'LOW'] as const
+  const TYPE_ORDER = ['BUG', 'STORY', 'EPIC', 'TASK'] as const
+
+  const displayColumns: ColumnWithTasks[] = groupBy === 'priority'
+    ? PRIORITY_ORDER
+        .filter(p => allTasks.some(t => t.priority === p))
+        .map(p => ({
+          id: `group-priority-${p}`,
+          name: p.charAt(0) + p.slice(1).toLowerCase(),
+          projectId: project.id,
+          order: PRIORITY_ORDER.indexOf(p),
+          tasks: allTasks.filter(t => t.priority === p),
+        } as ColumnWithTasks))
+    : groupBy === 'type'
+    ? TYPE_ORDER
+        .filter(ty => allTasks.some(t => t.issueType === ty))
+        .map(ty => ({
+          id: `group-type-${ty}`,
+          name: ty.charAt(0) + ty.slice(1).toLowerCase(),
+          projectId: project.id,
+          order: TYPE_ORDER.indexOf(ty),
+          tasks: allTasks.filter(t => t.issueType === ty),
+        } as ColumnWithTasks))
+    : project.columns
+
+  // When grouped, disable drag-and-drop (read-only view)
+  const isGrouped = groupBy !== 'none'
+
   return (
     <div className="h-full w-full p-6 overflow-x-auto flex gap-6 bg-white">
+      {isGrouped ? (
+        // Grouped view — read-only, no DnD
+        <>
+          {displayColumns.map((col) => (
+            <Column
+              key={col.id}
+              column={col}
+              onAddTask={() => {}}
+              onTaskClick={(task) => setSelectedTask(task)}
+              readOnly
+            />
+          ))}
+        </>
+      ) : (
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
@@ -228,6 +275,8 @@ export default function Board() {
           {activeTask ? <TaskCard task={activeTask} isOverlay /> : null}
         </DragOverlay>
       </DndContext>
+
+      )}
 
       <CreateIssueModal
         isOpen={isCreateModalOpen}

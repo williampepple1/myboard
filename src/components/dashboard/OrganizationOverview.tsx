@@ -1,9 +1,10 @@
 'use client'
 
-import { Briefcase, FolderKanban, Users, Plus, Settings } from 'lucide-react'
+import { Briefcase, FolderKanban, Users, Plus, Settings, Star, UserPlus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useBoardStore } from '@/store/boardStore'
 import type { Organization } from '@/store/boardStore'
+import { toggleStar, getUserStarsAndRecents } from '@/actions/stars'
 
 interface OrganizationOverviewProps {
   org: Organization
@@ -11,7 +12,13 @@ interface OrganizationOverviewProps {
 
 export default function OrganizationOverview({ org }: OrganizationOverviewProps) {
   const router = useRouter()
-  const setIsCreateProjectModalOpen = useBoardStore(state => state.setIsCreateProjectModalOpen)
+  const {
+    setIsCreateProjectModalOpen,
+    setIsInviteModalOpen,
+    stars,
+    setStars,
+  } = useBoardStore()
+
   return (
     <div className="flex-1 h-full overflow-y-auto bg-background/50 p-8 md:p-12 animate-in fade-in duration-300">
       <div className="max-w-5xl mx-auto space-y-12">
@@ -27,9 +34,18 @@ export default function OrganizationOverview({ org }: OrganizationOverviewProps)
               <p className="text-foreground/50 mt-1">Organization Dashboard</p>
             </div>
           </div>
-          <button className="p-2 text-foreground/40 hover:text-foreground hover:bg-panel rounded-md transition-colors">
-            <Settings size={20} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsInviteModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#0C66E4] bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
+            >
+              <UserPlus size={16} />
+              Invite people
+            </button>
+            <button className="p-2 text-foreground/40 hover:text-foreground hover:bg-panel rounded-md transition-colors">
+              <Settings size={20} />
+            </button>
+          </div>
         </div>
 
         {/* Projects Section */}
@@ -49,21 +65,38 @@ export default function OrganizationOverview({ org }: OrganizationOverviewProps)
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {org.projects.map((proj) => (
-              <div 
-                key={proj.id}
-                onClick={() => router.push(`/${org.id}/projects/${proj.id}`)}
-                className="group p-6 bg-white border border-border/50 hover:border-primary/50 rounded-md transition-all cursor-pointer flex flex-col gap-4"
-              >
-                <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <FolderKanban size={20} />
+            {org.projects.map((proj) => {
+              const starred = stars.some(s => s.entityType === 'PROJECT' && s.entityId === proj.id)
+              return (
+                <div 
+                  key={proj.id}
+                  onClick={() => router.push(`/${org.id}/projects/${proj.id}`)}
+                  className="group p-6 bg-white border border-border/50 hover:border-primary/50 rounded-md transition-all cursor-pointer flex flex-col gap-4 relative"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <FolderKanban size={20} />
+                    </div>
+                    <button
+                      onClick={async (e) => {
+                        e.stopPropagation()
+                        await toggleStar(proj.id, 'PROJECT')
+                        const { stars } = await getUserStarsAndRecents()
+                        setStars(stars)
+                      }}
+                      className={`p-1.5 rounded-md transition-colors opacity-0 group-hover:opacity-100 ${starred ? 'opacity-100! bg-yellow-50 text-yellow-500' : 'text-[#6B778C] hover:bg-[#F4F5F7]'}`}
+                      title={starred ? 'Unstar' : 'Star'}
+                    >
+                      <Star size={16} className={starred ? 'fill-yellow-400' : ''} />
+                    </button>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-foreground group-hover:text-blue-600 transition-colors">{proj.name}</h3>
+                    <p className="text-sm text-foreground/50 mt-1">Click to open board</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-bold text-foreground group-hover:text-blue-600 transition-colors">{proj.name}</h3>
-                  <p className="text-sm text-foreground/50 mt-1">Click to open board</p>
-                </div>
-              </div>
-            ))}
+              )
+            })}
             
             {org.projects.length === 0 && (
               <div 
@@ -82,14 +115,17 @@ export default function OrganizationOverview({ org }: OrganizationOverviewProps)
           </div>
         </section>
 
-        {/* Members Section (Placeholder) */}
+        {/* Members Section */}
         <section>
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2 text-lg font-semibold text-foreground/80">
               <Users size={20} className="text-green-500" />
               <h2>Members</h2>
             </div>
-            <button className="flex items-center gap-2 text-sm font-medium text-green-600 bg-green-50 hover:bg-green-100 px-3 py-1.5 rounded-md transition-colors">
+            <button
+              onClick={() => setIsInviteModalOpen(true)}
+              className="flex items-center gap-2 text-sm font-medium text-green-600 bg-green-50 hover:bg-green-100 px-3 py-1.5 rounded-md transition-colors"
+            >
               <Plus size={16} />
               Invite
             </button>
@@ -109,6 +145,15 @@ export default function OrganizationOverview({ org }: OrganizationOverviewProps)
                 </div>
                 <span className="px-2.5 py-1 text-xs font-medium bg-slate-100 text-slate-600 rounded-md">Owner</span>
               </div>
+            </div>
+            <div className="p-4 border-t border-border/50">
+              <button
+                onClick={() => setIsInviteModalOpen(true)}
+                className="w-full flex items-center justify-center gap-2 py-2 text-sm text-[#0C66E4] hover:bg-blue-50 rounded-md transition-colors font-medium"
+              >
+                <UserPlus size={16} />
+                Invite people to {org.name}
+              </button>
             </div>
           </div>
         </section>
