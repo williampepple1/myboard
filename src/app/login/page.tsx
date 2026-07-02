@@ -2,15 +2,63 @@
 
 import { useState } from 'react'
 import { authClient } from '@/lib/auth-client'
-import { LogIn, UserPlus, Mail, Lock, AlertCircle, Loader2 } from 'lucide-react'
+import { LogIn, UserPlus, Mail, Lock, AlertCircle, Loader2, KeyRound } from 'lucide-react'
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true)
+  const [needsVerification, setNeedsVerification] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
+  const [otp, setOtp] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [successMsg, setSuccessMsg] = useState('')
+
+  const handleVerificationSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    setIsLoading(true)
+    
+    try {
+      const { error: verifyError } = await authClient.emailOtp.verifyEmail({
+        email,
+        otp
+      })
+      if (verifyError) throw new Error(verifyError.message || 'Invalid verification code')
+      
+      // After verifying, we need to sign in
+      const { error: signInError } = await authClient.signIn.email({
+        email,
+        password
+      })
+      if (signInError) throw new Error(signInError.message || 'Failed to sign in after verification')
+      
+      window.location.href = '/'
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const resendOtp = async () => {
+    setError('')
+    setSuccessMsg('')
+    setIsLoading(true)
+    try {
+      const { error: resendError } = await authClient.emailOtp.sendVerificationOtp({
+        email,
+        type: 'email-verification'
+      })
+      if (resendError) throw new Error(resendError.message || 'Failed to resend code')
+      setSuccessMsg('Verification code sent to your email!')
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to resend verification code')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -23,8 +71,19 @@ export default function LoginPage() {
           email,
           password
         })
-        if (signInError) throw new Error(signInError.message || 'Failed to sign in')
-        // Redirect will typically be handled by the framework or we can manually redirect
+        if (signInError) {
+          if (signInError.code === 'EMAIL_NOT_VERIFIED' || signInError.message?.toLowerCase().includes('not verified')) {
+            // Automatically send the verification OTP
+            await authClient.emailOtp.sendVerificationOtp({
+              email,
+              type: 'email-verification'
+            })
+            setNeedsVerification(true)
+            setSuccessMsg('Verification code sent to your email!')
+            return
+          }
+          throw new Error(signInError.message || 'Failed to sign in')
+        }
         window.location.href = '/'
       } else {
         if (!name) throw new Error('Name is required for registration')
@@ -34,8 +93,10 @@ export default function LoginPage() {
           name
         })
         if (signUpError) throw new Error(signUpError.message || 'Failed to sign up')
-        // Redirect after sign up
-        window.location.href = '/'
+        
+        // Registration success. Transition to verification UI.
+        setNeedsVerification(true)
+        setSuccessMsg('Please check your email for the verification code.')
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'An unexpected error occurred')
@@ -56,6 +117,90 @@ export default function LoginPage() {
       setError(err instanceof Error ? err.message : 'Failed to authenticate with Google')
       setIsLoading(false)
     }
+  }
+
+  if (needsVerification) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+        <div className="w-full max-w-md bg-white border border-border rounded-xl shadow-sm p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-50 text-primary rounded-xl mb-4">
+              <KeyRound size={24} />
+            </div>
+            <h1 className="text-2xl font-bold text-foreground">Verify your email</h1>
+            <p className="text-sm text-foreground/60 mt-2">
+              We sent a verification code to <span className="font-medium text-foreground">{email}</span>
+            </p>
+          </div>
+
+          {error && (
+            <div className="mb-6 p-3 bg-red-50 text-red-600 rounded-lg text-sm flex items-start gap-2">
+              <AlertCircle size={16} className="mt-0.5 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+          
+          {successMsg && (
+            <div className="mb-6 p-3 bg-green-50 text-green-700 rounded-lg text-sm flex items-start gap-2">
+              <AlertCircle size={16} className="mt-0.5 shrink-0" />
+              <span>{successMsg}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleVerificationSubmit} className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground/80">Verification Code</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  required
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 bg-background border border-border rounded-lg outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all text-sm"
+                  placeholder="Enter 6-digit code"
+                  maxLength={6}
+                />
+                <KeyRound size={16} className="absolute left-3.5 top-3 text-foreground/40" />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading || otp.length < 5}
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2 mt-2 disabled:opacity-70 disabled:cursor-not-allowed shadow-sm shadow-blue-500/20"
+            >
+              {isLoading && <Loader2 size={16} className="animate-spin" />}
+              Verify Email
+            </button>
+          </form>
+
+          <div className="mt-6 text-center text-sm">
+            <span className="text-foreground/60">Didn&apos;t receive a code?</span>{' '}
+            <button
+              onClick={resendOtp}
+              disabled={isLoading}
+              className="text-primary hover:underline font-medium focus:outline-none disabled:opacity-50"
+            >
+              Resend
+            </button>
+          </div>
+          
+          <div className="mt-4 text-center">
+             <button
+              onClick={() => {
+                setNeedsVerification(false)
+                setOtp('')
+                setError('')
+                setSuccessMsg('')
+              }}
+              className="text-sm text-foreground/50 hover:text-foreground/80 font-medium"
+            >
+              Back to login
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
