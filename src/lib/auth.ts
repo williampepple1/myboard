@@ -9,7 +9,9 @@ export async function verifySession() {
   const cookieStore = await cookies();
   // Neon Auth / Better Auth typically uses better-auth.session_token
   // If not, we might need to check authorization header
-  const token = cookieStore.get('better-auth.session_token')?.value;
+  const token = 
+    cookieStore.get('better-auth.session_token')?.value || 
+    cookieStore.get('__Secure-better-auth.session_token')?.value;
 
   if (!token) return null;
 
