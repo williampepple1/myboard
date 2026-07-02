@@ -1,14 +1,15 @@
 import { getOrganizations } from '@/actions/board'
 import DashboardClient from './DashboardClient'
 import UserMenu from './UserMenu'
-import { verifySession } from '@/lib/auth'
+import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 
 export default async function Home() {
-  const session = await verifySession()
-  if (!session) {
+  const { data: session } = await auth.getSession()
+  if (!session?.user) {
     redirect('/login')
   }
+
 
   const organizations = await getOrganizations()
   
@@ -17,7 +18,7 @@ export default async function Home() {
       <header className="h-16 border-b border-border bg-panel flex items-center justify-between px-6 glass-panel z-10 sticky top-0">
         <h1 className="text-xl font-bold text-primary">KanbanFlow</h1>
         <div className="flex items-center gap-4 text-sm">
-          <UserMenu name={session.name as string | undefined} email={session.email as string | undefined} />
+          <UserMenu name={session.user.name as string | undefined} email={session.user.email as string | undefined} />
         </div>
       </header>
       
