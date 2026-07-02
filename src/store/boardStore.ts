@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import type { ProjectWithColumns } from '@/components/board/Board'
-import type { UserStar, UserRecent } from '@prisma/client'
+
+export type UserStar = { id: string; userId: string; entityId: string; entityType: string; createdAt: Date }
+export type UserRecent = { id: string; userId: string; entityId: string; entityType: string; viewedAt: Date }
 
 export type Space = { id: string; name: string }
 export type Plan = { id: string; name: string }
@@ -24,6 +26,9 @@ interface BoardState {
   setStars: (stars: UserStar[]) => void
   recents: UserRecent[]
   setRecents: (recents: UserRecent[]) => void
+
+  isCreateProjectModalOpen: boolean
+  setIsCreateProjectModalOpen: (open: boolean) => void
 }
 
 export const useBoardStore = create<BoardState>((set) => ({
@@ -44,5 +49,8 @@ export const useBoardStore = create<BoardState>((set) => ({
   stars: [],
   setStars: (stars) => set({ stars }),
   recents: [],
-  setRecents: (recents) => set({ recents })
+  setRecents: (recents) => set({ recents }),
+
+  isCreateProjectModalOpen: false,
+  setIsCreateProjectModalOpen: (open) => set({ isCreateProjectModalOpen: open })
 }))

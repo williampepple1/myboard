@@ -1,20 +1,28 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { ChevronDown, Star, Clock, Users, UserPlus } from 'lucide-react'
+import { useParams, useRouter } from 'next/navigation'
+import { ChevronDown, Star, Clock, UserPlus } from 'lucide-react'
 import { useBoardStore } from '@/store/boardStore'
+import type { Organization } from '@/store/boardStore'
 
 export default function TopNav({ 
+  orgs,
   onCreateProject,
   onInviteUser
 }: { 
+  orgs: Organization[]
   onCreateProject: () => void
   onInviteUser: () => void
 }) {
   const [openMenu, setOpenMenu] = useState<string | null>(null)
   const navRef = useRef<HTMLDivElement>(null)
+  const params = useParams()
+  const router = useRouter()
 
-  const { orgs, selectedOrgId, setSelectedProjectId, setSelectedSpaceId, setSelectedPlanId, stars, recents } = useBoardStore()
+  const { stars, recents } = useBoardStore()
+  
+  const selectedOrgId = params.orgId as string | undefined
   const selectedOrg = orgs.find(o => o.id === selectedOrgId)
 
   // Click away listener
@@ -33,18 +41,13 @@ export default function TopNav({
   }
 
   const handleNavigate = (type: string, id: string) => {
+    if (!selectedOrgId) return
     if (type === 'PROJECT') {
-      setSelectedProjectId(id)
-      setSelectedSpaceId(null)
-      setSelectedPlanId(null)
+      router.push(`/${selectedOrgId}/projects/${id}`)
     } else if (type === 'SPACE') {
-      setSelectedSpaceId(id)
-      setSelectedProjectId(null)
-      setSelectedPlanId(null)
+      router.push(`/${selectedOrgId}/spaces/${id}`)
     } else if (type === 'PLAN') {
-      setSelectedPlanId(id)
-      setSelectedProjectId(null)
-      setSelectedSpaceId(null)
+      router.push(`/${selectedOrgId}/plans/${id}`)
     }
     setOpenMenu(null)
   }

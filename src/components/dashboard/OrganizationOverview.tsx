@@ -1,17 +1,17 @@
 'use client'
 
 import { Briefcase, FolderKanban, Users, Plus, Settings } from 'lucide-react'
-
-type Project = { id: string; name: string }
-type Organization = { id: string; name: string; projects: Project[] }
+import { useRouter } from 'next/navigation'
+import { useBoardStore } from '@/store/boardStore'
+import type { Organization } from '@/store/boardStore'
 
 interface OrganizationOverviewProps {
   org: Organization
-  onSelectProject: (projectId: string) => void
-  onCreateProject: () => void
 }
 
-export default function OrganizationOverview({ org, onSelectProject, onCreateProject }: OrganizationOverviewProps) {
+export default function OrganizationOverview({ org }: OrganizationOverviewProps) {
+  const router = useRouter()
+  const setIsCreateProjectModalOpen = useBoardStore(state => state.setIsCreateProjectModalOpen)
   return (
     <div className="flex-1 h-full overflow-y-auto bg-background/50 p-8 md:p-12 animate-in fade-in duration-300">
       <div className="max-w-5xl mx-auto space-y-12">
@@ -40,7 +40,7 @@ export default function OrganizationOverview({ org, onSelectProject, onCreatePro
               <h2>Projects</h2>
             </div>
             <button 
-              onClick={onCreateProject}
+              onClick={() => setIsCreateProjectModalOpen(true)}
               className="flex items-center gap-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-md transition-colors"
             >
               <Plus size={16} />
@@ -52,7 +52,7 @@ export default function OrganizationOverview({ org, onSelectProject, onCreatePro
             {org.projects.map((proj) => (
               <div 
                 key={proj.id}
-                onClick={() => onSelectProject(proj.id)}
+                onClick={() => router.push(`/${org.id}/projects/${proj.id}`)}
                 className="group p-6 bg-white border border-border/50 hover:border-primary/50 rounded-md transition-all cursor-pointer flex flex-col gap-4"
               >
                 <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -67,7 +67,7 @@ export default function OrganizationOverview({ org, onSelectProject, onCreatePro
             
             {org.projects.length === 0 && (
               <div 
-                onClick={onCreateProject}
+                onClick={() => setIsCreateProjectModalOpen(true)}
                 className="p-6 border-2 border-dashed border-border/50 hover:border-primary/30 rounded-md flex flex-col items-center justify-center text-center gap-3 cursor-pointer group transition-colors min-h-[160px] bg-white/50"
               >
                 <div className="w-10 h-10 rounded-full bg-primary/5 text-primary/40 flex items-center justify-center group-hover:bg-primary/10 group-hover:text-primary transition-colors">
