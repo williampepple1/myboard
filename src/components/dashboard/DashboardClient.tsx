@@ -8,7 +8,10 @@ import type { ProjectWithColumns } from '@/components/board/Board'
 import OrganizationOverview from './OrganizationOverview'
 import SpaceView from './SpaceView'
 import PlanView from './PlanView'
+import TopNav from './TopNav'
 import { useBoardStore } from '@/store/boardStore'
+import { getUserStarsAndRecents, recordRecentView, toggleStar } from '@/actions/stars'
+import { inviteUserToOrganization } from '@/actions/invite'
 
 type Space = { id: string; name: string }
 type Plan = { id: string; name: string }
@@ -26,10 +29,8 @@ export default function DashboardClient({ initialOrgs }: { initialOrgs: Organiza
     })
   })
 
-  const { orgs, setOrgs, selectedOrgId, setSelectedOrgId, selectedProjectId, setSelectedProjectId, selectedSpaceId, setSelectedSpaceId, selectedPlanId, setSelectedPlanId, projectData, setProjectData } = useBoardStore()
+  const { orgs, setOrgs, selectedOrgId, setSelectedOrgId, selectedProjectId, setSelectedProjectId, selectedSpaceId, setSelectedSpaceId, selectedPlanId, setSelectedPlanId, projectData, setProjectData, stars, setStars, setRecents } = useBoardStore()
   
-  const loading = selectedProjectId ? (!projectData || projectData.id !== selectedProjectId) : false
-
   const selectedOrg = orgs.find(o => o.id === selectedOrgId)
 
   useEffect(() => {
@@ -119,6 +120,9 @@ export default function DashboardClient({ initialOrgs }: { initialOrgs: Organiza
   const [isCreatePlanModalOpen, setIsCreatePlanModalOpen] = useState(false)
   const [newPlanName, setNewPlanName] = useState('')
   const [isCreatingPlan, setIsCreatingPlan] = useState(false)
+  const [isInviteUserModalOpen, setIsInviteUserModalOpen] = useState(false)
+  const [inviteEmail, setInviteEmail] = useState('')
+  const [isInvitingUser, setIsInvitingUser] = useState(false)
 
   const handleCreatePlanSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -140,27 +144,43 @@ export default function DashboardClient({ initialOrgs }: { initialOrgs: Organiza
     }
   }
 
+  useEffect(() => {
+    getUserStarsAndRecents().then(({ stars, recents }) => {
+      setStars(stars)
+      setRecents(recents)
+    })
+  }, [setStars, setRecents])
+
+  useEffect(() => {
+    if (selectedProjectId) {
+      recordRecentView(selectedProjectId, 'PROJECT').then(() => {
+        getUserStarsAndRecents().then(({ recents }) => setRecents(recents))
+      })
+    } else if (selectedSpaceId) {
+      recordRecentView(selectedSpaceId, 'SPACE').then(() => {
+        getUserStarsAndRecents().then(({ recents }) => setRecents(recents))
+      })
+    } else if (selectedPlanId) {
+      recordRecentView(selectedPlanId, 'PLAN').then(() => {
+        getUserStarsAndRecents().then(({ recents }) => setRecents(recents))
+      })
+    }
+  }, [selectedProjectId, selectedSpaceId, selectedPlanId, setRecents])
+
+  const loading = selectedProjectId ? (!projectData || projectData.id !== selectedProjectId) : false
+
   return (
     <div className="flex flex-col w-full h-screen overflow-hidden bg-background text-foreground">
-      {/* Top Navigation Bar */}
       <header className="h-14 border-b border-border bg-white flex items-center justify-between px-4 shrink-0 z-10 relative">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2 text-primary cursor-pointer hover:opacity-80 transition-opacity">
-            <div className="w-6 h-6 rounded bg-[#0c66e4] text-white flex items-center justify-center font-bold text-sm">J</div>
-            <span className="font-bold text-xl tracking-tight text-[#172b4d]">Jira</span>
+            <div className="w-6 h-6 rounded bg-[#0c66e4] text-white flex items-center justify-center font-bold text-sm">M</div>
+            <span className="font-bold text-xl tracking-tight text-[#172b4d]">Myboard</span>
           </div>
-          <div className="hidden md:flex items-center gap-1 text-sm font-medium text-foreground/70">
-            <button className="px-3 py-1.5 hover:bg-slate-100 hover:text-foreground rounded-md transition-colors">Your work</button>
-            <button className="px-3 py-1.5 hover:bg-slate-100 hover:text-foreground rounded-md transition-colors">Projects</button>
-            <button className="px-3 py-1.5 hover:bg-slate-100 hover:text-foreground rounded-md transition-colors">Filters</button>
-            <button className="px-3 py-1.5 hover:bg-slate-100 hover:text-foreground rounded-md transition-colors">Teams</button>
-            <button 
-              onClick={() => setIsCreateProjectModalOpen(true)}
-              className="ml-2 px-3 py-1.5 bg-primary hover:bg-primary-hover text-white rounded-md transition-colors font-medium"
-            >
-              Create
-            </button>
-          </div>
+          <TopNav 
+            onCreateProject={() => setIsCreateProjectModalOpen(true)}
+            onInviteUser={() => setIsInviteUserModalOpen(true)}
+          />
         </div>
         
         <div className="flex items-center gap-4">
@@ -185,9 +205,7 @@ export default function DashboardClient({ initialOrgs }: { initialOrgs: Organiza
       </header>
 
       <div className="flex flex-1 overflow-hidden relative">
-        {/* Sidebar */}
         <div className="w-[260px] bg-white border-r border-border py-4 px-0 flex flex-col shrink-0 overflow-y-auto">
-          
           <div className="px-3 mb-4 space-y-0.5">
             <button className="w-full flex items-center gap-3 px-3 py-1.5 text-sm font-medium text-[#42526E] hover:bg-[#F4F5F7] rounded-md transition-colors">
               <Grid size={16} /> For you
@@ -205,7 +223,6 @@ export default function DashboardClient({ initialOrgs }: { initialOrgs: Organiza
 
           <div className="border-t border-border mx-3 my-2"></div>
 
-          {/* Orgs / Spaces Section */}
           <div className="px-3">
             <div className="flex items-center justify-between mb-1 px-3">
               <h2 className="text-[11px] font-bold text-[#6B778C] uppercase tracking-wider">Organizations</h2>
@@ -230,7 +247,6 @@ export default function DashboardClient({ initialOrgs }: { initialOrgs: Organiza
             </div>
           </div>
 
-          {/* Projects Section */}
           {selectedOrg && (
             <div className="px-3 mt-4 animate-in fade-in">
               <div className="flex items-center justify-between mb-1 px-3">
@@ -254,7 +270,6 @@ export default function DashboardClient({ initialOrgs }: { initialOrgs: Organiza
               </div>
             </div>
           )}
-          {/* Spaces Section */}
           {selectedOrg && (
             <div className="px-3 mt-4 animate-in fade-in">
               <div className="flex items-center justify-between mb-1 px-3">
@@ -283,7 +298,6 @@ export default function DashboardClient({ initialOrgs }: { initialOrgs: Organiza
             </div>
           )}
 
-          {/* Plans Section */}
           {selectedOrg && (
             <div className="px-3 mt-4 animate-in fade-in">
               <div className="flex items-center justify-between mb-1 px-3">
@@ -313,19 +327,31 @@ export default function DashboardClient({ initialOrgs }: { initialOrgs: Organiza
           )}
         </div>
 
-        {/* Main Board Area */}
         <div className="flex-1 bg-white overflow-hidden flex flex-col relative">
           
-          {/* Project Header (Jira Style) */}
           {projectData && (
             <div className="px-8 pt-6 pb-2 bg-white border-b border-border shrink-0 z-0">
               <div className="text-sm text-[#6B778C] mb-2 flex items-center gap-1">
-                Spaces / <span className="font-medium hover:underline cursor-pointer">{selectedOrg?.name}</span>
+                <Briefcase size={14} />
+                <span>Projects</span>
+                <span>/</span>
+                <span>{projectData.name}</span>
               </div>
-              <h1 className="text-2xl font-semibold text-[#172b4d] mb-4 flex items-center gap-2">
-                <div className="w-6 h-6 rounded bg-linear-to-tr from-blue-400 to-indigo-500 shadow-sm"></div>
-                {projectData.name}
-              </h1>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <h1 className="text-2xl font-bold text-[#172B4D]">{projectData.name}</h1>
+                  <button 
+                    onClick={async () => {
+                      await toggleStar(projectData.id, 'PROJECT')
+                      const { stars } = await getUserStarsAndRecents()
+                      setStars(stars)
+                    }}
+                    className={`p-1.5 rounded-md transition-colors ${stars.some(s => s.entityType === 'PROJECT' && s.entityId === projectData.id) ? 'bg-yellow-100 text-yellow-500' : 'text-[#6B778C] hover:bg-[#F4F5F7]'}`}
+                  >
+                    <Star size={18} className={stars.some(s => s.entityType === 'PROJECT' && s.entityId === projectData.id) ? 'fill-yellow-500' : ''} />
+                  </button>
+                </div>
+              </div>
               
               <div className="flex items-center gap-6 text-sm font-medium text-[#42526E]">
                 <button className="pb-2 border-b-2 border-transparent hover:text-[#172b4d] transition-colors">Summary</button>
@@ -390,9 +416,9 @@ export default function DashboardClient({ initialOrgs }: { initialOrgs: Organiza
               ) : selectedProjectId && projectData ? (
                 <Board />
               ) : selectedSpaceId ? (
-                <SpaceView spaceName={selectedOrg?.spaces?.find(s => s.id === selectedSpaceId)?.name || 'Space'} />
+                <SpaceView spaceId={selectedSpaceId} spaceName={selectedOrg?.spaces?.find(s => s.id === selectedSpaceId)?.name || 'Space'} />
               ) : selectedPlanId ? (
-                <PlanView planName={selectedOrg?.plans?.find(p => p.id === selectedPlanId)?.name || 'Plan'} />
+                <PlanView planId={selectedPlanId} planName={selectedOrg?.plans?.find(p => p.id === selectedPlanId)?.name || 'Plan'} />
               ) : selectedOrg ? (
                 <OrganizationOverview 
                   org={selectedOrg} 
@@ -594,6 +620,68 @@ export default function DashboardClient({ initialOrgs }: { initialOrgs: Organiza
                     <div className="w-4 h-4 border-2 border-white/50 border-t-white rounded-full animate-spin" />
                   ) : null}
                   Create
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Invite User Modal */}
+      {isInviteUserModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-md bg-white border border-border rounded-md shadow-lg p-6 animate-in zoom-in-95 duration-200">
+            <h2 className="text-xl font-semibold mb-4 text-foreground">Invite to {selectedOrg?.name}</h2>
+            <form onSubmit={async (e) => {
+              e.preventDefault()
+              if (!selectedOrg) return
+              setIsInvitingUser(true)
+              try {
+                await inviteUserToOrganization(selectedOrg.id, inviteEmail)
+                setIsInviteUserModalOpen(false)
+                setInviteEmail('')
+                alert(`Invited ${inviteEmail} successfully!`)
+              } catch (err) {
+                console.error(err)
+              } finally {
+                setIsInvitingUser(false)
+              }
+            }} className="space-y-4">
+              <div>
+                <label htmlFor="inviteEmail" className="block text-sm font-medium text-foreground/80 mb-1">
+                  Email Address
+                </label>
+                <input
+                  id="inviteEmail"
+                  type="email"
+                  autoFocus
+                  required
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  placeholder="name@example.com"
+                  className="w-full px-4 py-2 bg-background border border-border rounded-lg outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all text-sm"
+                />
+              </div>
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-border mt-6">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsInviteUserModalOpen(false)
+                    setInviteEmail('')
+                  }}
+                  className="px-4 py-2 text-sm font-medium text-foreground/70 hover:text-foreground hover:bg-background rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isInvitingUser || !inviteEmail.trim()}
+                  className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+                >
+                  {isInvitingUser ? (
+                    <div className="w-4 h-4 border-2 border-white/50 border-t-white rounded-full animate-spin" />
+                  ) : null}
+                  Invite
                 </button>
               </div>
             </form>

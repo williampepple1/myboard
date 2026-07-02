@@ -1,15 +1,31 @@
 'use client'
 
-import { FileText } from 'lucide-react'
+import { FileText, Star } from 'lucide-react'
+import { useBoardStore } from '@/store/boardStore'
+import { toggleStar, getUserStarsAndRecents } from '@/actions/stars'
 
-export default function SpaceView({ spaceName }: { spaceName: string }) {
+export default function SpaceView({ spaceName, spaceId }: { spaceName: string, spaceId: string }) {
+  const { stars, setStars } = useBoardStore()
+
   return (
     <div className="flex-1 overflow-y-auto bg-white p-8 animate-in fade-in">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-[#172b4d] mb-8 flex items-center gap-3">
-          <FileText size={32} className="text-[#0c66e4]" />
-          {spaceName}
-        </h1>
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-bold text-[#172b4d] flex items-center gap-3">
+            <FileText size={32} className="text-[#0c66e4]" />
+            {spaceName}
+          </h1>
+          <button 
+            onClick={async () => {
+              await toggleStar(spaceId, 'SPACE')
+              const { stars } = await getUserStarsAndRecents()
+              setStars(stars)
+            }}
+            className={`p-2 rounded-md transition-colors ${stars.some(s => s.entityType === 'SPACE' && s.entityId === spaceId) ? 'bg-yellow-100 text-yellow-500' : 'text-[#6B778C] hover:bg-[#F4F5F7]'}`}
+          >
+            <Star size={24} className={stars.some(s => s.entityType === 'SPACE' && s.entityId === spaceId) ? 'fill-yellow-500' : ''} />
+          </button>
+        </div>
         <div className="prose prose-slate max-w-none">
           <h2 className="text-xl font-medium text-[#172b4d] border-b pb-2 mb-4">Pages</h2>
           <div className="p-12 border-2 border-dashed border-[#DFE1E6] rounded-xl flex flex-col items-center justify-center text-center">

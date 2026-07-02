@@ -96,3 +96,30 @@ model Task {
   project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
   assigneeId  String?   // references Neon Auth user ID
 }
+
+enum EntityType {
+  PROJECT
+  SPACE
+  PLAN
+  TASK
+}
+
+model UserStar {
+  id         String     @id @default(uuid())
+  userId     String
+  entityId   String
+  entityType EntityType
+  createdAt  DateTime   @default(now())
+
+  @@unique([userId, entityId, entityType])
+}
+
+model UserRecent {
+  id         String     @id @default(uuid())
+  userId     String
+  entityId   String
+  entityType EntityType
+  viewedAt   DateTime   @default(now())
+
+  @@unique([userId, entityId, entityType])
+}

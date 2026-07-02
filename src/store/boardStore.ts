@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import type { ProjectWithColumns } from '@/components/board/Board'
+import type { UserStar, UserRecent } from '@prisma/client'
 
 export type Space = { id: string; name: string }
 export type Plan = { id: string; name: string }
@@ -19,6 +20,10 @@ interface BoardState {
   setSelectedPlanId: (id: string | null) => void
   projectData: ProjectWithColumns | null
   setProjectData: (data: ProjectWithColumns | null | ((prev: ProjectWithColumns | null) => ProjectWithColumns | null)) => void
+  stars: UserStar[]
+  setStars: (stars: UserStar[]) => void
+  recents: UserRecent[]
+  setRecents: (recents: UserRecent[]) => void
 }
 
 export const useBoardStore = create<BoardState>((set) => ({
@@ -36,4 +41,8 @@ export const useBoardStore = create<BoardState>((set) => ({
   setProjectData: (data) => set((state) => ({
     projectData: typeof data === 'function' ? data(state.projectData) : data
   })),
+  stars: [],
+  setStars: (stars) => set({ stars }),
+  recents: [],
+  setRecents: (recents) => set({ recents })
 }))
