@@ -2,7 +2,8 @@
 
 import prisma from '@/lib/prisma'
 import { auth } from '@/lib/auth'
-
+export type Priority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
+export type IssueType = 'TASK' | 'BUG' | 'STORY' | 'EPIC'
 async function getUserId() {
   const { data: session } = await auth.getSession()
   // For development fallback if no auth is present, we could use a dummy user
@@ -66,15 +67,41 @@ export async function createProject(organizationId: string, name: string) {
   })
 }
 
-export async function createTask(columnId: string, projectId: string, title: string) {
+export async function createTask(
+  columnId: string, 
+  projectId: string, 
+  title: string, 
+  description?: string, 
+  priority?: Priority, 
+  issueType?: IssueType
+) {
   const count = await prisma.task.count({ where: { columnId } })
   return prisma.task.create({
     data: {
       title,
+      description: description || null,
+      priority: priority || 'MEDIUM',
+      issueType: issueType || 'TASK',
       columnId,
       projectId,
       order: count,
-    }
+    } as any
+  })
+}
+
+export async function updateTaskDetails(
+  taskId: string,
+  data: {
+    title?: string
+    description?: string | null
+    priority?: Priority
+    issueType?: IssueType
+    columnId?: string
+  }
+) {
+  return prisma.task.update({
+    where: { id: taskId },
+    data: data as any
   })
 }
 

@@ -16,8 +16,11 @@ import {
 import { arrayMove } from '@dnd-kit/sortable'
 import Column from './Column'
 import TaskCard from './TaskCard'
-import { createTask, updateTaskColumn } from '@/actions/board'
-import type { Project, Column as PrismaColumn, Task } from '@prisma/client'
+import CreateIssueModal from './CreateIssueModal'
+import IssueDetailsModal from './IssueDetailsModal'
+import { createTask, updateTaskColumn, type Priority, type IssueType } from '@/actions/board'
+import type { Project, Column as PrismaColumn } from '@prisma/client'
+import type { Task } from './IssueDetailsModal'
 import { useBoardStore } from '@/store/boardStore'
 
 export type ColumnWithTasks = PrismaColumn & { tasks: Task[] }
@@ -28,6 +31,11 @@ export default function Board() {
   const setProjectData = useBoardStore(s => s.setProjectData)
 
   const [activeTask, setActiveTask] = useState<Task | null>(null)
+  
+  // Modals state
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [createModalColumnId, setCreateModalColumnId] = useState('')
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -158,20 +166,49 @@ export default function Board() {
     return project.columns.find((c) => c.tasks.some((t) => t.id === taskId))
   }
 
-  const handleAddTask = async (columnId: string) => {
-    const title = prompt("Task title:")
-    if (title) {
-      const newTask = await createTask(columnId, project.id, title)
-      setProjectData((prev) => {
-        if (!prev) return prev
+  const handleAddTask = (columnId: string) => {
+    setCreateModalColumnId(columnId)
+    setIsCreateModalOpen(true)
+  }
+
+  const handleCreateSubmit = async (data: { title: string, description: string, issueType: IssueType, priority: Priority, columnId: string }) => {
+    const newTask = await createTask(data.columnId, project.id, data.title, data.description, data.priority, data.issueType)
+    setProjectData((prev) => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        columns: prev.columns.map((c) => 
+          c.id === data.columnId ? { ...c, tasks: [...c.tasks, newTask as unknown as Task] } : c
+        )
+      }
+    })
+  }
+
+  const handleTaskUpdate = (updatedTask: Task) => {
+    setProjectData((prev) => {
+      if (!prev) return prev
+      // Remove from old column and add to new if column changed
+      const oldCol = findColumnOfTask(updatedTask.id)
+      if (oldCol && oldCol.id !== updatedTask.columnId) {
         return {
           ...prev,
-          columns: prev.columns.map((c) => 
-            c.id === columnId ? { ...c, tasks: [...c.tasks, newTask] } : c
-          )
+          columns: prev.columns.map((c) => {
+            if (c.id === oldCol.id) return { ...c, tasks: c.tasks.filter(t => t.id !== updatedTask.id) }
+            if (c.id === updatedTask.columnId) return { ...c, tasks: [...c.tasks, updatedTask] }
+            return c
+          })
         }
-      })
-    }
+      }
+
+      // Otherwise just update in place
+      return {
+        ...prev,
+        columns: prev.columns.map((c) => 
+          c.id === updatedTask.columnId ? { ...c, tasks: c.tasks.map(t => t.id === updatedTask.id ? updatedTask : t) } : c
+        )
+      }
+    })
+    setSelectedTask(updatedTask)
   }
 
   return (
@@ -184,13 +221,29 @@ export default function Board() {
         onDragEnd={handleDragEnd}
       >
         {project.columns.map((col) => (
-          <Column key={col.id} column={col} onAddTask={() => handleAddTask(col.id)} />
+          <Column key={col.id} column={col} onAddTask={() => handleAddTask(col.id)} onTaskClick={(task) => setSelectedTask(task)} />
         ))}
         
         <DragOverlay>
           {activeTask ? <TaskCard task={activeTask} isOverlay /> : null}
         </DragOverlay>
       </DndContext>
+
+      <CreateIssueModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        columns={project.columns.map(c => ({ id: c.id, name: c.name }))}
+        defaultColumnId={createModalColumnId}
+        onSubmit={handleCreateSubmit}
+      />
+
+      <IssueDetailsModal
+        isOpen={!!selectedTask}
+        onClose={() => setSelectedTask(null)}
+        task={selectedTask}
+        columns={project.columns.map(c => ({ id: c.id, name: c.name }))}
+        onTaskUpdate={handleTaskUpdate}
+      />
     </div>
   )
 }

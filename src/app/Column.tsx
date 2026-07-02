@@ -5,8 +5,9 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { Plus } from 'lucide-react'
 import TaskCard from './TaskCard'
 import type { ColumnWithTasks } from './Board'
+import type { Task } from './IssueDetailsModal'
 
-export default function Column({ column, onAddTask }: { column: ColumnWithTasks, onAddTask: () => void }) {
+export default function Column({ column, onAddTask, onTaskClick }: { column: ColumnWithTasks, onAddTask: () => void, onTaskClick: (task: Task) => void }) {
   const { setNodeRef } = useDroppable({
     id: column.id,
   })
@@ -26,7 +27,7 @@ export default function Column({ column, onAddTask }: { column: ColumnWithTasks,
       >
         <SortableContext items={column.tasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
           {column.tasks.map((task) => (
-            <TaskCard key={task.id} task={task} />
+            <TaskCard key={task.id} task={task} onClick={() => onTaskClick(task)} />
           ))}
         </SortableContext>
         

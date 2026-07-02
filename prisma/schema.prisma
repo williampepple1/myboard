@@ -40,14 +40,32 @@ model Column {
   tasks     Task[]
 }
 
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum IssueType {
+  TASK
+  BUG
+  STORY
+  EPIC
+}
+
 model Task {
-  id          String  @id @default(uuid())
+  id          String    @id @default(uuid())
   title       String
   description String?
   order       Int
+  priority    Priority  @default(MEDIUM)
+  issueType   IssueType @default(TASK)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   columnId    String
-  column      Column  @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  column      Column    @relation(fields: [columnId], references: [id], onDelete: Cascade)
   projectId   String
-  project     Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  assigneeId  String? // references Neon Auth user ID
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assigneeId  String?   // references Neon Auth user ID
 }
