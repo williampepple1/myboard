@@ -15,7 +15,7 @@ import { inviteUserToOrganization } from '@/actions/invite'
 
 type Space = { id: string; name: string }
 type Plan = { id: string; name: string }
-type Organization = { id: string; name: string; projects: Project[]; spaces: Space[]; plans: Plan[] }
+export type Organization = { id: string; name: string; projects: Project[]; spaces: Space[]; plans: Plan[] }
 type Project = { id: string; name: string }
 
 export default function DashboardClient({ initialOrgs }: { initialOrgs: Organization[] }) {

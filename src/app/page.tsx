@@ -1,5 +1,5 @@
 import { getOrganizations } from '@/actions/board'
-import DashboardClient from '@/components/dashboard/DashboardClient'
+import DashboardClient, { Organization } from '@/components/dashboard/DashboardClient'
 import UserMenu from '@/components/shared/UserMenu'
 import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
@@ -23,8 +23,7 @@ export default async function Home() {
       </header>
       
       <div className="flex-1 flex overflow-hidden">
-        {/* @ts-expect-error: IDE TS server may not have latest Prisma client types yet */}
-        <DashboardClient initialOrgs={organizations} />
+        <DashboardClient initialOrgs={organizations as unknown as Organization[]} />
       </div>
     </main>
   )
