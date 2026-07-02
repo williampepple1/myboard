@@ -5,6 +5,7 @@ import { Plus, Briefcase, FolderKanban } from 'lucide-react'
 import { createOrganization, createProject, getProjectData } from '@/actions/board'
 import Board from './Board'
 import type { ProjectWithColumns } from './Board'
+import OrganizationOverview from './OrganizationOverview'
 import { useBoardStore } from '@/store/boardStore'
 
 type Organization = { id: string; name: string; projects: Project[] }
@@ -104,10 +105,13 @@ export default function DashboardClient({ initialOrgs }: { initialOrgs: Organiza
               {orgs.map(org => (
                 <button 
                   key={org.id} 
-                  onClick={() => setSelectedOrgId(org.id)}
-                  className={`w-full text-left px-3 py-2 rounded-md flex items-center gap-2 text-sm transition-all ${selectedOrgId === org.id ? 'bg-primary/10 text-primary font-medium' : 'text-foreground/70 hover:bg-background'}`}
+                  onClick={() => {
+                    setSelectedOrgId(org.id)
+                    setSelectedProjectId(null)
+                  }}
+                  className={`w-full text-left px-3 py-2 rounded-md flex items-center gap-2 text-sm transition-all ${selectedOrgId === org.id && !selectedProjectId ? 'bg-primary/10 text-primary font-medium' : 'text-foreground/70 hover:bg-background'}`}
                 >
-                  <Briefcase size={16} className={selectedOrgId === org.id ? 'text-primary' : 'text-foreground/40'} />
+                  <Briefcase size={16} className={selectedOrgId === org.id && !selectedProjectId ? 'text-primary' : 'text-foreground/40'} />
                   {org.name}
                 </button>
               ))}
@@ -149,10 +153,16 @@ export default function DashboardClient({ initialOrgs }: { initialOrgs: Organiza
             </div>
           ) : projectData ? (
             <Board />
+          ) : selectedOrg ? (
+            <OrganizationOverview 
+              org={selectedOrg} 
+              onSelectProject={setSelectedProjectId}
+              onCreateProject={() => setIsCreateProjectModalOpen(true)}
+            />
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-foreground/40 gap-4 animate-in">
               <FolderKanban size={48} className="opacity-20" />
-              <p>Select or create a project to start planning.</p>
+              <p>Select or create an organization to start planning.</p>
             </div>
           )}
         </div>
