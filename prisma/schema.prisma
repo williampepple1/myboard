@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Organization {
+  id       String             @id @default(uuid())
+  name     String
+  users    OrganizationUser[]
+  projects Project[]
+}
+
+model OrganizationUser {
+  userId         String // references the ID from Neon Auth
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  role           String // e.g. ADMIN, MEMBER
+
+  @@id([userId, organizationId])
+}
+
+model Project {
+  id             String       @id @default(uuid())
+  name           String
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  columns        Column[]
+  tasks          Task[]
+}
+
+model Column {
+  id        String  @id @default(uuid())
+  name      String // e.g. To Do, In Progress, Done
+  order     Int
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks     Task[]
+}
+
+model Task {
+  id          String  @id @default(uuid())
+  title       String
+  description String?
+  order       Int
+  columnId    String
+  column      Column  @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  projectId   String
+  project     Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assigneeId  String? // references Neon Auth user ID
+}
