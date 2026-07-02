@@ -1,13 +1,13 @@
 'use server'
 
 import prisma from '@/lib/prisma'
-import { verifySession } from '@/lib/auth'
+import { auth } from '@/lib/auth'
 
 async function getUserId() {
-  const session = await verifySession()
+  const { data: session } = await auth.getSession()
   // For development fallback if no auth is present, we could use a dummy user
-  // return session?.sub || "dummy-user-id"
-  return session?.sub || "dummy-user-id"
+  // return session?.user.id || "dummy-user-id"
+  return session?.user?.id || "dummy-user-id"
 }
 
 export async function getOrganizations() {
