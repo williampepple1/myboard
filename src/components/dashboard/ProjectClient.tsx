@@ -10,6 +10,10 @@ import Board, { type ProjectWithColumns } from '@/components/board/Board'
 import { getProjectData } from '@/actions/board'
 import { toggleStar, getUserStarsAndRecents, recordRecentView } from '@/actions/stars'
 import { useBoardStore } from '@/store/boardStore'
+import {
+  SummaryView, ListView, TimelineView, CodeView, FormsView, DocsView,
+  type Tab
+} from './ProjectTabViews'
 
 // ─── tiny Tooltip ──────────────────────────────────────────────────────
 function Tooltip({ label, children }: { label: string; children: React.ReactNode }) {
@@ -192,6 +196,7 @@ export default function ProjectClient({ projectId }: { projectId: string }) {
   const { projectData, setProjectData, stars, setStars, setRecents, boardGroupBy, setBoardGroupBy } = useBoardStore()
   const [loading, setLoading] = useState(true)
   const [fullscreen, setFullscreen] = useState(false)
+  const [activeTab, setActiveTab] = useState<Tab>('Board')
 
   useEffect(() => {
     let isMounted = true
@@ -277,7 +282,12 @@ export default function ProjectClient({ projectId }: { projectId: string }) {
           {(['Summary', 'List', 'Board', 'Code', 'Forms', 'Timeline', 'Docs'] as const).map(tab => (
             <button
               key={tab}
-              className={`pb-2 border-b-2 transition-colors ${tab === 'Board' ? 'border-primary text-primary' : 'border-transparent hover:text-[#172b4d]'}`}
+              onClick={() => setActiveTab(tab)}
+              className={`pb-2 border-b-2 transition-colors ${
+                activeTab === tab
+                  ? 'border-primary text-primary'
+                  : 'border-transparent hover:text-[#172b4d]'
+              }`}
             >
               {tab}
             </button>
@@ -285,51 +295,82 @@ export default function ProjectClient({ projectId }: { projectId: string }) {
         </div>
       </div>
 
-      {/* Toolbar */}
-      <div className="px-8 py-3 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <Search size={16} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#6B778C]" />
-            <input
-              type="text"
-              placeholder="Search board"
-              className="w-48 pl-9 pr-3 py-1.5 bg-white border border-[#DFE1E6] hover:bg-[#F4F5F7] focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary rounded-md text-sm outline-none transition-all"
-            />
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="w-8 h-8 rounded-full bg-slate-200 border-2 border-white z-10 flex items-center justify-center overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="avatar" />
+      {/* Toolbar — only visible on Board tab */}
+      {activeTab === 'Board' && (
+        <div className="px-8 py-3 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <Search size={16} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#6B778C]" />
+              <input
+                type="text"
+                placeholder="Search board"
+                className="w-48 pl-9 pr-3 py-1.5 bg-white border border-[#DFE1E6] hover:bg-[#F4F5F7] focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary rounded-md text-sm outline-none transition-all"
+              />
             </div>
-            <div className="w-8 h-8 rounded-full bg-slate-800 border-2 border-white -ml-3 z-20 flex items-center justify-center text-xs text-white">M</div>
-            <div className="w-8 h-8 rounded-full bg-orange-400 border-2 border-white -ml-3 z-30 flex items-center justify-center text-xs text-white font-medium">ME</div>
+            <div className="flex items-center gap-1">
+              <div className="w-8 h-8 rounded-full bg-slate-200 border-2 border-white z-10 flex items-center justify-center overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="avatar" />
+              </div>
+              <div className="w-8 h-8 rounded-full bg-slate-800 border-2 border-white -ml-3 z-20 flex items-center justify-center text-xs text-white">M</div>
+              <div className="w-8 h-8 rounded-full bg-orange-400 border-2 border-white -ml-3 z-30 flex items-center justify-center text-xs text-white font-medium">ME</div>
+            </div>
+            <Tooltip label="Filter board">
+              <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-[#42526E] bg-[#F4F5F7] hover:bg-[#EBECF0] rounded-md transition-colors">
+                <SlidersHorizontal size={14} /> Filter
+              </button>
+            </Tooltip>
           </div>
-          <Tooltip label="Filter board">
-            <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-[#42526E] bg-[#F4F5F7] hover:bg-[#EBECF0] rounded-md transition-colors">
-              <SlidersHorizontal size={14} /> Filter
-            </button>
-          </Tooltip>
-        </div>
 
-        <div className="flex items-center gap-2">
-          <GroupDropdown current={boardGroupBy} onChange={setBoardGroupBy} />
-          <ShareButton />
-          <Tooltip label={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}>
-            <button
-              onClick={toggleFullscreen}
-              className="p-1.5 text-[#42526E] bg-[#F4F5F7] hover:bg-[#EBECF0] rounded-md transition-colors"
-            >
-              {fullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
-            </button>
-          </Tooltip>
-          <MoreMenu projectName={projectData.name} />
+          <div className="flex items-center gap-2">
+            <GroupDropdown current={boardGroupBy} onChange={setBoardGroupBy} />
+            <ShareButton />
+            <Tooltip label={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}>
+              <button
+                onClick={toggleFullscreen}
+                className="p-1.5 text-[#42526E] bg-[#F4F5F7] hover:bg-[#EBECF0] rounded-md transition-colors"
+              >
+                {fullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+              </button>
+            </Tooltip>
+            <MoreMenu projectName={projectData.name} />
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Board */}
-      <div className="flex-1 overflow-hidden relative">
-        <Board groupBy={boardGroupBy} />
-      </div>
+      {/* Tab content */}
+      {activeTab === 'Board' && (
+        <div className="flex-1 overflow-hidden relative">
+          <Board groupBy={boardGroupBy} />
+        </div>
+      )}
+      {activeTab === 'Summary' && (
+        <SummaryView columns={projectData.columns} projectName={projectData.name} onTaskClick={() => {}} />
+      )}
+      {activeTab === 'List' && (
+        <ListView
+          columns={projectData.columns}
+          projectName={projectData.name}
+          onTaskClick={() => {
+            // Open issue details — reuse Board's modal by storing the task in a ref
+            // For now, we just open it via the Board component's own state
+            // This is handled by delegating back to the Board tab
+            setActiveTab('Board')
+          }}
+        />
+      )}
+      {activeTab === 'Timeline' && (
+        <TimelineView columns={projectData.columns} projectName={projectData.name} onTaskClick={() => {}} />
+      )}
+      {activeTab === 'Code' && (
+        <CodeView columns={projectData.columns} projectName={projectData.name} onTaskClick={() => {}} />
+      )}
+      {activeTab === 'Forms' && (
+        <FormsView />
+      )}
+      {activeTab === 'Docs' && (
+        <DocsView columns={projectData.columns} projectName={projectData.name} onTaskClick={() => {}} />
+      )}
     </div>
   )
 }
