@@ -7,6 +7,8 @@ import { createOrganization, createProject, createSpace, createPlan } from '@/ac
 import { getUserStarsAndRecents } from '@/actions/stars'
 import { inviteUserToOrganization } from '@/actions/invite'
 import { useBoardStore } from '@/store/boardStore'
+import { authClient } from '@/lib/auth-client'
+import UserMenu from '@/components/shared/UserMenu'
 
 import TopNav from './TopNav'
 import Sidebar from './Sidebar'
@@ -105,7 +107,10 @@ export default function ClientLayout({
 
   const selectedOrg = orgs.find(o => o.id === orgId)
 
-  // Toast
+  // Session
+  const { data: session } = authClient.useSession()
+  const user = session?.user
+
   const [toast, setToast] = useState<string | null>(null)
   const showToast = (msg: string) => setToast(msg)
 
@@ -245,14 +250,10 @@ export default function ClientLayout({
               className="w-48 pl-9 pr-3 py-1.5 bg-background border border-border hover:bg-slate-50 focus:bg-background focus:ring-2 focus:ring-primary/20 rounded-md text-sm outline-none transition-all"
             />
           </div>
-          <div className="flex items-center gap-1 text-foreground/60">
+          <div className="flex items-center gap-2 text-foreground/60">
             <button className="p-1.5 hover:bg-slate-100 rounded-full transition-colors"><Bell size={20} /></button>
             <button className="p-1.5 hover:bg-slate-100 rounded-full transition-colors"><HelpCircle size={20} /></button>
-            <button className="p-1 hover:bg-slate-100 rounded-full transition-colors ml-1">
-              <div className="w-7 h-7 rounded-full bg-linear-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
-                ME
-              </div>
-            </button>
+            <UserMenu name={user?.name} email={user?.email} />
           </div>
         </div>
       </header>
