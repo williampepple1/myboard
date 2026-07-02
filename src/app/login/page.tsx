@@ -72,7 +72,8 @@ export default function LoginPage() {
           password
         })
         if (signInError) {
-          if (signInError.code === 'EMAIL_NOT_VERIFIED' || signInError.message?.toLowerCase().includes('verification')) {
+          console.log('Sign in error:', signInError);
+          if (signInError.code === 'EMAIL_NOT_VERIFIED' || signInError.message?.toLowerCase().includes('verification') || signInError.message?.toLowerCase().includes('not verified')) {
             // Automatically send the verification OTP
             await authClient.emailOtp.sendVerificationOtp({
               email,
@@ -99,7 +100,20 @@ export default function LoginPage() {
         setSuccessMsg('Please check your email for the verification code.')
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'An unexpected error occurred')
+      const errMsg = err instanceof Error ? err.message : String(err)
+      
+      if (errMsg.toLowerCase().includes('verification') || errMsg.toLowerCase().includes('not verified')) {
+        // Automatically send the verification OTP
+        await authClient.emailOtp.sendVerificationOtp({
+          email,
+          type: 'email-verification'
+        }).catch(console.error)
+        setNeedsVerification(true)
+        setSuccessMsg('Verification code sent to your email!')
+        setError('')
+      } else {
+        setError(errMsg || 'An unexpected error occurred')
+      }
     } finally {
       setIsLoading(false)
     }
