@@ -16,11 +16,11 @@ import {
 import { arrayMove } from '@dnd-kit/sortable'
 import Column from './Column'
 import TaskCard from './TaskCard'
-import CreateIssueModal from './CreateIssueModal'
-import IssueDetailsModal from './IssueDetailsModal'
+import CreateIssueModal from '@/components/modals/CreateIssueModal'
+import IssueDetailsModal from '@/components/modals/IssueDetailsModal'
 import { createTask, updateTaskColumn, type Priority, type IssueType } from '@/actions/board'
 import type { Project, Column as PrismaColumn } from '@prisma/client'
-import type { Task } from './IssueDetailsModal'
+import type { Task } from '@/components/modals/IssueDetailsModal'
 import { useBoardStore } from '@/store/boardStore'
 
 export type ColumnWithTasks = PrismaColumn & { tasks: Task[] }

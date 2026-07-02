@@ -53,7 +53,7 @@ export default function OrganizationOverview({ org, onSelectProject, onCreatePro
               <div 
                 key={proj.id}
                 onClick={() => onSelectProject(proj.id)}
-                className="group p-6 bg-white border border-border/50 hover:border-blue-200 hover:shadow-md rounded-xl transition-all cursor-pointer flex flex-col gap-4"
+                className="group p-6 bg-white border border-border/50 hover:border-primary/50 rounded-md transition-all cursor-pointer flex flex-col gap-4"
               >
                 <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <FolderKanban size={20} />
@@ -68,7 +68,7 @@ export default function OrganizationOverview({ org, onSelectProject, onCreatePro
             {org.projects.length === 0 && (
               <div 
                 onClick={onCreateProject}
-                className="p-6 border-2 border-dashed border-border/50 hover:border-primary/30 rounded-xl flex flex-col items-center justify-center text-center gap-3 cursor-pointer group transition-colors min-h-[160px] bg-white/50"
+                className="p-6 border-2 border-dashed border-border/50 hover:border-primary/30 rounded-md flex flex-col items-center justify-center text-center gap-3 cursor-pointer group transition-colors min-h-[160px] bg-white/50"
               >
                 <div className="w-10 h-10 rounded-full bg-primary/5 text-primary/40 flex items-center justify-center group-hover:bg-primary/10 group-hover:text-primary transition-colors">
                   <Plus size={20} />
@@ -95,7 +95,7 @@ export default function OrganizationOverview({ org, onSelectProject, onCreatePro
             </button>
           </div>
           
-          <div className="bg-white border border-border/50 rounded-xl overflow-hidden shadow-sm">
+          <div className="bg-white border border-border/50 rounded-md overflow-hidden">
             <div className="divide-y divide-border/50">
               <div className="flex items-center justify-between p-4 hover:bg-panel/50 transition-colors">
                 <div className="flex items-center gap-4">

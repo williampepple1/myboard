@@ -136,9 +136,9 @@ export default function LoginPage() {
   if (needsVerification) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-        <div className="w-full max-w-md bg-white border border-border rounded-xl shadow-sm p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="w-full max-w-md bg-white border border-border rounded-md shadow-sm p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-50 text-primary rounded-xl mb-4">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-50 text-primary rounded-md mb-4">
               <KeyRound size={24} />
             </div>
             <h1 className="text-2xl font-bold text-foreground">Verify your email</h1>
@@ -219,11 +219,11 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white border border-border rounded-xl shadow-sm p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="w-full max-w-md bg-white border border-border rounded-md shadow-sm p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
         
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-50 text-primary rounded-xl mb-4">
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-50 text-primary rounded-md mb-4">
             {isLogin ? <LogIn size={24} /> : <UserPlus size={24} />}
           </div>
           <h1 className="text-2xl font-bold text-foreground">

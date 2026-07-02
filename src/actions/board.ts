@@ -15,7 +15,11 @@ export async function getOrganizations() {
   const userId = await getUserId()
   return prisma.organization.findMany({
     where: { users: { some: { userId } } },
-    include: { projects: true }
+    include: { 
+      projects: true,
+      spaces: true,
+      plans: true
+    }
   })
 }
 
@@ -113,6 +117,24 @@ export async function updateTaskColumn(taskId: string, newColumnId: string, newO
     data: {
       columnId: newColumnId,
       order: newOrder
+    }
+  })
+}
+
+export async function createSpace(name: string, organizationId: string) {
+  return prisma.space.create({
+    data: {
+      name,
+      organizationId
+    }
+  })
+}
+
+export async function createPlan(name: string, organizationId: string) {
+  return prisma.plan.create({
+    data: {
+      name,
+      organizationId
     }
   })
 }

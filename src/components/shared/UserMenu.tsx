@@ -35,7 +35,7 @@ export default function UserMenu({ name, email }: { name?: string | null, email?
             className="fixed inset-0 z-40"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute right-0 mt-2 w-56 bg-white border border-border rounded-xl shadow-lg z-50 p-1 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="absolute right-0 mt-2 w-56 bg-white border border-border rounded-md shadow-lg z-50 p-1 animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="px-3 py-2 border-b border-border/50 mb-1">
               <p className="text-sm font-medium text-foreground truncate">{name || 'User'}</p>
               <p className="text-xs text-foreground/50 truncate">{email}</p>

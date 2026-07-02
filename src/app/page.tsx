@@ -1,6 +1,6 @@
 import { getOrganizations } from '@/actions/board'
-import DashboardClient from './DashboardClient'
-import UserMenu from './UserMenu'
+import DashboardClient from '@/components/dashboard/DashboardClient'
+import UserMenu from '@/components/shared/UserMenu'
 import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 

@@ -11,6 +11,33 @@ model Organization {
   name     String
   users    OrganizationUser[]
   projects Project[]
+  spaces   Space[]
+  plans    Plan[]
+}
+
+model Space {
+  id             String       @id @default(uuid())
+  name           String
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  pages          Page[]
+}
+
+model Page {
+  id        String   @id @default(uuid())
+  title     String
+  content   String?
+  spaceId   String
+  space     Space    @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Plan {
+  id             String       @id @default(uuid())
+  name           String
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 }
 
 model OrganizationUser {
