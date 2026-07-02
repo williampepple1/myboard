@@ -72,7 +72,7 @@ export default function LoginPage() {
           password
         })
         if (signInError) {
-          if (signInError.code === 'EMAIL_NOT_VERIFIED' || signInError.message?.toLowerCase().includes('not verified')) {
+          if (signInError.code === 'EMAIL_NOT_VERIFIED' || signInError.message?.toLowerCase().includes('verification')) {
             // Automatically send the verification OTP
             await authClient.emailOtp.sendVerificationOtp({
               email,
