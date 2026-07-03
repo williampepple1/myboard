@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { Search, Bell, HelpCircle, CheckCircle2, X, Menu } from 'lucide-react'
+import { Search, Bell, HelpCircle, CheckCircle2, X, Menu, AlertCircle } from 'lucide-react'
 import { createOrganization, createProject, createSpace, createPlan } from '@/actions/board'
 import { getUserStarsAndRecents } from '@/actions/stars'
 import { inviteUserToOrganization } from '@/actions/invite'
@@ -111,6 +111,7 @@ export default function ClientLayout({
   const user = session?.user
 
   const [toast, setToast] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const showToast = (msg: string) => setToast(msg)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
@@ -130,6 +131,7 @@ export default function ClientLayout({
     e.preventDefault()
     if (!newOrgName.trim()) return
     setIsCreatingOrg(true)
+    setError('')
     try {
       const newOrg = await createOrganization(newOrgName.trim())
       setOrgs([...orgs, { ...newOrg, projects: [], spaces: [], plans: [] }])
@@ -137,6 +139,8 @@ export default function ClientLayout({
       setNewOrgName('')
       router.push(`/${newOrg.id}`)
       showToast(`Organization "${newOrg.name}" created!`)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create organization')
     } finally {
       setIsCreatingOrg(false)
     }
@@ -290,10 +294,16 @@ export default function ClientLayout({
 
       {/* ── Modals ─────────────────────────────────────────────────── */}
       {isCreateOrgModalOpen && (
-        <Modal title="Create Organization" onClose={() => { setIsCreateOrgModalOpen(false); setNewOrgName('') }}>
+        <Modal title="Create Organization" onClose={() => { setIsCreateOrgModalOpen(false); setNewOrgName(''); setError(null) }}>
           <form onSubmit={handleCreateOrgSubmit} className="space-y-4">
             <ModalInput id="orgName" label="Organization Name" autoFocus required value={newOrgName} onChange={e => setNewOrgName(e.target.value)} placeholder="e.g. Acme Corp" />
-            <ModalActions onCancel={() => { setIsCreateOrgModalOpen(false); setNewOrgName('') }} loading={isCreatingOrg} submitLabel="Create" />
+            {error && (
+              <div className="flex items-center gap-2 p-3 bg-red-50 text-red-600 rounded-lg text-sm">
+                <AlertCircle size={16} className="shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+            <ModalActions onCancel={() => { setIsCreateOrgModalOpen(false); setNewOrgName(''); setError(null) }} loading={isCreatingOrg} submitLabel="Create" />
           </form>
         </Modal>
       )}
