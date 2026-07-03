@@ -1,6 +1,6 @@
-const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email'
+import { Resend } from 'resend'
 
-// ─── Core send function ─────────────────────────────────────────────────────
+const resend = new Resend(process.env.RESEND_API_KEY || '')
 
 export async function sendEmail({
   to,
@@ -13,47 +13,33 @@ export async function sendEmail({
   htmlContent?: string
   textContent?: string
 }) {
-  const apiKey = process.env.BREVO_API_KEY
-  const senderEmail = process.env.BREVO_SENDER_EMAIL || 'notfications@myboard.space'
+  const senderEmail = process.env.RESEND_SENDER_EMAIL || 'notifications@myboard.space'
 
-  if (!apiKey) {
-    console.warn('[email] BREVO_API_KEY is not set – skipping send.')
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('[email] RESEND_API_KEY is not set – skipping send.')
     return false
   }
 
-  const toArray = Array.isArray(to) ? to : [to]
-
   try {
-    const response = await fetch(BREVO_API_URL, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'api-key': apiKey,
-      },
-      body: JSON.stringify({
-        sender: { email: senderEmail, name: 'MyBoard' },
-        to: toArray.map(email => ({ email })),
-        subject,
-        htmlContent: htmlContent ?? textContent,
-        textContent: textContent ?? subject,
-      }),
+    const { error } = await resend.emails.send({
+      from: `MyBoard <${senderEmail}>`,
+      to: Array.isArray(to) ? to : [to],
+      subject,
+      html: htmlContent || textContent,
+      text: textContent || subject,
     })
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      console.error('[email] Failed to send:', response.status, errorData)
+    if (error) {
+      console.error('[email] Failed to send:', error)
       return false
     }
 
-    return await response.json()
+    return true
   } catch (err) {
     console.error('[email] Error sending email:', err)
     return false
   }
 }
-
-// ─── Shared layout wrapper ──────────────────────────────────────────────────
 
 function emailLayout(body: string) {
   return `<!DOCTYPE html>
@@ -100,8 +86,6 @@ function emailLayout(body: string) {
 </html>`
 }
 
-// ─── Invitation email ───────────────────────────────────────────────────────
-
 export async function sendInvitationEmail({
   to,
   organizationName,
@@ -114,7 +98,7 @@ export async function sendInvitationEmail({
   acceptUrl: string
 }) {
   const body = `
-    <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#172B4D;">You've been invited! 🎉</h1>
+    <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#172B4D;">You've been invited!</h1>
     <p style="margin:0 0 24px;font-size:15px;color:#44546F;line-height:1.6;">
       ${inviterName ? `<strong>${inviterName}</strong> has` : 'Someone has'} invited you to join
       <strong>${organizationName}</strong> on MyBoard — a collaborative project management platform.
@@ -135,7 +119,7 @@ export async function sendInvitationEmail({
 
     <div style="margin-top:32px;padding:16px;background:#F4F5F7;border-radius:8px;">
       <p style="margin:0;font-size:13px;color:#44546F;line-height:1.6;">
-        ⚡ <strong>What is MyBoard?</strong><br/>
+        <strong>What is MyBoard?</strong><br/>
         MyBoard is a Jira-style board for teams to track tasks, bugs, and projects — all in one place.
       </p>
     </div>
@@ -149,22 +133,18 @@ export async function sendInvitationEmail({
   })
 }
 
-// ─── Welcome email ──────────────────────────────────────────────────────────
-
 export async function sendWelcomeEmail({
   to,
   name,
-  appUrl,
 }: {
   to: string
   name?: string
-  appUrl?: string
 }) {
-  const dashboardUrl = `${appUrl || process.env.NEXT_PUBLIC_APP_URL || 'https://myboard.space'}`
+  const dashboardUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://myboard.space'
   const greeting = name ? `Hi ${name}` : 'Welcome'
 
   const body = `
-    <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#172B4D;">${greeting}, welcome to MyBoard! 👋</h1>
+    <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#172B4D;">${greeting}, welcome to MyBoard!</h1>
     <p style="margin:0 0 24px;font-size:15px;color:#44546F;line-height:1.6;">
       Your account is ready. Start by creating an organization and your first project board.
     </p>
@@ -184,17 +164,17 @@ export async function sendWelcomeEmail({
       <table cellpadding="0" cellspacing="0" width="100%">
         <tr>
           <td style="padding:10px 0;border-top:1px solid #EBECF0;">
-            <span style="font-size:14px;color:#44546F;">✅ &nbsp;<strong>1.</strong> Create or join an organization</span>
+            <span style="font-size:14px;color:#44546F;"><strong>1.</strong> Create or join an organization</span>
           </td>
         </tr>
         <tr>
           <td style="padding:10px 0;border-top:1px solid #EBECF0;">
-            <span style="font-size:14px;color:#44546F;">📋 &nbsp;<strong>2.</strong> Create your first project board</span>
+            <span style="font-size:14px;color:#44546F;"><strong>2.</strong> Create your first project board</span>
           </td>
         </tr>
         <tr>
           <td style="padding:10px 0;border-top:1px solid #EBECF0;">
-            <span style="font-size:14px;color:#44546F;">👥 &nbsp;<strong>3.</strong> Invite your teammates</span>
+            <span style="font-size:14px;color:#44546F;"><strong>3.</strong> Invite your teammates</span>
           </td>
         </tr>
       </table>
@@ -203,7 +183,7 @@ export async function sendWelcomeEmail({
 
   return sendEmail({
     to,
-    subject: 'Welcome to MyBoard 🎉',
+    subject: 'Welcome to MyBoard',
     htmlContent: emailLayout(body),
     textContent: `${greeting}, welcome to MyBoard! Visit your dashboard: ${dashboardUrl}`,
   })
