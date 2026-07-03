@@ -23,7 +23,6 @@ export default function TopNav({
   const { stars, recents } = useBoardStore()
   
   const selectedOrgId = params.orgId as string | undefined
-  const selectedOrg = orgs.find(o => o.id === selectedOrgId)
 
   // Click away listener
   useEffect(() => {
@@ -40,25 +39,33 @@ export default function TopNav({
     setOpenMenu(openMenu === menu ? null : menu)
   }
 
-  const handleNavigate = (type: string, id: string) => {
-    if (!selectedOrgId) return
-    if (type === 'PROJECT') {
-      router.push(`/${selectedOrgId}/projects/${id}`)
-    } else if (type === 'SPACE') {
-      router.push(`/${selectedOrgId}/spaces/${id}`)
-    } else if (type === 'PLAN') {
-      router.push(`/${selectedOrgId}/plans/${id}`)
+  // Resolve entity name + orgId by searching ALL orgs (not just current)
+  const resolveEntity = (id: string, type: string): { name: string; orgId: string } | null => {
+    for (const org of orgs) {
+      if (type === 'PROJECT') {
+        const found = org.projects.find(p => p.id === id)
+        if (found) return { name: found.name, orgId: org.id }
+      } else if (type === 'SPACE') {
+        const found = org.spaces.find(s => s.id === id)
+        if (found) return { name: found.name, orgId: org.id }
+      } else if (type === 'PLAN') {
+        const found = org.plans.find(p => p.id === id)
+        if (found) return { name: found.name, orgId: org.id }
+      }
     }
-    setOpenMenu(null)
+    return null
   }
 
-  // Helper to get entity name
-  const getEntityName = (id: string, type: string) => {
-    if (!selectedOrg) return 'Unknown'
-    if (type === 'PROJECT') return selectedOrg.projects.find(p => p.id === id)?.name || 'Unknown Project'
-    if (type === 'SPACE') return selectedOrg.spaces.find(s => s.id === id)?.name || 'Unknown Space'
-    if (type === 'PLAN') return selectedOrg.plans.find(p => p.id === id)?.name || 'Unknown Plan'
-    return 'Unknown'
+  const getEntityName = (id: string, type: string) => resolveEntity(id, type)?.name ?? null
+
+  const handleNavigate = (type: string, id: string) => {
+    const resolved = resolveEntity(id, type)
+    const orgId = resolved?.orgId ?? selectedOrgId
+    if (!orgId) return
+    if (type === 'PROJECT') router.push(`/${orgId}/projects/${id}`)
+    else if (type === 'SPACE') router.push(`/${orgId}/spaces/${id}`)
+    else if (type === 'PLAN') router.push(`/${orgId}/plans/${id}`)
+    setOpenMenu(null)
   }
 
   return (
@@ -79,12 +86,16 @@ export default function TopNav({
             {recents.length === 0 ? (
               <div className="px-4 py-2 text-sm text-[#6B778C]">No recent activity</div>
             ) : (
-              recents.slice(0, 5).map(r => (
-                <button key={r.id} onClick={() => handleNavigate(r.entityType, r.entityId)} className="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center gap-2">
-                  <Clock size={14} className="text-[#6B778C]" />
-                  <span className="truncate">{getEntityName(r.entityId, r.entityType)}</span>
-                </button>
-              ))
+              recents.slice(0, 5).map(r => {
+                const name = getEntityName(r.entityId, r.entityType)
+                if (!name) return null
+                return (
+                  <button key={r.id} onClick={() => handleNavigate(r.entityType, r.entityId)} className="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center gap-2">
+                    <Clock size={14} className="text-[#6B778C]" />
+                    <span className="truncate">{name}</span>
+                  </button>
+                )
+              })
             )}
           </div>
         )}
@@ -105,12 +116,16 @@ export default function TopNav({
             {stars.filter(s => s.entityType === 'PROJECT').length === 0 ? (
               <div className="px-4 py-2 text-sm text-[#6B778C]">No starred projects</div>
             ) : (
-              stars.filter(s => s.entityType === 'PROJECT').map(s => (
-                <button key={s.id} onClick={() => handleNavigate(s.entityType, s.entityId)} className="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center gap-2">
-                  <Star size={14} className="text-yellow-400 fill-yellow-400" />
-                  <span className="truncate">{getEntityName(s.entityId, s.entityType)}</span>
-                </button>
-              ))
+              stars.filter(s => s.entityType === 'PROJECT').map(s => {
+                const name = getEntityName(s.entityId, s.entityType)
+                if (!name) return null
+                return (
+                  <button key={s.id} onClick={() => handleNavigate(s.entityType, s.entityId)} className="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center gap-2">
+                    <Star size={14} className="text-yellow-400 fill-yellow-400" />
+                    <span className="truncate">{name}</span>
+                  </button>
+                )
+              })
             )}
           </div>
         )}
@@ -145,23 +160,26 @@ export default function TopNav({
         </button>
         {openMenu === 'teams' && (
           <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-border shadow-lg rounded-md py-2 z-50">
-            {selectedOrg ? (
-              <>
-                <div className="px-3 py-1 text-xs font-bold text-[#6B778C] uppercase tracking-wider">{selectedOrg.name} Members</div>
-                <div className="px-4 py-2 text-sm text-foreground flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-primary font-bold text-xs">U</div>
-                  You (Owner)
-                </div>
-                <div className="border-t border-border mt-2 pt-2">
-                  <button onClick={() => { setOpenMenu(null); onInviteUser(); }} className="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 text-primary flex items-center gap-2 font-medium">
-                    <UserPlus size={14} />
-                    Invite people to {selectedOrg.name}
-                  </button>
-                </div>
-              </>
-            ) : (
-              <div className="px-4 py-3 text-sm text-[#6B778C]">Select an organization first</div>
-            )}
+            {(() => {
+              const currentOrg = orgs.find(o => o.id === selectedOrgId)
+              return currentOrg ? (
+                <>
+                  <div className="px-3 py-1 text-xs font-bold text-[#6B778C] uppercase tracking-wider">{currentOrg.name} Members</div>
+                  <div className="px-4 py-2 text-sm text-foreground flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-primary font-bold text-xs">U</div>
+                    You (Owner)
+                  </div>
+                  <div className="border-t border-border mt-2 pt-2">
+                    <button onClick={() => { setOpenMenu(null); onInviteUser(); }} className="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 text-primary flex items-center gap-2 font-medium">
+                      <UserPlus size={14} />
+                      Invite people to {currentOrg.name}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="px-4 py-3 text-sm text-[#6B778C]">Select an organization first</div>
+              )
+            })()}
           </div>
         )}
       </div>
