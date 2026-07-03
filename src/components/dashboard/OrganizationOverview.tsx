@@ -8,9 +8,11 @@ import { toggleStar, getUserStarsAndRecents } from '@/actions/stars'
 
 interface OrganizationOverviewProps {
   org: Organization
+  currentUser?: { id: string; name?: string | null; email?: string | null }
+  memberCount?: number
 }
 
-export default function OrganizationOverview({ org }: OrganizationOverviewProps) {
+export default function OrganizationOverview({ org, currentUser, memberCount }: OrganizationOverviewProps) {
   const router = useRouter()
   const {
     setIsCreateProjectModalOpen,
@@ -136,15 +138,18 @@ export default function OrganizationOverview({ org }: OrganizationOverviewProps)
               <div className="flex items-center justify-between p-4 hover:bg-panel/50 transition-colors">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-full bg-linear-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold shadow-inner">
-                    ME
+                    {currentUser?.name?.charAt(0)?.toUpperCase() || 'U'}
                   </div>
                   <div>
-                    <p className="font-medium text-foreground">You (Admin)</p>
-                    <p className="text-xs text-foreground/50">owner@example.com</p>
+                    <p className="font-medium text-foreground">{currentUser?.name || 'You'} (Admin)</p>
+                    <p className="text-xs text-foreground/50">{currentUser?.email || ''}</p>
                   </div>
                 </div>
                 <span className="px-2.5 py-1 text-xs font-medium bg-slate-100 text-slate-600 rounded-md">Owner</span>
               </div>
+            </div>
+            <div className="px-4 py-2 border-t border-border/50 bg-panel/30">
+              <p className="text-xs text-foreground/50">{memberCount ?? 0} member{(memberCount ?? 0) !== 1 ? 's' : ''}</p>
             </div>
             <div className="p-4 border-t border-border/50">
               <button

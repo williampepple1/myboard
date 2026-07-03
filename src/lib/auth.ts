@@ -1,8 +1,15 @@
 import { createNeonAuth } from '@neondatabase/auth/next/server';
 
+if (!process.env.NEXT_PUBLIC_NEON_AUTH_URL) {
+  throw new Error('NEXT_PUBLIC_NEON_AUTH_URL is required')
+}
+if (!process.env.NEON_AUTH_COOKIE_SECRET) {
+  throw new Error('NEON_AUTH_COOKIE_SECRET is required')
+}
+
 export const auth = createNeonAuth({
-  baseUrl: process.env.NEXT_PUBLIC_NEON_AUTH_URL!,
+  baseUrl: process.env.NEXT_PUBLIC_NEON_AUTH_URL,
   cookies: {
-    secret: process.env.NEON_AUTH_COOKIE_SECRET || 'fallback-secret-for-development-only-1234567890',
+    secret: process.env.NEON_AUTH_COOKIE_SECRET,
   },
 });

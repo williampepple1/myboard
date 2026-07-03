@@ -92,10 +92,9 @@ export default function ClientLayout({
   const params = useParams()
   const orgId = params.orgId as string | undefined
 
-  // Seed store once on mount
-  useState(() => {
+  useEffect(() => {
     useBoardStore.setState({ orgs: initialOrgs })
-  })
+  }, [initialOrgs])
 
   const {
     orgs, setOrgs,

@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { X, AlignLeft, CheckSquare, Bug, Bookmark, ArrowUp, ChevronUp, ChevronDown, Check } from 'lucide-react'
+import { useState } from 'react'
+import { X, AlignLeft, Trash2 } from 'lucide-react'
 import type { Task as PrismaTask } from '@prisma/client'
-import { updateTaskDetails, type Priority, type IssueType } from '@/actions/board'
+import { updateTaskDetails, deleteTask, type Priority, type IssueType } from '@/actions/board'
+import { ISSUE_TYPE_ICONS, PRIORITY_ICONS } from '@/lib/icons'
 
 export type Task = PrismaTask & {
   priority: Priority
@@ -23,43 +24,16 @@ interface IssueDetailsModalProps {
   task: Task | null
   columns: Column[]
   onTaskUpdate: (updatedTask: Task) => void
+  onTaskDelete?: (taskId: string) => void
 }
 
-export const ISSUE_TYPE_ICONS = {
-  TASK: <CheckSquare size={16} className="text-blue-500" />,
-  BUG: <Bug size={16} className="text-red-500" />,
-  STORY: <Bookmark size={16} className="text-green-500" />,
-  EPIC: <CheckSquare size={16} className="text-purple-500" />
-}
-
-export const PRIORITY_ICONS = {
-  URGENT: <ArrowUp size={16} className="text-red-600" />,
-  HIGH: <ChevronUp size={16} className="text-red-400" />,
-  MEDIUM: <Check size={16} className="text-orange-400" />,
-  LOW: <ChevronDown size={16} className="text-blue-400" />
-}
-
-export default function IssueDetailsModal({ isOpen, onClose, task, columns, onTaskUpdate }: IssueDetailsModalProps) {
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [issueType, setIssueType] = useState<IssueType>('TASK')
-  const [priority, setPriority] = useState<Priority>('MEDIUM')
-  const [columnId, setColumnId] = useState('')
+export default function IssueDetailsModal({ isOpen, onClose, task, columns, onTaskUpdate, onTaskDelete }: IssueDetailsModalProps) {
+  const [title, setTitle] = useState(task?.title || '')
+  const [description, setDescription] = useState(task?.description || '')
+  const [issueType, setIssueType] = useState<IssueType>(task?.issueType || 'TASK')
+  const [priority, setPriority] = useState<Priority>(task?.priority || 'MEDIUM')
+  const [columnId, setColumnId] = useState(task?.columnId || '')
   const [isUpdating, setIsUpdating] = useState(false)
-
-  useEffect(() => {
-    if (task) {
-      // Use setTimeout to avoid synchronous setState inside useEffect cascading render warnings
-      const t = setTimeout(() => {
-        setTitle(task.title)
-        setDescription(task.description || '')
-        setIssueType(task.issueType)
-        setPriority(task.priority)
-        setColumnId(task.columnId)
-      }, 0)
-      return () => clearTimeout(t)
-    }
-  }, [task])
 
   if (!isOpen || !task) return null
 
@@ -85,9 +59,26 @@ export default function IssueDetailsModal({ isOpen, onClose, task, columns, onTa
             {ISSUE_TYPE_ICONS[issueType]}
             <span>{task.id.slice(0, 8)}</span>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-background rounded-md text-foreground/50 hover:text-foreground transition-colors">
-            <X size={20} />
-          </button>
+          <div className="flex items-center gap-1">
+            {onTaskDelete && (
+              <button
+                onClick={async () => {
+                  if (confirm('Delete this task?')) {
+                    await deleteTask(task.id)
+                    onTaskDelete(task.id)
+                    onClose()
+                  }
+                }}
+                className="p-2 hover:bg-red-50 rounded-md text-foreground/50 hover:text-red-500 transition-colors"
+                title="Delete task"
+              >
+                <Trash2 size={18} />
+              </button>
+            )}
+            <button onClick={onClose} className="p-2 hover:bg-background rounded-md text-foreground/50 hover:text-foreground transition-colors">
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
         {/* Content */}

@@ -2,7 +2,7 @@
 
 import { type Task } from '@/components/modals/IssueDetailsModal'
 import { type ColumnWithTasks } from '@/components/board/Board'
-import { ISSUE_TYPE_ICONS, PRIORITY_ICONS } from '@/components/modals/IssueDetailsModal'
+import { ISSUE_TYPE_ICONS, PRIORITY_ICONS } from '@/lib/icons'
 import { CheckSquare, Bug, BarChart3, Clock, AlertCircle, GitMerge, GitBranch, GitCommit, FileText, Calendar, Zap } from 'lucide-react'
 
 // ─── Types ────────────────────────────────────────────────────────────────────

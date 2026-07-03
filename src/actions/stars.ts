@@ -4,13 +4,16 @@ import prisma from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 import { EntityType } from '@prisma/client'
 
-async function getUserId() {
+async function requireUserId() {
   const { data: session } = await auth.getSession()
-  return session?.user?.id || "dummy-user-id"
+  if (!session?.user?.id) {
+    throw new Error('Authentication required')
+  }
+  return session.user.id
 }
 
 export async function toggleStar(entityId: string, entityType: EntityType) {
-  const userId = await getUserId()
+  const userId = await requireUserId()
   
   const existing = await prisma.userStar.findUnique({
     where: {
@@ -40,7 +43,7 @@ export async function toggleStar(entityId: string, entityType: EntityType) {
 }
 
 export async function recordRecentView(entityId: string, entityType: EntityType) {
-  const userId = await getUserId()
+  const userId = await requireUserId()
 
   await prisma.userRecent.upsert({
     where: {
@@ -65,7 +68,7 @@ export async function recordRecentView(entityId: string, entityType: EntityType)
 }
 
 export async function getUserStarsAndRecents() {
-  const userId = await getUserId()
+  const userId = await requireUserId()
   
   const [stars, recents] = await Promise.all([
     prisma.userStar.findMany({

@@ -5,22 +5,34 @@ import { auth } from '@/lib/auth'
 import { sendWelcomeEmail } from '@/lib/email'
 export type Priority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
 export type IssueType = 'TASK' | 'BUG' | 'STORY' | 'EPIC'
-async function getSession() {
+async function requireAuth() {
   const { data: session } = await auth.getSession()
+  if (!session?.user?.id) {
+    throw new Error('Authentication required')
+  }
   return session
 }
 
-async function getUserId() {
-  const session = await getSession()
-  // For development fallback if no auth is present, we could use a dummy user
-  // return session?.user.id || "dummy-user-id"
-  return session?.user?.id || "dummy-user-id"
+async function requireOrgMember(organizationId: string) {
+  const session = await requireAuth()
+  const membership = await prisma.organizationUser.findUnique({
+    where: {
+      userId_organizationId: {
+        userId: session.user.id,
+        organizationId,
+      }
+    }
+  })
+  if (!membership) {
+    throw new Error('You are not a member of this organization')
+  }
+  return session
 }
 
 export async function getOrganizations() {
-  const userId = await getUserId()
+  const session = await requireAuth()
   return prisma.organization.findMany({
-    where: { users: { some: { userId } } },
+    where: { users: { some: { userId: session.user.id } } },
     include: { 
       projects: true,
       spaces: true,
@@ -30,25 +42,22 @@ export async function getOrganizations() {
 }
 
 export async function createOrganization(name: string) {
-  const session = await getSession()
-  const userId = session?.user?.id || "dummy-user-id"
+  const session = await requireAuth()
 
-  // Check if this is the user's first organization (send welcome email only once)
-  const existingOrgs = await prisma.organizationUser.count({ where: { userId } })
+  const existingOrgs = await prisma.organizationUser.count({ where: { userId: session.user.id } })
 
   const org = await prisma.organization.create({
     data: {
       name,
       users: {
         create: {
-          userId,
+          userId: session.user.id,
           role: 'ADMIN'
         }
       }
     }
   })
 
-  // Send a welcome email on first org creation
   if (existingOrgs === 0 && session?.user?.email) {
     await sendWelcomeEmail({
       to: session.user.email,
@@ -60,9 +69,10 @@ export async function createOrganization(name: string) {
 }
 
 export async function getProjectData(projectId: string) {
-  return prisma.project.findUnique({
+  const project = await prisma.project.findUnique({
     where: { id: projectId },
     include: {
+      organization: { select: { id: true } },
       columns: {
         orderBy: { order: 'asc' },
         include: {
@@ -73,6 +83,9 @@ export async function getProjectData(projectId: string) {
       }
     }
   })
+  if (!project) return null
+  await requireOrgMember(project.organization.id)
+  return project
 }
 
 export async function createProject(organizationId: string, name: string) {
@@ -145,6 +158,29 @@ export async function updateTaskColumn(taskId: string, newColumnId: string, newO
       order: newOrder
     }
   })
+}
+
+export async function deleteTask(taskId: string) {
+  const task = await prisma.task.findUnique({ where: { id: taskId }, select: { project: { select: { organizationId: true } } } })
+  if (!task) throw new Error('Task not found')
+  await requireOrgMember(task.project.organizationId)
+  await prisma.task.delete({ where: { id: taskId } })
+  return { success: true }
+}
+
+export async function updateProject(projectId: string, data: { name?: string }) {
+  const project = await prisma.project.findUnique({ where: { id: projectId }, select: { organizationId: true } })
+  if (!project) throw new Error('Project not found')
+  await requireOrgMember(project.organizationId)
+  return prisma.project.update({ where: { id: projectId }, data })
+}
+
+export async function deleteProject(projectId: string) {
+  const project = await prisma.project.findUnique({ where: { id: projectId }, select: { organizationId: true } })
+  if (!project) throw new Error('Project not found')
+  await requireOrgMember(project.organizationId)
+  await prisma.project.delete({ where: { id: projectId } })
+  return { success: true }
 }
 
 export async function createSpace(name: string, organizationId: string) {

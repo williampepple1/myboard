@@ -213,6 +213,19 @@ export default function Board({ groupBy = 'none' }: { groupBy?: GroupBy }) {
     setSelectedTask(updatedTask)
   }
 
+  const handleTaskDelete = (taskId: string) => {
+    setProjectData((prev) => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        columns: prev.columns.map((c) => ({
+          ...c,
+          tasks: c.tasks.filter(t => t.id !== taskId)
+        }))
+      }
+    })
+  }
+
   // Derive display columns based on groupBy
   const allTasks = project.columns.flatMap(c => c.tasks)
 
@@ -287,11 +300,13 @@ export default function Board({ groupBy = 'none' }: { groupBy?: GroupBy }) {
       />
 
       <IssueDetailsModal
+        key={selectedTask?.id || 'none'}
         isOpen={!!selectedTask}
         onClose={() => setSelectedTask(null)}
         task={selectedTask}
         columns={project.columns.map(c => ({ id: c.id, name: c.name }))}
         onTaskUpdate={handleTaskUpdate}
+        onTaskDelete={handleTaskDelete}
       />
     </div>
   )

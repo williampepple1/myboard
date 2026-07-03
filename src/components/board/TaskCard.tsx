@@ -3,7 +3,7 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import type { Task } from '@/components/modals/IssueDetailsModal'
-import { ISSUE_TYPE_ICONS, PRIORITY_ICONS } from '@/components/modals/IssueDetailsModal'
+import { ISSUE_TYPE_ICONS, PRIORITY_ICONS } from '@/lib/icons'
 
 interface TaskCardProps {
   task: Task
@@ -68,7 +68,7 @@ export default function TaskCard({ task, isOverlay, onClick }: TaskCardProps) {
             {ISSUE_TYPE_ICONS[task.issueType]}
           </div>
           <span className="text-[12px] font-medium tracking-wide">
-            KAN-{task.id.slice(0, 2)}
+            KAN-{task.id.slice(0, 7)}
           </span>
         </div>
         <div className="flex items-center gap-2">
