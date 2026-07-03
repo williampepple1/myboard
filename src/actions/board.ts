@@ -69,23 +69,27 @@ export async function createOrganization(name: string) {
 }
 
 export async function getProjectData(projectId: string) {
-  const project = await prisma.project.findUnique({
-    where: { id: projectId },
-    include: {
-      organization: { select: { id: true } },
-      columns: {
-        orderBy: { order: 'asc' },
-        include: {
-          tasks: {
-            orderBy: { order: 'asc' }
+  try {
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      include: {
+        organization: { select: { id: true } },
+        columns: {
+          orderBy: { order: 'asc' },
+          include: {
+            tasks: {
+              orderBy: { order: 'asc' }
+            }
           }
         }
       }
-    }
-  })
-  if (!project) return null
-  await requireOrgMember(project.organization.id)
-  return project
+    })
+    if (!project) return null
+    await requireOrgMember(project.organization.id)
+    return project
+  } catch {
+    return null
+  }
 }
 
 export async function createProject(organizationId: string, name: string) {
