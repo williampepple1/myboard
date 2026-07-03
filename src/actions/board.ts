@@ -2,10 +2,16 @@
 
 import prisma from '@/lib/prisma'
 import { auth } from '@/lib/auth'
+import { sendWelcomeEmail } from '@/lib/email'
 export type Priority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
 export type IssueType = 'TASK' | 'BUG' | 'STORY' | 'EPIC'
-async function getUserId() {
+async function getSession() {
   const { data: session } = await auth.getSession()
+  return session
+}
+
+async function getUserId() {
+  const session = await getSession()
   // For development fallback if no auth is present, we could use a dummy user
   // return session?.user.id || "dummy-user-id"
   return session?.user?.id || "dummy-user-id"
@@ -24,9 +30,13 @@ export async function getOrganizations() {
 }
 
 export async function createOrganization(name: string) {
-  const userId = await getUserId()
-  
-  return prisma.organization.create({
+  const session = await getSession()
+  const userId = session?.user?.id || "dummy-user-id"
+
+  // Check if this is the user's first organization (send welcome email only once)
+  const existingOrgs = await prisma.organizationUser.count({ where: { userId } })
+
+  const org = await prisma.organization.create({
     data: {
       name,
       users: {
@@ -37,6 +47,16 @@ export async function createOrganization(name: string) {
       }
     }
   })
+
+  // Send a welcome email on first org creation
+  if (existingOrgs === 0 && session?.user?.email) {
+    await sendWelcomeEmail({
+      to: session.user.email,
+      name: session.user.name ?? undefined,
+    })
+  }
+
+  return org
 }
 
 export async function getProjectData(projectId: string) {
@@ -84,12 +104,12 @@ export async function createTask(
     data: {
       title,
       description: description || null,
-      priority: priority || 'MEDIUM',
-      issueType: issueType || 'TASK',
+      priority: (priority || 'MEDIUM') as Priority,
+      issueType: (issueType || 'TASK') as IssueType,
       columnId,
       projectId,
       order: count,
-    } as any
+    }
   })
 }
 
@@ -105,7 +125,13 @@ export async function updateTaskDetails(
 ) {
   return prisma.task.update({
     where: { id: taskId },
-    data: data as any
+    data: {
+      ...(data.title !== undefined && { title: data.title }),
+      ...(data.description !== undefined && { description: data.description }),
+      ...(data.priority !== undefined && { priority: data.priority as Priority }),
+      ...(data.issueType !== undefined && { issueType: data.issueType as IssueType }),
+      ...(data.columnId !== undefined && { columnId: data.columnId }),
+    }
   })
 }
 

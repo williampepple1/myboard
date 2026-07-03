@@ -1,22 +1,20 @@
 'use server'
 
 import prisma from '@/lib/prisma'
-import { auth } from '@/lib/auth'
+import { sendInvitationEmail } from '@/lib/email'
 
-async function getUserId() {
-  const { data: session } = await auth.getSession()
-  return session?.user?.id || "dummy-user-id"
-}
 
 export async function inviteUserToOrganization(organizationId: string, email: string) {
-  const inviterId = await getUserId()
+
+  // Fetch the organization name so we can include it in the email
+  const organization = await prisma.organization.findUnique({
+    where: { id: organizationId },
+    select: { name: true }
+  })
 
   // In a real application, you would look up the user by email using Neon Auth Admin API
   // or create an Invitation record that they can accept later.
   // For now, we will create a mock OrganizationUser with a generated ID so it appears in the UI.
-  
-  // Try to find if we already have this user in the org (mocking by email)
-  // Since we don't have an email field on OrganizationUser, we just generate a random UUID
   const mockUserId = crypto.randomUUID()
 
   await prisma.organizationUser.create({
@@ -25,6 +23,12 @@ export async function inviteUserToOrganization(organizationId: string, email: st
       organizationId,
       role: 'MEMBER'
     }
+  })
+
+  // Send a branded invitation email via Brevo
+  await sendInvitationEmail({
+    to: email,
+    organizationName: organization?.name ?? 'your organization',
   })
 
   return { success: true, message: `Invited ${email} successfully!` }
