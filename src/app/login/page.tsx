@@ -1,10 +1,13 @@
 'use client'
 
 import { useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { authClient } from '@/lib/auth-client'
 import { LogIn, UserPlus, Mail, Lock, AlertCircle, Loader2, KeyRound } from 'lucide-react'
 
 export default function LoginPage() {
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get('redirect') || '/'
   const [isLogin, setIsLogin] = useState(true)
   const [needsVerification, setNeedsVerification] = useState(false)
   const [email, setEmail] = useState('')
@@ -34,7 +37,7 @@ export default function LoginPage() {
       })
       if (signInError) throw new Error(signInError.message || 'Failed to sign in after verification')
       
-      window.location.href = '/'
+      window.location.href = redirectTo
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'An unexpected error occurred')
     } finally {
@@ -85,7 +88,7 @@ export default function LoginPage() {
           }
           throw new Error(signInError.message || 'Failed to sign in')
         }
-        window.location.href = '/'
+        window.location.href = redirectTo
       } else {
         if (!name) throw new Error('Name is required for registration')
         const { error: signUpError } = await authClient.signUp.email({
@@ -125,7 +128,7 @@ export default function LoginPage() {
     try {
       await authClient.signIn.social({
         provider: 'google',
-        callbackURL: '/'
+        callbackURL: redirectTo
       })
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to authenticate with Google')

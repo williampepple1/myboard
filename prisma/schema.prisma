@@ -7,12 +7,13 @@ datasource db {
 }
 
 model Organization {
-  id       String             @id @default(uuid())
-  name     String
-  users    OrganizationUser[]
-  projects Project[]
-  spaces   Space[]
-  plans    Plan[]
+  id          String        @id @default(uuid())
+  name        String
+  users       OrganizationUser[]
+  invitations Invitation[]
+  projects    Project[]
+  spaces      Space[]
+  plans       Plan[]
 }
 
 model Space {
@@ -47,6 +48,19 @@ model OrganizationUser {
   role           String // e.g. ADMIN, MEMBER
 
   @@id([userId, organizationId])
+}
+
+model Invitation {
+  id             String       @id @default(uuid())
+  email          String
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  token          String       @unique @default(uuid())
+  inviterUserId  String?
+  inviterName    String?
+  acceptedAt     DateTime?
+  createdAt      DateTime     @default(now())
+  expiresAt      DateTime
 }
 
 model Project {

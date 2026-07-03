@@ -106,15 +106,13 @@ export async function sendInvitationEmail({
   to,
   organizationName,
   inviterName,
-  appUrl,
+  acceptUrl,
 }: {
   to: string
   organizationName: string
   inviterName?: string
-  appUrl?: string
+  acceptUrl: string
 }) {
-  const loginUrl = `${appUrl || process.env.NEXT_PUBLIC_APP_URL || 'https://myboard.space'}/login`
-
   const body = `
     <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#172B4D;">You've been invited! 🎉</h1>
     <p style="margin:0 0 24px;font-size:15px;color:#44546F;line-height:1.6;">
@@ -125,7 +123,7 @@ export async function sendInvitationEmail({
     <table cellpadding="0" cellspacing="0" style="margin:0 0 32px;">
       <tr>
         <td style="background:#0C66E4;border-radius:8px;">
-          <a href="${loginUrl}" style="display:inline-block;padding:13px 28px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;">
+          <a href="${acceptUrl}" style="display:inline-block;padding:13px 28px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;">
             Accept Invitation &rarr;
           </a>
         </td>
@@ -133,7 +131,7 @@ export async function sendInvitationEmail({
     </table>
 
     <p style="margin:0 0 6px;font-size:13px;color:#97A0AF;">Or copy this link into your browser:</p>
-    <p style="margin:0;font-size:13px;color:#0C66E4;word-break:break-all;">${loginUrl}</p>
+    <p style="margin:0;font-size:13px;color:#0C66E4;word-break:break-all;">${acceptUrl}</p>
 
     <div style="margin-top:32px;padding:16px;background:#F4F5F7;border-radius:8px;">
       <p style="margin:0;font-size:13px;color:#44546F;line-height:1.6;">
@@ -147,7 +145,7 @@ export async function sendInvitationEmail({
     to,
     subject: `You've been invited to join ${organizationName} on MyBoard`,
     htmlContent: emailLayout(body),
-    textContent: `You've been invited to join ${organizationName} on MyBoard. Click here to accept: ${loginUrl}`,
+    textContent: `You've been invited to join ${organizationName} on MyBoard. Click here to accept: ${acceptUrl}`,
   })
 }
 
