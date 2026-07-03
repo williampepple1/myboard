@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { Plus, Briefcase, FolderKanban, Clock, Star, FileText, Map, ChevronDown, ChevronRight } from 'lucide-react'
+import { Plus, Briefcase, FolderKanban, Clock, Star, FileText, Map, ChevronDown, ChevronRight, X } from 'lucide-react'
 import { useBoardStore } from '@/store/boardStore'
 import type { Organization } from '@/store/boardStore'
 import { toggleStar, getUserStarsAndRecents } from '@/actions/stars'
@@ -12,12 +12,16 @@ export default function Sidebar({
   orgs, 
   onOpenCreateProject, 
   onOpenCreateSpace, 
-  onOpenCreatePlan 
+  onOpenCreatePlan,
+  isOpen = false,
+  onClose = () => {},
 }: { 
   orgs: Organization[], 
   onOpenCreateProject: () => void,
   onOpenCreateSpace: () => void,
-  onOpenCreatePlan: () => void
+  onOpenCreatePlan: () => void,
+  isOpen?: boolean,
+  onClose?: () => void,
 }) {
   const params = useParams()
   const selectedOrgId = params.orgId as string | undefined
@@ -90,13 +94,27 @@ export default function Sidebar({
   }
 
   return (
-    <div className="w-[260px] bg-white border-r border-border py-4 px-0 flex flex-col shrink-0 overflow-y-auto h-full">
+    <div className={`
+      fixed md:relative inset-y-0 left-0 z-40
+      w-[260px] bg-white border-r border-border py-4 px-0 flex flex-col shrink-0 overflow-y-auto h-full
+      transition-transform duration-300 ease-in-out
+      ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+    `}>
+      {/* Mobile close button */}
+      <button
+        onClick={onClose}
+        className="md:hidden absolute top-3 right-3 p-1.5 rounded-md hover:bg-slate-100 text-[#42526E] transition-colors"
+        aria-label="Close menu"
+      >
+        <X size={18} />
+      </button>
 
       {/* Global nav */}
       <div className="px-3 mb-2 space-y-0.5">
         {/* For you → org home */}
         <Link
           href={selectedOrgId ? `/${selectedOrgId}` : '/'}
+          onClick={onClose}
           className={`w-full flex items-center gap-3 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${!selectedProjectId && !selectedSpaceId && !selectedPlanId && selectedOrgId ? 'bg-[#E9F2FF] text-[#0C66E4]' : 'text-[#42526E] hover:bg-[#F4F5F7]'}`}
         >
           <Briefcase size={16} /> For you
@@ -119,6 +137,7 @@ export default function Sidebar({
               <Link
                 key={item.id}
                 href={getEntityHref(item.entityId, item.entityType, item.orgId)}
+                onClick={onClose}
                 className="flex items-center gap-2 px-3 py-1.5 text-sm text-[#42526E] hover:bg-[#F4F5F7] rounded-md transition-colors group"
               >
                 {entityIcon(item.entityType)}
@@ -145,6 +164,7 @@ export default function Sidebar({
               <Link
                 key={item.id}
                 href={getEntityHref(item.entityId, item.entityType, item.orgId)}
+                onClick={onClose}
                 className="flex items-center gap-2 px-3 py-1.5 text-sm text-[#42526E] hover:bg-[#F4F5F7] rounded-md transition-colors group"
               >
                 <Star size={14} className="shrink-0 text-yellow-400 fill-yellow-400" />
@@ -175,7 +195,8 @@ export default function Sidebar({
             return (
               <Link 
                 href={`/${org.id}`}
-                key={org.id} 
+                key={org.id}
+                onClick={onClose}
                 className={`w-full text-left px-3 py-1.5 rounded-md flex items-center gap-3 text-sm transition-all ${isSelected ? 'bg-[#E9F2FF] text-[#0C66E4] font-medium' : 'text-[#42526E] hover:bg-[#F4F5F7]'}`}
               >
                 <Briefcase size={16} className={isSelected ? 'text-[#0C66E4]' : 'text-[#6B778C]'} />
@@ -203,7 +224,8 @@ export default function Sidebar({
               return (
                 <Link 
                   href={`/${selectedOrg.id}/projects/${proj.id}`}
-                  key={proj.id} 
+                  key={proj.id}
+                  onClick={onClose}
                   className={`group w-full text-left px-3 py-1.5 rounded-md flex items-center gap-3 text-sm transition-all ${isSelected ? 'bg-[#E9F2FF] text-[#0C66E4] font-medium' : 'text-[#42526E] hover:bg-[#F4F5F7]'}`}
                 >
                   <FolderKanban size={16} className={`shrink-0 ${isSelected ? 'text-[#0C66E4]' : 'text-[#6B778C]'}`} />
@@ -239,7 +261,8 @@ export default function Sidebar({
               return (
                 <Link 
                   href={`/${selectedOrg.id}/spaces/${space.id}`}
-                  key={space.id} 
+                  key={space.id}
+                  onClick={onClose}
                   className={`group w-full text-left px-3 py-1.5 rounded-md flex items-center gap-3 text-sm transition-all ${isSelected ? 'bg-[#E9F2FF] text-[#0C66E4] font-medium' : 'text-[#42526E] hover:bg-[#F4F5F7]'}`}
                 >
                   <FileText size={16} className={`shrink-0 ${isSelected ? 'text-[#0C66E4]' : 'text-[#6B778C]'}`} />
@@ -275,7 +298,8 @@ export default function Sidebar({
               return (
                 <Link 
                   href={`/${selectedOrg.id}/plans/${plan.id}`}
-                  key={plan.id} 
+                  key={plan.id}
+                  onClick={onClose}
                   className={`group w-full text-left px-3 py-1.5 rounded-md flex items-center gap-3 text-sm transition-all ${isSelected ? 'bg-[#E9F2FF] text-[#0C66E4] font-medium' : 'text-[#42526E] hover:bg-[#F4F5F7]'}`}
                 >
                   <Map size={16} className={`shrink-0 ${isSelected ? 'text-[#0C66E4]' : 'text-[#6B778C]'}`} />

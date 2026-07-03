@@ -253,7 +253,7 @@ export default function ProjectClient({ projectId }: { projectId: string }) {
   return (
     <div className="flex-1 bg-white overflow-hidden flex flex-col relative">
       {/* Project Header */}
-      <div className="px-8 pt-6 pb-2 bg-white border-b border-border shrink-0 z-0">
+      <div className="px-4 sm:px-8 pt-4 sm:pt-6 pb-2 bg-white border-b border-border shrink-0 z-0">
         <div className="text-sm text-[#6B778C] mb-2 flex items-center gap-1">
           <Briefcase size={14} />
           <span>Projects</span>
@@ -262,7 +262,7 @@ export default function ProjectClient({ projectId }: { projectId: string }) {
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-[#172B4D]">{projectData.name}</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-[#172B4D]">{projectData.name}</h1>
             <Tooltip label={isStarred ? 'Unstar project' : 'Star project'}>
               <button
                 onClick={async () => {
@@ -278,12 +278,12 @@ export default function ProjectClient({ projectId }: { projectId: string }) {
           </div>
         </div>
 
-        <div className="flex items-center gap-6 text-sm font-medium text-[#42526E] mt-4">
+        <div className="flex items-center gap-4 sm:gap-6 text-sm font-medium text-[#42526E] mt-4 overflow-x-auto scrollbar-none -mx-1 px-1">
           {(['Summary', 'List', 'Board', 'Code', 'Forms', 'Timeline', 'Docs'] as const).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`pb-2 border-b-2 transition-colors ${
+              className={`pb-2 border-b-2 transition-colors shrink-0 ${
                 activeTab === tab
                   ? 'border-primary text-primary'
                   : 'border-transparent hover:text-[#172b4d]'
@@ -297,17 +297,17 @@ export default function ProjectClient({ projectId }: { projectId: string }) {
 
       {/* Toolbar — only visible on Board tab */}
       {activeTab === 'Board' && (
-        <div className="px-8 py-3 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-4">
+        <div className="px-4 sm:px-8 py-3 flex flex-wrap items-center gap-3 justify-between shrink-0">
+          <div className="flex items-center gap-3 flex-wrap">
             <div className="relative">
               <Search size={16} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#6B778C]" />
               <input
                 type="text"
                 placeholder="Search board"
-                className="w-48 pl-9 pr-3 py-1.5 bg-white border border-[#DFE1E6] hover:bg-[#F4F5F7] focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary rounded-md text-sm outline-none transition-all"
+                className="w-36 sm:w-48 pl-9 pr-3 py-1.5 bg-white border border-[#DFE1E6] hover:bg-[#F4F5F7] focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary rounded-md text-sm outline-none transition-all"
               />
             </div>
-            <div className="flex items-center gap-1">
+            <div className="hidden sm:flex items-center gap-1">
               <div className="w-8 h-8 rounded-full bg-slate-200 border-2 border-white z-10 flex items-center justify-center overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="avatar" />
@@ -328,7 +328,7 @@ export default function ProjectClient({ projectId }: { projectId: string }) {
             <Tooltip label={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}>
               <button
                 onClick={toggleFullscreen}
-                className="p-1.5 text-[#42526E] bg-[#F4F5F7] hover:bg-[#EBECF0] rounded-md transition-colors"
+                className="hidden sm:flex p-1.5 text-[#42526E] bg-[#F4F5F7] hover:bg-[#EBECF0] rounded-md transition-colors"
               >
                 {fullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
               </button>

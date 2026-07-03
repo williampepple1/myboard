@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { Search, Bell, HelpCircle, CheckCircle2, X } from 'lucide-react'
+import { Search, Bell, HelpCircle, CheckCircle2, X, Menu } from 'lucide-react'
 import { createOrganization, createProject, createSpace, createPlan } from '@/actions/board'
 import { getUserStarsAndRecents } from '@/actions/stars'
 import { inviteUserToOrganization } from '@/actions/invite'
@@ -113,6 +113,7 @@ export default function ClientLayout({
 
   const [toast, setToast] = useState<string | null>(null)
   const showToast = (msg: string) => setToast(msg)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   // Fetch stars + recents on mount
   useEffect(() => {
@@ -227,6 +228,14 @@ export default function ClientLayout({
       {/* Top bar */}
       <header className="h-14 border-b border-border bg-white flex items-center justify-between px-4 shrink-0 z-10 relative">
         <div className="flex items-center gap-6">
+          {/* Hamburger – mobile only */}
+          <button
+            onClick={() => setSidebarOpen(v => !v)}
+            className="md:hidden p-1.5 rounded-md hover:bg-slate-100 transition-colors text-[#172B4D]"
+            aria-label="Toggle menu"
+          >
+            <Menu size={22} />
+          </button>
           <div
             className="flex items-center gap-2 text-primary cursor-pointer hover:opacity-80 transition-opacity"
             onClick={() => router.push('/')}
@@ -260,13 +269,22 @@ export default function ClientLayout({
 
       {/* Body */}
       <div className="flex flex-1 overflow-hidden relative">
+        {/* Mobile sidebar backdrop */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 z-30 bg-black/40 md:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
         <Sidebar 
           orgs={orgs}
-          onOpenCreateProject={() => setIsCreateProjectModalOpen(true)}
-          onOpenCreateSpace={() => setIsCreateSpaceModalOpen(true)}
-          onOpenCreatePlan={() => setIsCreatePlanModalOpen(true)}
+          onOpenCreateProject={() => { setIsCreateProjectModalOpen(true); setSidebarOpen(false) }}
+          onOpenCreateSpace={() => { setIsCreateSpaceModalOpen(true); setSidebarOpen(false) }}
+          onOpenCreatePlan={() => { setIsCreatePlanModalOpen(true); setSidebarOpen(false) }}
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
         />
-        <div className="flex-1 bg-white overflow-hidden flex flex-col relative">
+        <div className="flex-1 bg-white overflow-hidden flex flex-col relative min-w-0">
           {children}
         </div>
       </div>
