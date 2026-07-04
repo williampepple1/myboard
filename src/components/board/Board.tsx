@@ -308,6 +308,7 @@ export default function Board({ groupBy = 'none' }: { groupBy?: GroupBy }) {
         columns={project.columns.map(c => ({ id: c.id, name: c.name }))}
         onTaskUpdate={handleTaskUpdate}
         onTaskDelete={handleTaskDelete}
+        orgId={project.organizationId}
       />
     </div>
   )

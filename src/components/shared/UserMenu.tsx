@@ -1,11 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { LogOut } from 'lucide-react'
+import { LogOut, Moon, Sun } from 'lucide-react'
 import { authClient } from '@/lib/auth-client'
+import { useTheme } from '@/lib/theme'
 
 export default function UserMenu({ name, email }: { name?: string | null, email?: string | null }) {
   const [isOpen, setIsOpen] = useState(false)
+  const { theme, toggle } = useTheme()
   const displayName = name || email?.split('@')[0] || 'User'
 
   const handleSignOut = async () => {
@@ -21,29 +23,29 @@ export default function UserMenu({ name, email }: { name?: string | null, email?
     <div className="relative">
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 hover:bg-black/5 px-2 py-1.5 rounded-lg transition-colors focus:outline-none"
+        className="flex items-center gap-2 hover:bg-black/5 dark:hover:bg-white/5 px-2 py-1.5 rounded-lg transition-colors focus:outline-none"
       >
-        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-primary font-semibold text-sm">
+        <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-primary font-semibold text-sm">
           {displayName.charAt(0).toUpperCase()}
         </div>
-        <span className="text-sm font-medium text-foreground/80 pr-1">{displayName}</span>
+        <span className="text-sm font-medium text-foreground/80 pr-1 hidden sm:block">{displayName}</span>
       </button>
 
       {isOpen && (
         <>
-          <div 
-            className="fixed inset-0 z-40"
-            onClick={() => setIsOpen(false)}
-          />
-          <div className="absolute right-0 mt-2 w-56 bg-white border border-border rounded-md shadow-lg z-50 p-1 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
+          <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-[#22272B] border border-border rounded-md shadow-lg z-50 p-1 animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="px-3 py-2 border-b border-border/50 mb-1">
               <p className="text-sm font-medium text-foreground truncate">{name || 'User'}</p>
               <p className="text-xs text-foreground/50 truncate">{email}</p>
             </div>
-            <button 
-              onClick={handleSignOut}
-              className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2"
-            >
+            <button onClick={toggle}
+              className="w-full text-left px-3 py-2 text-sm text-foreground/80 hover:bg-panel rounded-lg transition-colors flex items-center gap-2">
+              {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+              {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+            </button>
+            <button onClick={handleSignOut}
+              className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors flex items-center gap-2">
               <LogOut size={16} />
               Sign out
             </button>

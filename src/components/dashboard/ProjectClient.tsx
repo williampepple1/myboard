@@ -1,15 +1,17 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useMemo, useState } from 'react'
 import {
   Briefcase, Search, SlidersHorizontal, Share2, Maximize2,
   Minimize2, MoreHorizontal, Star, Check, Link2,
   LayoutGrid, Flag, Tag, Printer, Download
 } from 'lucide-react'
-import Board, { type ProjectWithColumns } from '@/components/board/Board'
+import Board, { type ProjectWithColumns, type ColumnWithTasks } from '@/components/board/Board'
 import { getProjectData } from '@/actions/board'
 import { toggleStar, getUserStarsAndRecents, recordRecentView } from '@/actions/stars'
 import { useBoardStore } from '@/store/boardStore'
+import { useKeyboardShortcuts } from '@/lib/shortcuts'
+import { BoardSkeleton } from '@/components/shared/Skeleton'
 import {
   SummaryView, ListView, TimelineView, CodeView, FormsView, DocsView,
   type Tab
@@ -129,7 +131,7 @@ function ShareButton() {
 }
 
 // ─── More menu ───────────────────────────────────────────────────────────
-function MoreMenu({ projectName }: { projectName: string }) {
+function MoreMenu({ projectName, columns: allColumns }: { projectName: string; columns: ColumnWithTasks[] }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -140,6 +142,21 @@ function MoreMenu({ projectName }: { projectName: string }) {
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [])
+
+  const exportCsv = () => {
+    const rows = [['ID', 'Title', 'Status', 'Priority', 'Type', 'Created'].join(',')]
+    for (const col of allColumns) {
+      for (const task of col.tasks) {
+        rows.push([task.id, `"${task.title.replace(/"/g, '""')}"`, col.name, task.priority, task.issueType, new Date(task.createdAt).toLocaleDateString()].join(','))
+      }
+    }
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = `${projectName.replace(/\s+/g, '-')}.csv`
+    a.click(); URL.revokeObjectURL(url)
+    setOpen(false)
+  }
 
   const actions = [
     {
@@ -155,11 +172,7 @@ function MoreMenu({ projectName }: { projectName: string }) {
     {
       icon: <Download size={15} />,
       label: 'Export as CSV',
-      action: () => {
-        // Basic CSV export of the project board tasks
-        setOpen(false)
-        alert(`Exporting "${projectName}" — coming soon!`)
-      }
+      action: exportCsv
     },
   ]
 
@@ -237,12 +250,12 @@ export default function ProjectClient({ projectId }: { projectId: string }) {
     return () => document.removeEventListener('fullscreenchange', handler)
   }, [])
 
+  useKeyboardShortcuts(useMemo(() => [
+    { key: 'c', handler: () => { document.querySelector<HTMLButtonElement>('[data-testid="create-task-btn"]')?.click() }, enabled: activeTab === 'Board' },
+  ], [activeTab]))
+
   if (loading) {
-    return (
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    )
+    return <BoardSkeleton />
   }
 
   if (!projectData || projectData.id !== projectId) {
@@ -338,7 +351,7 @@ export default function ProjectClient({ projectId }: { projectId: string }) {
                 {fullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
               </button>
             </Tooltip>
-            <MoreMenu projectName={projectData.name} />
+            <MoreMenu projectName={projectData.name} columns={projectData.columns} />
           </div>
         </div>
       )}
