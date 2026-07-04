@@ -67,23 +67,18 @@ export async function createOrganization(name: string) {
 
   const existingOrgs = await prisma.organizationUser.count({ where: { userId: session.user.id } })
 
-  const org = await prisma.organization.create({
-    data: {
-      name,
-      roles: {
-        createMany: {
-          data: [
-            { name: 'Admin', description: 'Full access to everything', isDefault: false, canManageSettings: true, canManageRoles: true, canManageGroups: true, canInviteMembers: true, canRemoveMembers: true, canCreateProject: true, canDeleteProject: true, canCreateTask: true, canDeleteTask: true, canEditTask: true },
-            { name: 'Member', description: 'Can create and edit tasks and projects', isDefault: true, canInviteMembers: false, canCreateProject: true, canCreateTask: true, canDeleteTask: true, canEditTask: true },
-            { name: 'Viewer', description: 'Read-only access', isDefault: false, canCreateProject: false, canCreateTask: false, canDeleteTask: false, canEditTask: false },
-          ],
-        },
-      },
-    },
-    include: { roles: true },
+  const org = await prisma.organization.create({ data: { name } })
+
+  const adminRole = await prisma.organizationRole.create({
+    data: { name: 'Admin', description: 'Full access to everything', organizationId: org.id, canManageSettings: true, canManageRoles: true, canManageGroups: true, canInviteMembers: true, canRemoveMembers: true, canCreateProject: true, canDeleteProject: true, canCreateTask: true, canDeleteTask: true, canEditTask: true },
+  })
+  await prisma.organizationRole.create({
+    data: { name: 'Member', description: 'Can create and edit tasks and projects', organizationId: org.id, isDefault: true, canCreateProject: true, canCreateTask: true, canDeleteTask: true, canEditTask: true },
+  })
+  await prisma.organizationRole.create({
+    data: { name: 'Viewer', description: 'Read-only access', organizationId: org.id },
   })
 
-  const adminRole = org.roles.find(r => r.name === 'Admin')!
   await prisma.organizationUser.create({
     data: {
       userId: session.user.id,
