@@ -202,7 +202,6 @@ export default function ProjectClient({ projectId }: { projectId: string }) {
     let isMounted = true
 
     const init = async () => {
-      setLoading(true)
       try {
         await recordRecentView(projectId, 'PROJECT')
         const { recents } = await getUserStarsAndRecents()
@@ -210,6 +209,8 @@ export default function ProjectClient({ projectId }: { projectId: string }) {
 
         const data = await getProjectData(projectId)
         if (isMounted) setProjectData(data as ProjectWithColumns)
+      } catch (e) {
+        console.error('Failed to load project', e)
       } finally {
         if (isMounted) setLoading(false)
       }
@@ -266,9 +267,13 @@ export default function ProjectClient({ projectId }: { projectId: string }) {
             <Tooltip label={isStarred ? 'Unstar project' : 'Star project'}>
               <button
                 onClick={async () => {
-                  await toggleStar(projectData.id, 'PROJECT')
-                  const { stars } = await getUserStarsAndRecents()
-                  setStars(stars)
+                  try {
+                    await toggleStar(projectData.id, 'PROJECT')
+                    const { stars } = await getUserStarsAndRecents()
+                    setStars(stars)
+                  } catch (e) {
+                    console.error('Failed to toggle star', e)
+                  }
                 }}
                 className={`p-1.5 rounded-md transition-colors ${isStarred ? 'bg-yellow-100 text-yellow-500' : 'text-[#6B778C] hover:bg-[#F4F5F7]'}`}
               >

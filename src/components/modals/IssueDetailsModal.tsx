@@ -63,10 +63,13 @@ export default function IssueDetailsModal({ isOpen, onClose, task, columns, onTa
             {onTaskDelete && (
               <button
                 onClick={async () => {
-                  if (confirm('Delete this task?')) {
+                  if (!confirm('Delete this task?')) return
+                  try {
                     await deleteTask(task.id)
                     onTaskDelete(task.id)
                     onClose()
+                  } catch (e) {
+                    console.error('Failed to delete task', e)
                   }
                 }}
                 className="p-2 hover:bg-red-50 rounded-md text-foreground/50 hover:text-red-500 transition-colors"

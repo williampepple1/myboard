@@ -3,10 +3,10 @@
 import prisma from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 import { sendInvitationEmail } from '@/lib/email'
+import { requirePermission } from './board'
 
 export async function inviteUserToOrganization(organizationId: string, email: string) {
-  const { data: session } = await auth.getSession()
-  const userId = session?.user?.id
+  const { session } = await requirePermission(organizationId, 'canInviteMembers')
   const userName = session?.user?.name
 
   const organization = await prisma.organization.findUnique({
@@ -35,7 +35,7 @@ export async function inviteUserToOrganization(organizationId: string, email: st
     data: {
       email,
       organizationId,
-      inviterUserId: userId,
+      inviterUserId: session.user.id,
       inviterName: userName,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
     }
@@ -102,12 +102,17 @@ export async function acceptInvitation(token: string) {
   const defaultRole = await prisma.organizationRole.findFirst({
     where: { organizationId: invitation.organizationId, isDefault: true }
   })
+  const fallbackRole = await prisma.organizationRole.findFirst({ where: { organizationId: invitation.organizationId } })
+  const roleId = defaultRole?.id || fallbackRole?.id
+  if (!roleId) {
+    return { success: false, message: 'Organization has no roles configured' }
+  }
 
   await prisma.organizationUser.create({
     data: {
       userId: session.user.id,
       organizationId: invitation.organizationId,
-      roleId: defaultRole?.id || (await prisma.organizationRole.findFirst({ where: { organizationId: invitation.organizationId } }))!.id,
+      roleId,
     }
   })
 

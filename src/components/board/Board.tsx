@@ -83,13 +83,14 @@ export default function Board({ groupBy = 'none' }: { groupBy?: GroupBy }) {
       const overIndex = overItems.findIndex((t) => t.id === overId)
 
       let newIndex
-      if (overId in prev.columns.map((c) => c.id)) {
+      if (prev.columns.some((c) => c.id === overId)) {
         newIndex = overItems.length + 1
       } else {
+        const rect = active.rect?.current
         const isBelowOverItem =
           over &&
-          active.rect.current.translated &&
-          active.rect.current.translated.top > over.rect.top + over.rect.height
+          rect?.translated &&
+          rect.translated.top > over.rect.top + over.rect.height
 
         const modifier = isBelowOverItem ? 1 : 0
         newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1
@@ -129,38 +130,38 @@ export default function Board({ groupBy = 'none' }: { groupBy?: GroupBy }) {
     const activeColumn = findColumnOfTask(activeId)
     const overColumn = project.columns.find((c) => c.id === overId) || findColumnOfTask(overId)
 
-    if (activeColumn && overColumn && activeColumn !== overColumn) {
-      // It was moved in handleDragOver, we just need to persist it
-      const movedTask = overColumn.tasks.find((t) => t.id === activeId)
-      if (movedTask) {
-        // Find index in new column
-        const newOrder = overColumn.tasks.findIndex((t) => t.id === activeId)
-        await updateTaskColumn(activeId, overColumn.id, newOrder)
-      }
-    } else if (activeColumn && overColumn && activeColumn === overColumn) {
-      // Reordering in same column
-      const activeIndex = activeColumn.tasks.findIndex((t) => t.id === activeId)
-      const overIndex = overColumn.tasks.findIndex((t) => t.id === overId)
+    try {
+      if (activeColumn && overColumn && activeColumn !== overColumn) {
+        const movedTask = overColumn.tasks.find((t) => t.id === activeId)
+        if (movedTask) {
+          const newOrder = overColumn.tasks.findIndex((t) => t.id === activeId)
+          await updateTaskColumn(activeId, overColumn.id, newOrder)
+        }
+      } else if (activeColumn && overColumn && activeColumn === overColumn) {
+        const activeIndex = activeColumn.tasks.findIndex((t) => t.id === activeId)
+        const overIndex = overColumn.tasks.findIndex((t) => t.id === overId)
 
-      if (activeIndex !== overIndex) {
-        setProjectData((prev) => {
-          if (!prev) return prev
-          return {
-            ...prev,
-            columns: prev.columns.map((c) => {
-              if (c.id === activeColumn.id) {
-                return {
-                  ...c,
-                  tasks: arrayMove(c.tasks, activeIndex, overIndex)
+        if (activeIndex !== overIndex) {
+          setProjectData((prev) => {
+            if (!prev) return prev
+            return {
+              ...prev,
+              columns: prev.columns.map((c) => {
+                if (c.id === activeColumn.id) {
+                  return {
+                    ...c,
+                    tasks: arrayMove(c.tasks, activeIndex, overIndex)
+                  }
                 }
-              }
-              return c
-            })
-          }
-        })
-        // Note: For a robust system we'd persist the new order to DB here
-        await updateTaskColumn(activeId, overColumn.id, overIndex)
+                return c
+              })
+            }
+          })
+          await updateTaskColumn(activeId, overColumn.id, overIndex)
+        }
       }
+    } catch (e) {
+      console.error('Failed to persist task move', e)
     }
   }
 

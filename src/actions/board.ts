@@ -24,7 +24,7 @@ async function requireAuth() {
   return session
 }
 
-async function requireOrgMember(organizationId: string) {
+export async function requireOrgMember(organizationId: string) {
   const session = await requireAuth()
   const membership = await prisma.organizationUser.findUnique({
     where: {
@@ -41,13 +41,13 @@ async function requireOrgMember(organizationId: string) {
   return { session, membership, role: membership.role }
 }
 
-async function requirePermission(organizationId: string, permission: Permission) {
-  const { membership, role } = await requireOrgMember(organizationId)
+export async function requirePermission(organizationId: string, permission: Permission) {
+  const { session, membership, role } = await requireOrgMember(organizationId)
   if (!(role as unknown as RolePermissions)[permission]) {
     const label = permission.replace(/^can/, '').replace(/([A-Z])/g, ' $1').toLowerCase().trim()
     throw new Error(`You don't have permission to ${label}`)
   }
-  return { session: await requireAuth(), membership, role }
+  return { session, membership, role }
 }
 
 export async function getOrganizations() {
@@ -122,6 +122,7 @@ export async function getProjectData(projectId: string) {
 }
 
 export async function createProject(organizationId: string, name: string) {
+  await requirePermission(organizationId, 'canCreateProject')
   return prisma.project.create({
     data: {
       name,
@@ -304,6 +305,7 @@ export async function removeGroupMember(groupId: string, userId: string) {
 }
 
 export async function createSpace(name: string, organizationId: string) {
+  await requirePermission(organizationId, 'canCreateProject')
   return prisma.space.create({
     data: {
       name,
@@ -313,6 +315,7 @@ export async function createSpace(name: string, organizationId: string) {
 }
 
 export async function createPlan(name: string, organizationId: string) {
+  await requirePermission(organizationId, 'canCreateProject')
   return prisma.plan.create({
     data: {
       name,

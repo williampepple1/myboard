@@ -120,7 +120,7 @@ export default function ClientLayout({
     getUserStarsAndRecents().then(({ stars, recents }) => {
       setStars(stars)
       setRecents(recents)
-    })
+    }).catch(console.error)
   }, [setStars, setRecents])
 
   // ── Create Org ─────────────────────────────────────────────────
@@ -154,6 +154,7 @@ export default function ClientLayout({
     e.preventDefault()
     if (!newProjectName.trim() || !orgId) return
     setIsCreatingProject(true)
+    setError('')
     try {
       const newProject = await createProject(orgId, newProjectName.trim())
       setOrgs(orgs.map(o => o.id === orgId ? { ...o, projects: [...o.projects, newProject] } : o))
@@ -161,6 +162,8 @@ export default function ClientLayout({
       setNewProjectName('')
       router.push(`/${orgId}/projects/${newProject.id}`)
       showToast(`Project "${newProject.name}" created!`)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create project')
     } finally {
       setIsCreatingProject(false)
     }
@@ -175,6 +178,7 @@ export default function ClientLayout({
     e.preventDefault()
     if (!newSpaceName.trim() || !orgId) return
     setIsCreatingSpace(true)
+    setError('')
     try {
       const newSpace = await createSpace(newSpaceName.trim(), orgId)
       setOrgs(orgs.map(o => o.id === orgId ? { ...o, spaces: [...o.spaces, newSpace] } : o))
@@ -182,6 +186,8 @@ export default function ClientLayout({
       setNewSpaceName('')
       router.push(`/${orgId}/spaces/${newSpace.id}`)
       showToast(`Space "${newSpace.name}" created!`)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create space')
     } finally {
       setIsCreatingSpace(false)
     }
@@ -196,6 +202,7 @@ export default function ClientLayout({
     e.preventDefault()
     if (!newPlanName.trim() || !orgId) return
     setIsCreatingPlan(true)
+    setError('')
     try {
       const newPlan = await createPlan(newPlanName.trim(), orgId)
       setOrgs(orgs.map(o => o.id === orgId ? { ...o, plans: [...o.plans, newPlan] } : o))
@@ -203,6 +210,8 @@ export default function ClientLayout({
       setNewPlanName('')
       router.push(`/${orgId}/plans/${newPlan.id}`)
       showToast(`Plan "${newPlan.name}" created!`)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create plan')
     } finally {
       setIsCreatingPlan(false)
     }
@@ -216,11 +225,18 @@ export default function ClientLayout({
     e.preventDefault()
     if (!inviteEmail.trim() || !orgId) return
     setIsInviting(true)
+    setError('')
     try {
-      await inviteUserToOrganization(orgId, inviteEmail.trim())
+      const result = await inviteUserToOrganization(orgId, inviteEmail.trim())
+      if (!result.success) {
+        setError(result.message)
+        return
+      }
       setIsInviteModalOpen(false)
       showToast(`Invitation sent to ${inviteEmail}!`)
       setInviteEmail('')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send invitation')
     } finally {
       setIsInviting(false)
     }
@@ -309,7 +325,7 @@ export default function ClientLayout({
       )}
 
       {isCreateProjectModalOpen && (
-        <Modal title="Create Project" onClose={() => { setIsCreateProjectModalOpen(false); setNewProjectName('') }}>
+        <Modal title="Create Project" onClose={() => { setIsCreateProjectModalOpen(false); setNewProjectName(''); setError(null) }}>
           {!orgId && (
             <p className="text-sm text-amber-600 bg-amber-50 px-3 py-2 rounded-md mb-4">
               Please select an organization first.
@@ -317,35 +333,59 @@ export default function ClientLayout({
           )}
           <form onSubmit={handleCreateProjectSubmit} className="space-y-4">
             <ModalInput id="projectName" label="Project Name" autoFocus required value={newProjectName} onChange={e => setNewProjectName(e.target.value)} placeholder="e.g. Q3 Roadmap" />
-            <ModalActions onCancel={() => { setIsCreateProjectModalOpen(false); setNewProjectName('') }} loading={isCreatingProject} submitLabel="Create Project" />
+            {error && (
+              <div className="flex items-center gap-2 p-3 bg-red-50 text-red-600 rounded-lg text-sm">
+                <AlertCircle size={16} className="shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+            <ModalActions onCancel={() => { setIsCreateProjectModalOpen(false); setNewProjectName(''); setError(null) }} loading={isCreatingProject} submitLabel="Create Project" />
           </form>
         </Modal>
       )}
 
       {isCreateSpaceModalOpen && (
-        <Modal title="Create Space" onClose={() => { setIsCreateSpaceModalOpen(false); setNewSpaceName('') }}>
+        <Modal title="Create Space" onClose={() => { setIsCreateSpaceModalOpen(false); setNewSpaceName(''); setError(null) }}>
           <form onSubmit={handleCreateSpaceSubmit} className="space-y-4">
             <ModalInput id="spaceName" label="Space Name" autoFocus required value={newSpaceName} onChange={e => setNewSpaceName(e.target.value)} placeholder="e.g. Engineering Docs" />
-            <ModalActions onCancel={() => { setIsCreateSpaceModalOpen(false); setNewSpaceName('') }} loading={isCreatingSpace} submitLabel="Create Space" />
+            {error && (
+              <div className="flex items-center gap-2 p-3 bg-red-50 text-red-600 rounded-lg text-sm">
+                <AlertCircle size={16} className="shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+            <ModalActions onCancel={() => { setIsCreateSpaceModalOpen(false); setNewSpaceName(''); setError(null) }} loading={isCreatingSpace} submitLabel="Create Space" />
           </form>
         </Modal>
       )}
 
       {isCreatePlanModalOpen && (
-        <Modal title="Create Plan" onClose={() => { setIsCreatePlanModalOpen(false); setNewPlanName('') }}>
+        <Modal title="Create Plan" onClose={() => { setIsCreatePlanModalOpen(false); setNewPlanName(''); setError(null) }}>
           <form onSubmit={handleCreatePlanSubmit} className="space-y-4">
             <ModalInput id="planName" label="Plan Name" autoFocus required value={newPlanName} onChange={e => setNewPlanName(e.target.value)} placeholder="e.g. Q3 Roadmap" />
-            <ModalActions onCancel={() => { setIsCreatePlanModalOpen(false); setNewPlanName('') }} loading={isCreatingPlan} submitLabel="Create Plan" />
+            {error && (
+              <div className="flex items-center gap-2 p-3 bg-red-50 text-red-600 rounded-lg text-sm">
+                <AlertCircle size={16} className="shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+            <ModalActions onCancel={() => { setIsCreatePlanModalOpen(false); setNewPlanName(''); setError(null) }} loading={isCreatingPlan} submitLabel="Create Plan" />
           </form>
         </Modal>
       )}
 
       {isInviteModalOpen && (
-        <Modal title={`Invite to ${selectedOrg?.name ?? 'Organization'}`} onClose={() => { setIsInviteModalOpen(false); setInviteEmail('') }}>
+        <Modal title={`Invite to ${selectedOrg?.name ?? 'Organization'}`} onClose={() => { setIsInviteModalOpen(false); setInviteEmail(''); setError(null) }}>
           <p className="text-sm text-foreground/60 mb-4">Enter the email address of the person you want to invite.</p>
+          {error && (
+            <div className="flex items-center gap-2 p-3 bg-red-50 text-red-600 rounded-lg text-sm mb-4">
+              <AlertCircle size={16} className="shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
           <form onSubmit={handleInviteSubmit} className="space-y-4">
             <ModalInput id="inviteEmail" label="Email Address" type="email" autoFocus required value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} placeholder="colleague@company.com" />
-            <ModalActions onCancel={() => { setIsInviteModalOpen(false); setInviteEmail('') }} loading={isInviting} submitLabel="Send Invite" />
+            <ModalActions onCancel={() => { setIsInviteModalOpen(false); setInviteEmail(''); setError(null) }} loading={isInviting} submitLabel="Send Invite" />
           </form>
         </Modal>
       )}

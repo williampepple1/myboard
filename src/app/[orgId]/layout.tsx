@@ -2,7 +2,7 @@ import { getOrganizations } from '@/actions/board'
 import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import ClientLayout from '@/components/dashboard/ClientLayout'
-import { Organization } from '@/store/boardStore'
+import type { Organization } from '@/store/boardStore'
 
 export const dynamic = 'force-dynamic'
 
