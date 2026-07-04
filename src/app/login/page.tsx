@@ -136,9 +136,19 @@ export default function LoginPage() {
     }
   }
 
+  const bgElement = (
+    <div className="fixed inset-0 -z-10 overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0C66E4]/5 via-[#0c66e4]/10 to-[#22A06B]/5" />
+      <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-[#0C66E4]/10 blur-[120px] animate-pulse" />
+      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-[#22A06B]/10 blur-[120px] animate-pulse [animation-delay:2s]" />
+      <div className="absolute top-[40%] right-[20%] w-[30%] h-[30%] rounded-full bg-[#E34935]/5 blur-[100px] animate-pulse [animation-delay:4s]" />
+    </div>
+  )
+
   if (needsVerification) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+        {bgElement}
         <div className="w-full max-w-md bg-white border border-border rounded-md shadow-sm p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-50 text-primary rounded-md mb-4">
@@ -221,8 +231,9 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white border border-border rounded-md shadow-sm p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative">
+      {bgElement}
+      <div className="w-full max-w-md bg-white/95 backdrop-blur-sm border border-border rounded-md shadow-sm p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
         
         {/* Header */}
         <div className="text-center mb-8">
