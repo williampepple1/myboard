@@ -27,7 +27,7 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
   const { data: session } = await auth.getSession()
 
   if (!session?.user) {
-    redirect(`/login?redirect=/invite/${token}`)
+    redirect(`/login?redirect=/invite/${token}&mode=signup`)
   }
 
   if (session.user.email?.toLowerCase() !== invitation.email.toLowerCase()) {

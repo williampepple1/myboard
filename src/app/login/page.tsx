@@ -8,7 +8,7 @@ import { AlertCircle, Loader2, KeyRound } from 'lucide-react'
 export default function LoginPage() {
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get('redirect') || '/'
-  const [isLogin, setIsLogin] = useState(true)
+  const [isLogin, setIsLogin] = useState(searchParams.get('mode') !== 'signup')
   const [needsVerification, setNeedsVerification] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
