@@ -8,11 +8,12 @@ import { toggleStar, getUserStarsAndRecents } from '@/actions/stars'
 
 interface OrganizationOverviewProps {
   org: Organization
+  members?: { id: string; name?: string | null; email?: string | null; role: string }[]
   currentUser?: { id: string; name?: string | null; email?: string | null }
   memberCount?: number
 }
 
-export default function OrganizationOverview({ org, currentUser, memberCount }: OrganizationOverviewProps) {
+export default function OrganizationOverview({ org, members, currentUser, memberCount }: OrganizationOverviewProps) {
   const router = useRouter()
   const {
     setIsCreateProjectModalOpen,
@@ -135,18 +136,26 @@ export default function OrganizationOverview({ org, currentUser, memberCount }: 
           
           <div className="bg-white border border-border/50 rounded-md overflow-hidden">
             <div className="divide-y divide-border/50">
-              <div className="flex items-center justify-between p-4 hover:bg-panel/50 transition-colors">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-linear-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold shadow-inner">
-                    {currentUser?.name?.charAt(0)?.toUpperCase() || 'U'}
+              {(members ?? []).map(member => {
+                const isMe = member.id === currentUser?.id
+                const initials = (member.name || 'U').charAt(0).toUpperCase()
+                const colors = ['bg-blue-500', 'bg-purple-500', 'bg-green-500', 'bg-orange-500', 'bg-pink-500']
+                const colorIdx = member.id.split('').reduce((a, c) => a + c.charCodeAt(0), 0) % colors.length
+                return (
+                  <div key={member.id} className="flex items-center justify-between p-4 hover:bg-panel/50 transition-colors">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-10 h-10 rounded-full ${colors[colorIdx]} flex items-center justify-center text-white font-bold shadow-inner`}>
+                        {initials}
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground">{member.name || 'Unknown'}{isMe ? ' (You)' : ''}</p>
+                        <p className="text-xs text-foreground/50">{member.email || ''}</p>
+                      </div>
+                    </div>
+                    <span className="px-2.5 py-1 text-xs font-medium bg-slate-100 text-slate-600 rounded-md capitalize">{member.role.toLowerCase()}</span>
                   </div>
-                  <div>
-                    <p className="font-medium text-foreground">{currentUser?.name || 'You'} (Admin)</p>
-                    <p className="text-xs text-foreground/50">{currentUser?.email || ''}</p>
-                  </div>
-                </div>
-                <span className="px-2.5 py-1 text-xs font-medium bg-slate-100 text-slate-600 rounded-md">Owner</span>
-              </div>
+                )
+              })}
             </div>
             <div className="px-4 py-2 border-t border-border/50 bg-panel/30">
               <p className="text-xs text-foreground/50">{memberCount ?? 0} member{(memberCount ?? 0) !== 1 ? 's' : ''}</p>

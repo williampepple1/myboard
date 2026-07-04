@@ -5,11 +5,21 @@ import { auth } from '@/lib/auth'
 import { sendWelcomeEmail } from '@/lib/email'
 export type Priority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
 export type IssueType = 'TASK' | 'BUG' | 'STORY' | 'EPIC'
+async function syncUser(session: NonNullable<Awaited<ReturnType<typeof auth.getSession>>['data']>) {
+  if (!session?.user?.id) return
+  await prisma.user.upsert({
+    where: { id: session.user.id },
+    update: { name: session.user.name, email: session.user.email },
+    create: { id: session.user.id, name: session.user.name, email: session.user.email },
+  })
+}
+
 async function requireAuth() {
   const { data: session } = await auth.getSession()
   if (!session?.user?.id) {
     throw new Error('Authentication required')
   }
+  await syncUser(session)
   return session
 }
 

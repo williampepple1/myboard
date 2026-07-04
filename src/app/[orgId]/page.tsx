@@ -15,11 +15,19 @@ export default async function OrgPage(props: { params: Promise<{ orgId: string }
   }
 
   const { data: session } = await auth.getSession()
-  const memberCount = await prisma.organizationUser.count({ where: { organizationId: orgId } })
+
+  const [members, memberCount] = await Promise.all([
+    prisma.organizationUser.findMany({
+      where: { organizationId: orgId },
+      include: { user: true },
+    }),
+    prisma.organizationUser.count({ where: { organizationId: orgId } }),
+  ])
 
   return (
     <OrganizationOverview
       org={org}
+      members={members.map(m => ({ id: m.userId, name: m.user.name, email: m.user.email, role: m.role }))}
       currentUser={{ id: session?.user?.id || '', name: session?.user?.name, email: session?.user?.email }}
       memberCount={memberCount}
     />

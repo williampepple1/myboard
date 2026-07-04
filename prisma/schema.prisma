@@ -41,8 +41,19 @@ model Plan {
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 }
 
+model User {
+  id                String             @id
+  name              String?
+  email             String?
+  image             String?
+  organizationUsers OrganizationUser[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+}
+
 model OrganizationUser {
-  userId         String // references the ID from Neon Auth
+  userId         String
+  user           User         @relation(fields: [userId], references: [id])
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   role           String // e.g. ADMIN, MEMBER
