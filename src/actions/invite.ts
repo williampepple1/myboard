@@ -99,11 +99,15 @@ export async function acceptInvitation(token: string) {
     return { success: true, message: 'You are already a member of this organization' }
   }
 
+  const defaultRole = await prisma.organizationRole.findFirst({
+    where: { organizationId: invitation.organizationId, isDefault: true }
+  })
+
   await prisma.organizationUser.create({
     data: {
       userId: session.user.id,
       organizationId: invitation.organizationId,
-      role: 'MEMBER'
+      roleId: defaultRole?.id || (await prisma.organizationRole.findFirst({ where: { organizationId: invitation.organizationId } }))!.id,
     }
   })
 

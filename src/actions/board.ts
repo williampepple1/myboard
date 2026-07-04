@@ -3,6 +3,7 @@
 import prisma from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 import { sendWelcomeEmail } from '@/lib/email'
+import { type Permission, type RolePermissions } from './permissions'
 export type Priority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
 export type IssueType = 'TASK' | 'BUG' | 'STORY' | 'EPIC'
 async function syncUser(session: NonNullable<Awaited<ReturnType<typeof auth.getSession>>['data']>) {
@@ -31,12 +32,22 @@ async function requireOrgMember(organizationId: string) {
         userId: session.user.id,
         organizationId,
       }
-    }
+    },
+    include: { role: true }
   })
   if (!membership) {
     throw new Error('You are not a member of this organization')
   }
-  return session
+  return { session, membership, role: membership.role }
+}
+
+async function requirePermission(organizationId: string, permission: Permission) {
+  const { membership, role } = await requireOrgMember(organizationId)
+  if (!(role as unknown as RolePermissions)[permission]) {
+    const label = permission.replace(/^can/, '').replace(/([A-Z])/g, ' $1').toLowerCase().trim()
+    throw new Error(`You don't have permission to ${label}`)
+  }
+  return { session: await requireAuth(), membership, role }
 }
 
 export async function getOrganizations() {
@@ -59,13 +70,26 @@ export async function createOrganization(name: string) {
   const org = await prisma.organization.create({
     data: {
       name,
-      users: {
-        create: {
-          userId: session.user.id,
-          role: 'ADMIN'
-        }
-      }
-    }
+      roles: {
+        createMany: {
+          data: [
+            { name: 'Admin', description: 'Full access to everything', isDefault: false, canManageSettings: true, canManageRoles: true, canManageGroups: true, canInviteMembers: true, canRemoveMembers: true, canCreateProject: true, canDeleteProject: true, canCreateTask: true, canDeleteTask: true, canEditTask: true },
+            { name: 'Member', description: 'Can create and edit tasks and projects', isDefault: true, canInviteMembers: false, canCreateProject: true, canCreateTask: true, canDeleteTask: true, canEditTask: true },
+            { name: 'Viewer', description: 'Read-only access', isDefault: false, canCreateProject: false, canCreateTask: false, canDeleteTask: false, canEditTask: false },
+          ],
+        },
+      },
+    },
+    include: { roles: true },
+  })
+
+  const adminRole = org.roles.find(r => r.name === 'Admin')!
+  await prisma.organizationUser.create({
+    data: {
+      userId: session.user.id,
+      organizationId: org.id,
+      roleId: adminRole.id,
+    },
   })
 
   if (existingOrgs === 0 && session?.user?.email) {
@@ -194,6 +218,93 @@ export async function deleteProject(projectId: string) {
   if (!project) throw new Error('Project not found')
   await requireOrgMember(project.organizationId)
   await prisma.project.delete({ where: { id: projectId } })
+  return { success: true }
+}
+
+export async function getOrgMembers(organizationId: string) {
+  await requireOrgMember(organizationId)
+  return prisma.organizationUser.findMany({
+    where: { organizationId },
+    include: { user: true, role: true },
+  })
+}
+
+export async function getOrgRoles(organizationId: string) {
+  await requireOrgMember(organizationId)
+  return prisma.organizationRole.findMany({ where: { organizationId }, orderBy: { createdAt: 'asc' } })
+}
+
+export async function getOrgGroups(organizationId: string) {
+  await requireOrgMember(organizationId)
+  return prisma.organizationGroup.findMany({
+    where: { organizationId },
+    include: { members: { include: { user: true } } },
+    orderBy: { createdAt: 'asc' },
+  })
+}
+
+export async function updateMemberRole(organizationId: string, userId: string, roleId: string) {
+  await requirePermission(organizationId, 'canManageRoles')
+  return prisma.organizationUser.update({
+    where: { userId_organizationId: { userId, organizationId } },
+    data: { roleId },
+  })
+}
+
+export async function removeMember(organizationId: string, userId: string) {
+  await requirePermission(organizationId, 'canRemoveMembers')
+  await prisma.organizationUser.delete({ where: { userId_organizationId: { userId, organizationId } } })
+  return { success: true }
+}
+
+export async function createRole(organizationId: string, data: { name: string; description?: string; canCreateProject?: boolean; canCreateTask?: boolean; canDeleteTask?: boolean; canEditTask?: boolean }) {
+  await requirePermission(organizationId, 'canManageRoles')
+  return prisma.organizationRole.create({
+    data: { ...data, organizationId },
+  })
+}
+
+export async function updateRole(roleId: string, data: Partial<{ name: string; description: string; canManageSettings: boolean; canManageRoles: boolean; canManageGroups: boolean; canInviteMembers: boolean; canRemoveMembers: boolean; canCreateProject: boolean; canDeleteProject: boolean; canCreateTask: boolean; canDeleteTask: boolean; canEditTask: boolean }>) {
+  const role = await prisma.organizationRole.findUnique({ where: { id: roleId }, select: { organizationId: true } })
+  if (!role) throw new Error('Role not found')
+  await requirePermission(role.organizationId, 'canManageRoles')
+  return prisma.organizationRole.update({ where: { id: roleId }, data })
+}
+
+export async function deleteRole(roleId: string) {
+  const role = await prisma.organizationRole.findUnique({ where: { id: roleId }, select: { organizationId: true } })
+  if (!role) throw new Error('Role not found')
+  await requirePermission(role.organizationId, 'canManageRoles')
+  await prisma.organizationRole.delete({ where: { id: roleId } })
+  return { success: true }
+}
+
+export async function createGroup(organizationId: string, name: string, description?: string) {
+  await requirePermission(organizationId, 'canManageGroups')
+  return prisma.organizationGroup.create({ data: { name, description, organizationId } })
+}
+
+export async function deleteGroup(groupId: string) {
+  const group = await prisma.organizationGroup.findUnique({ where: { id: groupId }, select: { organizationId: true } })
+  if (!group) throw new Error('Group not found')
+  await requirePermission(group.organizationId, 'canManageGroups')
+  await prisma.organizationGroup.delete({ where: { id: groupId } })
+  return { success: true }
+}
+
+export async function addGroupMember(groupId: string, userId: string) {
+  const group = await prisma.organizationGroup.findUnique({ where: { id: groupId }, select: { organizationId: true } })
+  if (!group) throw new Error('Group not found')
+  await requirePermission(group.organizationId, 'canManageGroups')
+  await prisma.organizationGroupMember.create({ data: { groupId, userId } })
+  return { success: true }
+}
+
+export async function removeGroupMember(groupId: string, userId: string) {
+  const group = await prisma.organizationGroup.findUnique({ where: { id: groupId }, select: { organizationId: true } })
+  if (!group) throw new Error('Group not found')
+  await requirePermission(group.organizationId, 'canManageGroups')
+  await prisma.organizationGroupMember.delete({ where: { groupId_userId: { groupId, userId } } })
   return { success: true }
 }
 

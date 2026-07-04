@@ -11,6 +11,8 @@ model Organization {
   name        String
   users       OrganizationUser[]
   invitations Invitation[]
+  roles       OrganizationRole[]
+  groups      OrganizationGroup[]
   projects    Project[]
   spaces      Space[]
   plans       Plan[]
@@ -47,16 +49,60 @@ model User {
   email             String?
   image             String?
   organizationUsers OrganizationUser[]
+  groupMemberships  OrganizationGroupMember[]
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
 }
 
+model OrganizationRole {
+  id               String             @id @default(uuid())
+  organizationId   String
+  organization     Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name             String
+  description      String?
+  isDefault        Boolean            @default(false)
+  canManageSettings Boolean           @default(false)
+  canManageRoles    Boolean           @default(false)
+  canManageGroups   Boolean           @default(false)
+  canInviteMembers  Boolean           @default(false)
+  canRemoveMembers  Boolean           @default(false)
+  canCreateProject  Boolean           @default(false)
+  canDeleteProject  Boolean           @default(false)
+  canCreateTask     Boolean           @default(false)
+  canDeleteTask     Boolean           @default(false)
+  canEditTask       Boolean           @default(false)
+  members           OrganizationUser[]
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+}
+
+model OrganizationGroup {
+  id             String                   @id @default(uuid())
+  organizationId String
+  organization   Organization             @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  description    String?
+  members        OrganizationGroupMember[]
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
+}
+
+model OrganizationGroupMember {
+  groupId String
+  group   OrganizationGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  userId  String
+  user    User              @relation(fields: [userId], references: [id])
+
+  @@id([groupId, userId])
+}
+
 model OrganizationUser {
   userId         String
-  user           User         @relation(fields: [userId], references: [id])
+  user           User             @relation(fields: [userId], references: [id])
   organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  role           String // e.g. ADMIN, MEMBER
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  roleId         String
+  role           OrganizationRole @relation(fields: [roleId], references: [id])
 
   @@id([userId, organizationId])
 }
