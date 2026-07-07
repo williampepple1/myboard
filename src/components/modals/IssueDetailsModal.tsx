@@ -1,10 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, AlignLeft, Trash2, Calendar, User, MessageSquare, Plus } from 'lucide-react'
+import { X, AlignLeft, Trash2, Calendar, User, MessageSquare, Plus, CheckSquare, Square } from 'lucide-react'
 import type { Task as PrismaTask, Label, Comment as PrismaComment } from '@prisma/client'
 import { updateTaskDetails, deleteTask, type Priority, type IssueType } from '@/actions/board'
-import { getTaskComments, addComment, deleteComment, getAllLabels, createLabel, setTaskLabels, setTaskAssignee, setTaskDueDate, getOrgMembersForAssignee } from '@/actions/tasks'
+import { getTaskComments, addComment, deleteComment, getAllLabels, createLabel, setTaskLabels, setTaskAssignee, setTaskDueDate, getOrgMembersForAssignee, getSubtasks, createSubtask, toggleSubtask, deleteSubtask } from '@/actions/tasks'
 import { ISSUE_TYPE_ICONS, PRIORITY_ICONS } from '@/lib/icons'
 
 export type Task = PrismaTask & {
@@ -52,6 +52,8 @@ export default function IssueDetailsModal({ isOpen, onClose, task, columns, onTa
   const [members, setMembers] = useState<MemberItem[]>([])
   const [assigneeId, setAssigneeId] = useState(task?.assigneeId || '')
   const [dueDate, setDueDate] = useState(task?.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '')
+  const [subtasks, setSubtasks] = useState<PrismaTask[]>([])
+  const [newSubtask, setNewSubtask] = useState('')
   const [showNewLabel, setShowNewLabel] = useState(false)
   const [newLabelName, setNewLabelName] = useState('')
   const [newLabelColor, setNewLabelColor] = useState('#0C66E4')
@@ -61,6 +63,7 @@ export default function IssueDetailsModal({ isOpen, onClose, task, columns, onTa
     getAllLabels().then(setAllLabels)
     getTaskComments(task.id).then(setComments)
     getOrgMembersForAssignee(orgId).then(setMembers)
+    getSubtasks(task.id).then(setSubtasks)
   }, [task?.id, orgId])
 
   const handleUpdate = async (field: string, value: string) => {
@@ -188,6 +191,46 @@ export default function IssueDetailsModal({ isOpen, onClose, task, columns, onTa
                 onBlur={() => { if (description !== (task.description || '')) handleUpdate('description', description) }}
                 placeholder="Add a more detailed description..."
                 className="w-full min-h-[150px] p-4 bg-background border border-border rounded-lg outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all text-sm resize-y" />
+            </div>
+
+            {/* Subtasks */}
+            <div>
+              <div className="flex items-center gap-2 mb-4 font-medium text-foreground/80">
+                <CheckSquare size={18} />
+                <h3>Subtasks ({subtasks.filter(s => s.completed).length}/{subtasks.length})</h3>
+              </div>
+              <div className="space-y-1 mb-3">
+                {subtasks.map(s => (
+                  <div key={s.id} className="flex items-center gap-2 group">
+                    <button onClick={async () => {
+                      const updated = await toggleSubtask(s.id, !s.completed, orgId!)
+                      setSubtasks(prev => prev.map(st => st.id === s.id ? { ...st, completed: updated.completed } : st))
+                    }} className="shrink-0 text-foreground/40 hover:text-primary transition-colors">
+                      {s.completed ? <CheckSquare size={16} className="text-green-500" /> : <Square size={16} />}
+                    </button>
+                    <span className={`text-sm flex-1 ${s.completed ? 'line-through text-foreground/40' : 'text-foreground/80'}`}>{s.title}</span>
+                    <button onClick={async () => {
+                      await deleteSubtask(s.id, orgId!)
+                      setSubtasks(prev => prev.filter(st => st.id !== s.id))
+                    }} className="opacity-0 group-hover:opacity-100 p-0.5 text-foreground/30 hover:text-red-500 transition-all">
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <input value={newSubtask} onChange={e => setNewSubtask(e.target.value)}
+                  onKeyDown={async e => {
+                    if (e.key === 'Enter' && newSubtask.trim()) {
+                      e.preventDefault()
+                      const s = await createSubtask(task.id, newSubtask.trim(), orgId!)
+                      setSubtasks(prev => [...prev, s as PrismaTask])
+                      setNewSubtask('')
+                    }
+                  }}
+                  placeholder="Add a subtask..."
+                  className="flex-1 px-3 py-1.5 text-sm bg-background border border-border rounded outline-none focus:border-primary/50" />
+              </div>
             </div>
 
             {/* Comments */}

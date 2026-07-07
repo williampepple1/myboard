@@ -203,6 +203,10 @@ model Task {
   priority    Priority  @default(MEDIUM)
   issueType   IssueType @default(TASK)
   dueDate     DateTime?
+  completed   Boolean   @default(false)
+  parentTaskId String?
+  parentTask   Task?    @relation("Subtasks", fields: [parentTaskId], references: [id])
+  subtasks     Task[]   @relation("Subtasks")
   labels      TaskLabel[]
   comments    Comment[]
   createdAt   DateTime  @default(now())

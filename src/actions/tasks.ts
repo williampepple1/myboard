@@ -112,6 +112,34 @@ export async function getUnreadNotificationCount(userId: string) {
 
 const LABEL_COLORS = ['#0C66E4', '#22A06B', '#E34935', '#F5CD47', '#8C6BDF', '#E76E99', '#4BCE97', '#6B778C']
 
+export async function getSubtasks(taskId: string) {
+  return prisma.task.findMany({
+    where: { parentTaskId: taskId },
+    orderBy: { order: 'asc' },
+  })
+}
+
+export async function createSubtask(parentTaskId: string, title: string, organizationId: string) {
+  await requirePermission(organizationId, 'canCreateTask')
+  const parent = await prisma.task.findUnique({ where: { id: parentTaskId }, select: { columnId: true, projectId: true } })
+  if (!parent) throw new Error('Parent task not found')
+  const count = await prisma.task.count({ where: { parentTaskId } })
+  return prisma.task.create({
+    data: { title, columnId: parent.columnId, projectId: parent.projectId, parentTaskId, order: count },
+  })
+}
+
+export async function toggleSubtask(taskId: string, completed: boolean, organizationId: string) {
+  await requirePermission(organizationId, 'canEditTask')
+  return prisma.task.update({ where: { id: taskId }, data: { completed } })
+}
+
+export async function deleteSubtask(taskId: string, organizationId: string) {
+  await requirePermission(organizationId, 'canDeleteTask')
+  await prisma.task.delete({ where: { id: taskId } })
+  return { success: true }
+}
+
 export async function ensureDefaultLabels() {
   const existing = await prisma.label.count()
   if (existing > 0) return
