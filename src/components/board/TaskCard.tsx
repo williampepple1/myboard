@@ -28,7 +28,7 @@ export default function TaskCard({ task, isOverlay, onClick }: TaskCardProps) {
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}
       onClick={() => { if (onClick && !isDragging) onClick() }}
-      className={`bg-white dark:bg-[#22272B] border border-transparent hover:border-slate-300 dark:hover:border-slate-600 p-3 rounded-md shadow-sm group hover:bg-[#F4F5F7] dark:hover:bg-[#2D3236] transition-all cursor-pointer flex flex-col gap-2 ${isOverlay ? 'shadow-xl scale-105 rotate-2 border-primary/30' : ''}`}>
+      className={`bg-white dark:bg-[#2D3236] border border-transparent hover:border-slate-300 dark:hover:border-slate-500 p-3 rounded-md shadow-sm group hover:bg-[#F4F5F7] dark:hover:bg-[#383D42] transition-all cursor-pointer flex flex-col gap-2 ${isOverlay ? 'shadow-xl scale-105 rotate-2 border-primary/30' : ''}`}>
       
       {/* Labels */}
       {task.labels && task.labels.length > 0 && (
