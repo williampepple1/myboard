@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react'
 import { X, AlignLeft, Trash2, Calendar, User, MessageSquare, Plus, CheckSquare, Square } from 'lucide-react'
 import type { Task as PrismaTask, Label, Comment as PrismaComment } from '@prisma/client'
 import { updateTaskDetails, deleteTask, type Priority, type IssueType } from '@/actions/board'
-import { getTaskComments, addComment, deleteComment, getAllLabels, createLabel, setTaskLabels, setTaskAssignee, setTaskDueDate, getOrgMembersForAssignee, getSubtasks, createSubtask, toggleSubtask, deleteSubtask } from '@/actions/tasks'
-import { ISSUE_TYPE_ICONS, PRIORITY_ICONS } from '@/lib/icons'
+import { getTaskComments, addComment, getAllLabels, createLabel, setTaskLabels, setTaskAssignee, setTaskDueDate, getOrgMembersForAssignee, getSubtasks, createSubtask, toggleSubtask, deleteSubtask } from '@/actions/tasks'
+import { ISSUE_TYPE_ICONS } from '@/lib/icons'
 
 export type Task = PrismaTask & {
   priority: Priority
@@ -20,14 +20,6 @@ export type Task = PrismaTask & {
 type Column = { id: string; name: string }
 type MemberItem = { user: { id: string; name: string | null; email: string | null } }
 
-const LABEL_PRESETS = [
-  { name: 'Bug', color: '#E34935' },
-  { name: 'Feature', color: '#0C66E4' },
-  { name: 'Improvement', color: '#22A06B' },
-  { name: 'Question', color: '#F5CD47' },
-  { name: 'Documentation', color: '#8C6BDF' },
-  { name: 'Design', color: '#E76E99' },
-]
 
 export default function IssueDetailsModal({ isOpen, onClose, task, columns, onTaskUpdate, onTaskDelete, orgId }: {
   isOpen: boolean
@@ -64,7 +56,7 @@ export default function IssueDetailsModal({ isOpen, onClose, task, columns, onTa
     getTaskComments(task.id).then(setComments)
     getOrgMembersForAssignee(orgId).then(setMembers)
     getSubtasks(task.id).then(setSubtasks)
-  }, [task?.id, orgId])
+  }, [task, orgId])
 
   const handleUpdate = async (field: string, value: string) => {
     setIsUpdating(true)
@@ -82,11 +74,6 @@ export default function IssueDetailsModal({ isOpen, onClose, task, columns, onTa
     setNewComment('')
   }
 
-  const handleDeleteComment = async (commentId: string) => {
-    if (!orgId) return
-    await deleteComment(commentId, orgId)
-    setComments(prev => prev.filter(c => c.id !== commentId))
-  }
 
   const handleToggleLabel = async (labelId: string) => {
     if (!orgId) return
@@ -126,7 +113,7 @@ export default function IssueDetailsModal({ isOpen, onClose, task, columns, onTa
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 md:p-12 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-4xl max-h-full bg-white dark:bg-[#1D2125] border border-border rounded-md shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="w-full max-w-4xl max-h-full bg-white border border-border rounded-md shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
         <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-panel">
           <div className="flex items-center gap-3 text-sm text-foreground/60 font-medium uppercase tracking-wide">
             {ISSUE_TYPE_ICONS[issueType]}
@@ -138,7 +125,7 @@ export default function IssueDetailsModal({ isOpen, onClose, task, columns, onTa
                 if (!confirm('Delete this task?')) return
                 try { await deleteTask(task.id); onTaskDelete(task.id); onClose() }
                 catch (e) { console.error(e) }
-              }} className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md text-foreground/50 hover:text-red-500 transition-colors" title="Delete task">
+              }} className="p-2 hover:bg-red-50 rounded-md text-foreground/50 hover:text-red-500 transition-colors" title="Delete task">
                 <Trash2 size={18} />
               </button>
             )}
@@ -166,7 +153,7 @@ export default function IssueDetailsModal({ isOpen, onClose, task, columns, onTa
               <div className="flex flex-wrap gap-1.5">
                 {allLabels.map(label => (
                   <button key={label.id} onClick={() => handleToggleLabel(label.id)}
-                    className={`px-2 py-0.5 rounded text-xs font-medium transition-all ${taskLabelIds.includes(label.id) ? 'ring-2 ring-offset-1 dark:ring-offset-[#1D2125]' : 'opacity-50 hover:opacity-80'}`}
+                    className={`px-2 py-0.5 rounded text-xs font-medium transition-all ${taskLabelIds.includes(label.id) ? 'ring-2 ring-offset-1' : 'opacity-50 hover:opacity-80'}`}
                     style={{ backgroundColor: label.color + '20', color: label.color, boxShadow: taskLabelIds.includes(label.id) ? `0 0 0 2px ${label.color}` : 'none' }}>
                     {label.name}
                   </button>
