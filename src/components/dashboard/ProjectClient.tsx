@@ -265,9 +265,9 @@ export default function ProjectClient({ projectId }: { projectId: string }) {
   const isStarred = stars.some(s => s.entityType === 'PROJECT' && s.entityId === projectData.id)
 
   return (
-    <div className="flex-1 bg-white dark:bg-[#1D2125] overflow-hidden flex flex-col relative">
+    <div className="flex-1 bg-white overflow-hidden flex flex-col relative">
       {/* Project Header */}
-      <div className="px-4 sm:px-8 pt-4 sm:pt-6 pb-2 bg-white dark:bg-[#1D2125] border-b border-border shrink-0 z-0">
+      <div className="px-4 sm:px-8 pt-4 sm:pt-6 pb-2 bg-white border-b border-border shrink-0 z-0">
         <div className="text-sm text-[#6B778C] mb-2 flex items-center gap-1">
           <Briefcase size={14} />
           <span>Projects</span>
@@ -276,7 +276,7 @@ export default function ProjectClient({ projectId }: { projectId: string }) {
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <h1 className="text-xl sm:text-2xl font-bold text-[#172B4D] dark:text-[#B6C2CF]">{projectData.name}</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-[#172B4D]">{projectData.name}</h1>
             <Tooltip label={isStarred ? 'Unstar project' : 'Star project'}>
               <button
                 onClick={async () => {

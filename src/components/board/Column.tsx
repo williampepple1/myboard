@@ -29,10 +29,10 @@ export default function Column({ column, onAddTask, onTaskClick, readOnly = fals
   else if (lowerName === 'story') topBorderColor = 'border-t-green-500'
 
   return (
-    <div className={`flex flex-col w-64 shrink-0 bg-[#F4F5F7] dark:bg-[#1D2125] rounded-md border-t-[3px] ${topBorderColor}`}>
+    <div className={`flex flex-col w-64 shrink-0 bg-[#F4F5F7] rounded-md border-t-[3px] ${topBorderColor}`}>
       <div className="p-3 pb-2 flex items-center gap-2">
-        <h3 className="text-[11px] font-bold text-[#6B778C] dark:text-[#9FADBC] uppercase tracking-wider">{column.name}</h3>
-        <span className="text-[11px] bg-[#DFE1E6] dark:bg-[#454F59] text-[#42526E] dark:text-[#B6C2CF] px-1.5 rounded font-medium">
+        <h3 className="text-[11px] font-bold text-[#6B778C] uppercase tracking-wider">{column.name}</h3>
+        <span className="text-[11px] bg-[#DFE1E6] text-[#42526E] px-1.5 rounded font-medium">
           {column.tasks.length}
         </span>
       </div>
@@ -50,7 +50,7 @@ export default function Column({ column, onAddTask, onTaskClick, readOnly = fals
         {!readOnly && (
           <button 
             onClick={onAddTask}
-            className="w-full flex items-center gap-1.5 py-1.5 px-2 mt-1 rounded text-[#42526E] dark:text-[#B6C2CF] hover:bg-[#EBECF0] dark:hover:bg-[#2D3236] transition-colors text-[13px] font-medium"
+            className="w-full flex items-center gap-1.5 py-1.5 px-2 mt-1 rounded text-[#42526E] hover:bg-[#EBECF0] transition-colors text-[13px] font-medium"
           >
             <Plus size={16} /> Create
           </button>

@@ -11,16 +11,6 @@
   --muted: #6B778C;
 }
 
-.dark {
-  --background: #1D2125;
-  --foreground: #B6C2CF;
-  --primary: #579DFF;
-  --primary-hover: #85B8FF;
-  --panel: #22272B;
-  --border: #454F59;
-  --card: #22272B;
-  --muted: #9FADBC;
-}
 
 @theme inline {
   --color-background: var(--background);

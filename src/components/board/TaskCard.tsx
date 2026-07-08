@@ -28,7 +28,7 @@ export default function TaskCard({ task, isOverlay, onClick }: TaskCardProps) {
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}
       onClick={() => { if (onClick && !isDragging) onClick() }}
-      className={`bg-white dark:bg-[#2D3236] border border-transparent hover:border-slate-300 dark:hover:border-slate-500 p-3 rounded-md shadow-sm group hover:bg-[#F4F5F7] dark:hover:bg-[#383D42] transition-all cursor-pointer flex flex-col gap-2 ${isOverlay ? 'shadow-xl scale-105 rotate-2 border-primary/30' : ''}`}>
+      className={`bg-white border border-transparent hover:border-slate-300 p-3 rounded-md shadow-sm group hover:bg-[#F4F5F7] transition-all cursor-pointer flex flex-col gap-2 ${isOverlay ? 'shadow-xl scale-105 rotate-2 border-primary/30' : ''}`}>
       
       {/* Labels */}
       {task.labels && task.labels.length > 0 && (
@@ -42,10 +42,10 @@ export default function TaskCard({ task, isOverlay, onClick }: TaskCardProps) {
         </div>
       )}
 
-      <p className="text-[14px] text-[#172b4d] dark:text-[#B6C2CF] leading-snug">{task.title}</p>
+      <p className="text-[14px] text-[#172b4d] leading-snug">{task.title}</p>
 
       <div className="flex items-center justify-between mt-1">
-        <div className="flex items-center gap-2 text-[#6B778C] dark:text-[#9FADBC]">
+        <div className="flex items-center gap-2 text-[#6B778C]">
           <div title={task.issueType}>{ISSUE_TYPE_ICONS[task.issueType]}</div>
           <span className="text-[12px] font-medium tracking-wide">KAN-{task.id.slice(0, 7)}</span>
           {task.dueDate && (
