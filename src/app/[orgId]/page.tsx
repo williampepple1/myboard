@@ -25,9 +25,7 @@ export default async function OrgPage(props: { params: Promise<{ orgId: string }
   ])
 
   const currentUserOrgUser = members.find(m => m.userId === session?.user?.id)
-  // @ts-expect-error Prisma types might be out of sync in the editor
   const canCreateNote = currentUserOrgUser?.role.canCreateNote || false
-  // @ts-expect-error Prisma types might be out of sync in the editor
   const canDeleteNote = currentUserOrgUser?.role.canDeleteNote || false
 
   return (

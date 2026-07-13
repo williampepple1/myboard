@@ -22,9 +22,7 @@ export default async function ProjectPage(props: { params: Promise<{ orgId: stri
       include: { role: true }
     })
     
-    // @ts-expect-error Prisma types might be out of sync in the editor
     canCreateNote = orgUser?.role.canCreateNote || false
-    // @ts-expect-error Prisma types might be out of sync in the editor
     canDeleteNote = orgUser?.role.canDeleteNote || false
   }
   
