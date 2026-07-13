@@ -10,6 +10,8 @@ export default async function ProjectPage(props: { params: Promise<{ orgId: stri
   
   let canCreateNote = false
   let canDeleteNote = false
+  let canEditNote = false
+  let currentUserRole: string | undefined
   
   if (session?.user?.id) {
     const orgUser = await prisma.organizationUser.findUnique({
@@ -24,6 +26,8 @@ export default async function ProjectPage(props: { params: Promise<{ orgId: stri
     
     canCreateNote = orgUser?.role.canCreateNote || false
     canDeleteNote = orgUser?.role.canDeleteNote || false
+    canEditNote = orgUser?.role.canEditNote || false
+    currentUserRole = orgUser?.role.name
   }
   
   return (
@@ -31,7 +35,8 @@ export default async function ProjectPage(props: { params: Promise<{ orgId: stri
       projectId={projectId} 
       canCreateNote={canCreateNote}
       canDeleteNote={canDeleteNote}
-      currentUser={session?.user ? { id: session.user.id } : undefined}
+      canEditNote={canEditNote}
+      currentUser={session?.user ? { id: session.user.id, role: currentUserRole } : undefined}
     />
   )
 }

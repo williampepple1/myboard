@@ -112,6 +112,18 @@ export async function getNotes({ organizationId, projectId }: { organizationId?:
           id: true,
           name: true,
           email: true,
+          organizationUsers: {
+            where: {
+              organizationId: organizationId || undefined,
+            },
+            include: {
+              role: {
+                select: {
+                  name: true
+                }
+              }
+            }
+          }
         },
       },
     },
@@ -121,4 +133,75 @@ export async function getNotes({ organizationId, projectId }: { organizationId?:
   })
 
   return notes
+}
+
+export async function updateNote(
+  id: string,
+  data: { content?: string; color?: string }
+) {
+  const { data: session } = await auth.getSession()
+  const userId = session?.user?.id
+  if (!userId) throw new Error('Not authenticated')
+
+  const note = await prisma.note.findUnique({
+    where: { id },
+  })
+
+  if (!note) throw new Error('Note not found')
+  
+  if (note.authorId !== userId) {
+    if (note.organizationId) {
+      const orgUser = await prisma.organizationUser.findUnique({
+        where: {
+          userId_organizationId: {
+            userId,
+            organizationId: note.organizationId
+          }
+        },
+        include: { role: true }
+      })
+      if (!orgUser?.role?.canEditNote) {
+        throw new Error('Not authorized to edit this note')
+      }
+      
+      const authorOrgUser = await prisma.organizationUser.findUnique({
+        where: {
+          userId_organizationId: {
+            userId: note.authorId,
+            organizationId: note.organizationId
+          }
+        },
+        include: { role: true }
+      })
+
+      if ((authorOrgUser?.role?.name === 'Admin' || authorOrgUser?.role?.name === 'Owner') && orgUser.role.name === 'Member') {
+        throw new Error('Members cannot edit notes created by admins')
+      }
+    } else {
+      throw new Error('Not authorized to edit this note')
+    }
+  }
+
+  const updatedNote = await prisma.note.update({
+    where: { id },
+    data,
+    include: {
+      author: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+  })
+
+  if (note.projectId) {
+    revalidatePath(`/[orgId]/projects/${note.projectId}`, 'page')
+  }
+  if (note.organizationId) {
+    revalidatePath(`/${note.organizationId}`, 'page')
+  }
+
+  return updatedNote
 }

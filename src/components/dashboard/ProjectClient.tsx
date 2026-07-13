@@ -209,7 +209,7 @@ function MoreMenu({ projectName, columns: allColumns }: { projectName: string; c
 }
 
 // ─── Main component ──────────────────────────────────────────────────────
-export default function ProjectClient({ projectId, canCreateNote = false, canDeleteNote = false, currentUser }: { projectId: string, canCreateNote?: boolean, canDeleteNote?: boolean, currentUser?: { id: string } }) {
+export default function ProjectClient({ projectId, canCreateNote = false, canDeleteNote = false, canEditNote = false, currentUser }: { projectId: string, canCreateNote?: boolean, canDeleteNote?: boolean, canEditNote?: boolean, currentUser?: { id: string, role?: string } }) {
   const { projectData, setProjectData, stars, setStars, setRecents, boardGroupBy, setBoardGroupBy } = useBoardStore()
   const [loading, setLoading] = useState(true)
   const [fullscreen, setFullscreen] = useState(false)
@@ -399,6 +399,7 @@ export default function ProjectClient({ projectId, canCreateNote = false, canDel
             projectId={projectData.id}
             canCreate={canCreateNote}
             canDelete={canDeleteNote}
+            canEdit={canEditNote}
             currentUser={currentUser}
           />
         </div>

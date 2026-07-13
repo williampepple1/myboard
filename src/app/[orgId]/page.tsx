@@ -27,15 +27,17 @@ export default async function OrgPage(props: { params: Promise<{ orgId: string }
   const currentUserOrgUser = members.find(m => m.userId === session?.user?.id)
   const canCreateNote = currentUserOrgUser?.role.canCreateNote || false
   const canDeleteNote = currentUserOrgUser?.role.canDeleteNote || false
+  const canEditNote = currentUserOrgUser?.role.canEditNote || false
 
   return (
     <OrganizationOverview
       org={org}
       members={members.map(m => ({ id: m.userId, name: m.user.name, email: m.user.email, role: m.role.name }))}
-      currentUser={{ id: session?.user?.id || '', name: session?.user?.name, email: session?.user?.email }}
+      currentUser={{ id: session?.user?.id || '', name: session?.user?.name, email: session?.user?.email, role: currentUserOrgUser?.role.name }}
       memberCount={memberCount}
       canCreateNote={canCreateNote}
       canDeleteNote={canDeleteNote}
+      canEditNote={canEditNote}
     />
   )
 }

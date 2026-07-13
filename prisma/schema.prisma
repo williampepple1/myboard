@@ -78,6 +78,7 @@ model OrganizationRole {
   canEditTask       Boolean           @default(false)
   canCreateNote     Boolean           @default(false)
   canDeleteNote     Boolean           @default(false)
+  canEditNote       Boolean           @default(false)
   members           OrganizationUser[]
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt

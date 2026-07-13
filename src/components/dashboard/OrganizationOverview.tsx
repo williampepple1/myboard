@@ -10,13 +10,14 @@ import NotesSection from '@/components/board/NotesSection'
 interface OrganizationOverviewProps {
   org: Organization
   members?: { id: string; name?: string | null; email?: string | null; role: string }[]
-  currentUser?: { id: string; name?: string | null; email?: string | null }
+  currentUser?: { id: string; name?: string | null; email?: string | null; role?: string }
   memberCount?: number
   canCreateNote?: boolean
   canDeleteNote?: boolean
+  canEditNote?: boolean
 }
 
-export default function OrganizationOverview({ org, members, currentUser, memberCount, canCreateNote, canDeleteNote }: OrganizationOverviewProps) {
+export default function OrganizationOverview({ org, members, currentUser, memberCount, canCreateNote, canDeleteNote, canEditNote }: OrganizationOverviewProps) {
   const router = useRouter()
   const {
     setIsCreateProjectModalOpen,
@@ -146,6 +147,7 @@ export default function OrganizationOverview({ org, members, currentUser, member
                 organizationId={org.id} 
                 canCreate={canCreateNote}
                 canDelete={canDeleteNote}
+                canEdit={canEditNote}
                 currentUser={currentUser}
               />
             </section>

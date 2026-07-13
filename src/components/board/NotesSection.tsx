@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Plus } from 'lucide-react'
-import { getNotes, createNote, deleteNote } from '@/actions/notes'
+import { getNotes, createNote, deleteNote, updateNote } from '@/actions/notes'
 import PostcardNote, { NoteType } from './PostcardNote'
 import RichTextEditor from './RichTextEditor'
 
@@ -11,7 +11,8 @@ interface NotesSectionProps {
   projectId?: string
   canCreate?: boolean
   canDelete?: boolean
-  currentUser?: { id: string }
+  canEdit?: boolean
+  currentUser?: { id: string; role?: string }
 }
 
 const COLORS = ['#FDFBF7', '#FEE2E2', '#FEF3C7', '#D1FAE5', '#DBEAFE', '#F3E8FF']
@@ -21,6 +22,7 @@ export default function NotesSection({
   projectId,
   canCreate = false,
   canDelete = false,
+  canEdit = false,
   currentUser,
 }: NotesSectionProps) {
   const [notes, setNotes] = useState<NoteType[]>([])
@@ -77,6 +79,15 @@ export default function NotesSection({
       // Refresh to restore if failed
       const fetched = await getNotes({ organizationId, projectId })
       setNotes(fetched as NoteType[])
+    }
+  }
+
+  const handleEdit = async (id: string, newContent: string, newColor?: string) => {
+    try {
+      const updated = await updateNote(id, { content: newContent, color: newColor })
+      setNotes((prev) => prev.map(n => n.id === id ? (updated as NoteType) : n))
+    } catch (err) {
+      console.error('Failed to edit note', err)
     }
   }
 
@@ -141,12 +152,22 @@ export default function NotesSection({
         <div className="flex flex-wrap gap-8 py-4">
           {notes.map(note => {
             const hasDeletePermission = canDelete || note.author.id === currentUser?.id
+            
+            // Check if note author is an Admin/Owner and current user is a Member
+            const authorRole = note.author.organizationUsers?.find(o => o.role.name === 'Admin' || o.role.name === 'Owner')?.role.name
+            const isAuthorAdmin = authorRole === 'Admin' || authorRole === 'Owner'
+            const isCurrentUserMember = currentUser?.role === 'Member'
+            
+            const hasEditPermission = (canEdit && !(isAuthorAdmin && isCurrentUserMember)) || note.author.id === currentUser?.id
+
             return (
               <PostcardNote
                 key={note.id}
                 note={note}
                 onDelete={handleDelete}
+                onEdit={handleEdit}
                 canDelete={hasDeletePermission}
+                canEdit={hasEditPermission}
               />
             )
           })}
