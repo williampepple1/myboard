@@ -17,6 +17,9 @@ model Organization {
   spaces      Space[]
   plans       Plan[]
   notes       Note[]
+  budgets     Budget[]
+  expenses    Expense[]
+  expenseCategories ExpenseCategory[]
 }
 
 model Space {
@@ -58,6 +61,9 @@ model User {
   notifications     Notification[]
   assignedTasks     Task[]             @relation("TaskAssignee")
   notes             Note[]             @relation("NoteAuthor")
+  budgets           Budget[]
+  expenses          Expense[]
+  expenseCategories ExpenseCategory[]
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
 }
@@ -82,6 +88,8 @@ model OrganizationRole {
   canCreateNote     Boolean           @default(false)
   canDeleteNote     Boolean           @default(false)
   canEditNote       Boolean           @default(false)
+  canViewFinance    Boolean           @default(false)
+  canManageFinance  Boolean           @default(false)
   members           OrganizationUser[]
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
@@ -139,6 +147,8 @@ model Project {
   columns        Column[]
   tasks          Task[]
   notes          Note[]
+  budgets        Budget[]
+  expenses       Expense[]
 }
 
 model Column {
@@ -307,4 +317,67 @@ model Verification {
   expiresAt  DateTime
   createdAt  DateTime?
   updatedAt  DateTime?
+}
+
+enum BudgetPeriod {
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+model Budget {
+  id             String        @id @default(uuid())
+  name           String
+  amount         Float
+  currency       String        @default("USD")
+  period         BudgetPeriod
+  startDate      DateTime?
+  endDate        DateTime?
+
+  userId         String?
+  user           User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  projectId      String?
+  project        Project?      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model ExpenseCategory {
+  id             String        @id @default(uuid())
+  name           String
+  color          String        @default("#000000")
+  
+  userId         String?
+  user           User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  expenses       Expense[]
+
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model Expense {
+  id             String           @id @default(uuid())
+  amount         Float
+  currency       String           @default("USD")
+  description    String?
+  date           DateTime         @default(now())
+
+  categoryId     String?
+  category       ExpenseCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  userId         String?
+  user           User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationId String?
+  organization   Organization?    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  projectId      String?
+  project        Project?         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 }

@@ -12,6 +12,8 @@ export const PERMISSIONS = [
   'canCreateNote',
   'canDeleteNote',
   'canEditNote',
+  'canViewFinance',
+  'canManageFinance',
 ] as const
 
 export type Permission = (typeof PERMISSIONS)[number]
@@ -33,6 +35,8 @@ export const ROLE_TEMPLATES = {
     canCreateNote: true,
     canDeleteNote: true,
     canEditNote: true,
+    canViewFinance: true,
+    canManageFinance: true,
   },
   Member: {
     name: 'Member',
@@ -50,6 +54,8 @@ export const ROLE_TEMPLATES = {
     canCreateNote: true,
     canDeleteNote: false,
     canEditNote: true,
+    canViewFinance: false,
+    canManageFinance: false,
   },
   Viewer: {
     name: 'Viewer',
@@ -67,6 +73,8 @@ export const ROLE_TEMPLATES = {
     canCreateNote: false,
     canDeleteNote: false,
     canEditNote: false,
+    canViewFinance: false,
+    canManageFinance: false,
   },
 } as const
 
@@ -86,4 +94,6 @@ export const PERMISSION_LABELS: Record<Permission, string> = {
   canCreateNote: 'Create postcard notes',
   canDeleteNote: 'Delete postcard notes',
   canEditNote: 'Edit postcard notes',
+  canViewFinance: 'View organization finances',
+  canManageFinance: 'Manage organization finances',
 }

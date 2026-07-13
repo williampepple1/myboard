@@ -314,6 +314,12 @@ export default function ProjectClient({ projectId, canCreateNote = false, canDel
               {tab}
             </button>
           ))}
+          <a
+            href={`/${projectData.organizationId}/projects/${projectData.id}/expenses`}
+            className="pb-2 border-b-2 border-transparent hover:text-[#172b4d] transition-colors shrink-0 flex items-center gap-1"
+          >
+            Finances
+          </a>
         </div>
       </div>
 

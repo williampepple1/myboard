@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { Plus, Briefcase, FolderKanban, Clock, Star, FileText, Map, ChevronDown, ChevronRight, X } from 'lucide-react'
+import { Plus, Briefcase, FolderKanban, Clock, Star, FileText, Map, ChevronDown, ChevronRight, X, Wallet } from 'lucide-react'
 import { useBoardStore } from '@/store/boardStore'
 import type { Organization } from '@/store/boardStore'
 import { toggleStar, getUserStarsAndRecents } from '@/actions/stars'
@@ -118,6 +118,13 @@ export default function Sidebar({
           className={`w-full flex items-center gap-3 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${!selectedProjectId && !selectedSpaceId && !selectedPlanId && selectedOrgId ? 'bg-[#E9F2FF] text-[#0C66E4]' : 'text-[#42526E] hover:bg-[#F4F5F7]'}`}
         >
           <Briefcase size={16} /> For you
+        </Link>
+        <Link
+          href={'/expenses'}
+          onClick={onClose}
+          className={`w-full flex items-center gap-3 px-3 py-1.5 text-sm font-medium rounded-md transition-colors text-[#42526E] hover:bg-[#F4F5F7]`}
+        >
+          <Wallet size={16} /> Personal Finances
         </Link>
 
         {/* Recent — collapsible */}
@@ -279,6 +286,19 @@ export default function Sidebar({
             })}
             {(!selectedOrg.spaces || selectedOrg.spaces.length === 0) && <p className="text-xs text-[#6B778C] italic px-3 py-1">No spaces yet</p>}
           </div>
+        </div>
+      )}
+
+      {/* Org Finances Link */}
+      {selectedOrg && (
+        <div className="px-3 mt-4 animate-in fade-in">
+          <Link 
+            href={`/${selectedOrg.id}/expenses`}
+            onClick={onClose}
+            className={`w-full flex items-center gap-3 px-3 py-1.5 text-sm font-medium rounded-md transition-colors text-[#42526E] hover:bg-[#F4F5F7]`}
+          >
+            <Wallet size={16} /> Org Finances
+          </Link>
         </div>
       )}
 
