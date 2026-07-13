@@ -48,7 +48,11 @@ export default function OrganizationOverview({ org, members, currentUser, member
               <UserPlus size={16} />
               Invite people
             </button>
-            <button className="p-2 text-foreground/40 hover:text-foreground hover:bg-panel rounded-md transition-colors">
+            <button 
+              onClick={() => router.push(`/${org.id}/settings`)}
+              className="p-2 text-foreground/40 hover:text-foreground hover:bg-panel rounded-md transition-colors"
+              title="Organization Settings"
+            >
               <Settings size={20} />
             </button>
           </div>
