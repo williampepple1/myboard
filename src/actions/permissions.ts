@@ -9,6 +9,8 @@ export const PERMISSIONS = [
   'canCreateTask',
   'canDeleteTask',
   'canEditTask',
+  'canCreateNote',
+  'canDeleteNote',
 ] as const
 
 export type Permission = (typeof PERMISSIONS)[number]
@@ -27,6 +29,8 @@ export const ROLE_TEMPLATES = {
     canCreateTask: true,
     canDeleteTask: true,
     canEditTask: true,
+    canCreateNote: true,
+    canDeleteNote: true,
   },
   Member: {
     name: 'Member',
@@ -41,6 +45,8 @@ export const ROLE_TEMPLATES = {
     canCreateTask: true,
     canDeleteTask: true,
     canEditTask: true,
+    canCreateNote: true,
+    canDeleteNote: false,
   },
   Viewer: {
     name: 'Viewer',
@@ -55,6 +61,8 @@ export const ROLE_TEMPLATES = {
     canCreateTask: false,
     canDeleteTask: false,
     canEditTask: false,
+    canCreateNote: false,
+    canDeleteNote: false,
   },
 } as const
 
@@ -71,4 +79,6 @@ export const PERMISSION_LABELS: Record<Permission, string> = {
   canCreateTask: 'Create tasks',
   canDeleteTask: 'Delete tasks',
   canEditTask: 'Edit tasks',
+  canCreateNote: 'Create postcard notes',
+  canDeleteNote: 'Delete postcard notes',
 }

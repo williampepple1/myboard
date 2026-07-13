@@ -16,6 +16,10 @@ import {
   SummaryView, ListView, TimelineView, CodeView, FormsView, DocsView,
   type Tab
 } from './ProjectTabViews'
+import NotesSection from '@/components/board/NotesSection'
+
+// Add 'Notes' to the Tab type locally if it's not in ProjectTabViews yet
+type ExtendedTab = Tab | 'Notes'
 
 // ─── tiny Tooltip ──────────────────────────────────────────────────────
 function Tooltip({ label, children }: { label: string; children: React.ReactNode }) {
@@ -205,11 +209,11 @@ function MoreMenu({ projectName, columns: allColumns }: { projectName: string; c
 }
 
 // ─── Main component ──────────────────────────────────────────────────────
-export default function ProjectClient({ projectId }: { projectId: string }) {
+export default function ProjectClient({ projectId, canCreateNote = false, canDeleteNote = false, currentUser }: { projectId: string, canCreateNote?: boolean, canDeleteNote?: boolean, currentUser?: { id: string } }) {
   const { projectData, setProjectData, stars, setStars, setRecents, boardGroupBy, setBoardGroupBy } = useBoardStore()
   const [loading, setLoading] = useState(true)
   const [fullscreen, setFullscreen] = useState(false)
-  const [activeTab, setActiveTab] = useState<Tab>('Board')
+  const [activeTab, setActiveTab] = useState<ExtendedTab>('Board')
 
   useEffect(() => {
     let isMounted = true
@@ -297,7 +301,7 @@ export default function ProjectClient({ projectId }: { projectId: string }) {
         </div>
 
         <div className="flex items-center gap-4 sm:gap-6 text-sm font-medium text-[#42526E] mt-4 overflow-x-auto scrollbar-none -mx-1 px-1">
-          {(['Summary', 'List', 'Board', 'Code', 'Forms', 'Timeline', 'Docs'] as const).map(tab => (
+          {(['Summary', 'List', 'Board', 'Code', 'Forms', 'Timeline', 'Docs', 'Notes'] as const).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -388,6 +392,16 @@ export default function ProjectClient({ projectId }: { projectId: string }) {
       )}
       {activeTab === 'Docs' && (
         <DocsView columns={projectData.columns} projectName={projectData.name} onTaskClick={() => {}} />
+      )}
+      {activeTab === 'Notes' && (
+        <div className="p-8 overflow-y-auto flex-1">
+          <NotesSection
+            projectId={projectData.id}
+            canCreate={canCreateNote}
+            canDelete={canDeleteNote}
+            currentUser={currentUser}
+          />
+        </div>
       )}
     </div>
   )

@@ -5,15 +5,18 @@ import { useRouter } from 'next/navigation'
 import { useBoardStore } from '@/store/boardStore'
 import type { Organization } from '@/store/boardStore'
 import { toggleStar, getUserStarsAndRecents } from '@/actions/stars'
+import NotesSection from '@/components/board/NotesSection'
 
 interface OrganizationOverviewProps {
   org: Organization
   members?: { id: string; name?: string | null; email?: string | null; role: string }[]
   currentUser?: { id: string; name?: string | null; email?: string | null }
   memberCount?: number
+  canCreateNote?: boolean
+  canDeleteNote?: boolean
 }
 
-export default function OrganizationOverview({ org, members, currentUser, memberCount }: OrganizationOverviewProps) {
+export default function OrganizationOverview({ org, members, currentUser, memberCount, canCreateNote, canDeleteNote }: OrganizationOverviewProps) {
   const router = useRouter()
   const {
     setIsCreateProjectModalOpen,
@@ -170,6 +173,16 @@ export default function OrganizationOverview({ org, members, currentUser, member
               </button>
             </div>
           </div>
+        </section>
+
+        {/* Notes Section */}
+        <section>
+          <NotesSection 
+            organizationId={org.id} 
+            canCreate={canCreateNote}
+            canDelete={canDeleteNote}
+            currentUser={currentUser}
+          />
         </section>
 
       </div>

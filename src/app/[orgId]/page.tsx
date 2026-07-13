@@ -24,12 +24,20 @@ export default async function OrgPage(props: { params: Promise<{ orgId: string }
     prisma.organizationUser.count({ where: { organizationId: orgId } }),
   ])
 
+  const currentUserOrgUser = members.find(m => m.userId === session?.user?.id)
+  // @ts-expect-error Prisma types might be out of sync in the editor
+  const canCreateNote = currentUserOrgUser?.role.canCreateNote || false
+  // @ts-expect-error Prisma types might be out of sync in the editor
+  const canDeleteNote = currentUserOrgUser?.role.canDeleteNote || false
+
   return (
     <OrganizationOverview
       org={org}
       members={members.map(m => ({ id: m.userId, name: m.user.name, email: m.user.email, role: m.role.name }))}
       currentUser={{ id: session?.user?.id || '', name: session?.user?.name, email: session?.user?.email }}
       memberCount={memberCount}
+      canCreateNote={canCreateNote}
+      canDeleteNote={canDeleteNote}
     />
   )
 }

@@ -16,6 +16,7 @@ model Organization {
   projects    Project[]
   spaces      Space[]
   plans       Plan[]
+  notes       Note[]
 }
 
 model Space {
@@ -53,6 +54,7 @@ model User {
   comments          Comment[]          @relation("CommentAuthor")
   notifications     Notification[]
   assignedTasks     Task[]             @relation("TaskAssignee")
+  notes             Note[]             @relation("NoteAuthor")
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
 }
@@ -74,6 +76,8 @@ model OrganizationRole {
   canCreateTask     Boolean           @default(false)
   canDeleteTask     Boolean           @default(false)
   canEditTask       Boolean           @default(false)
+  canCreateNote     Boolean           @default(false)
+  canDeleteNote     Boolean           @default(false)
   members           OrganizationUser[]
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
@@ -130,6 +134,7 @@ model Project {
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   columns        Column[]
   tasks          Task[]
+  notes          Note[]
 }
 
 model Column {
@@ -244,4 +249,18 @@ model UserRecent {
   viewedAt   DateTime   @default(now())
 
   @@unique([userId, entityId, entityType])
+}
+
+model Note {
+  id             String        @id @default(uuid())
+  content        String
+  color          String?
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  projectId      String?
+  project        Project?      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  authorId       String
+  author         User          @relation("NoteAuthor", fields: [authorId], references: [id])
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 }
