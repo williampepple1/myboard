@@ -1,13 +1,12 @@
 import { auth } from '@/lib/auth';
 
-import { NextRequest } from 'next/server';
 
 const { GET: authGET, POST: authPOST } = auth.handler();
 
-type AppRouteHandler = (req: NextRequest, ctx: unknown) => Promise<Response> | Response;
+type AuthHandler = typeof authGET;
 
-function stripSecureInDev(handler: AppRouteHandler): AppRouteHandler {
-  return async (req: NextRequest, ctx: unknown) => {
+function stripSecureInDev(handler: AuthHandler): AuthHandler {
+  return async (req: Parameters<AuthHandler>[0], ctx: Parameters<AuthHandler>[1]) => {
     const res = await handler(req, ctx);
     if (process.env.NODE_ENV === 'development' && res) {
       const setCookies = res.headers.getSetCookie();
