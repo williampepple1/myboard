@@ -72,7 +72,7 @@ export default function PostcardNote({ note, onDelete, canDelete }: PostcardNote
 
       <div className="pr-14 pt-2">
         <div 
-          className="text-gray-800 font-medium prose prose-sm max-w-none prose-p:my-1 prose-headings:my-1" 
+          className="text-gray-800 font-medium prose prose-sm max-w-none prose-p:my-1 prose-headings:my-1 break-words" 
           style={{ fontFamily: '"Comic Sans MS", "Chalkboard SE", "Marker Felt", sans-serif' }}
           dangerouslySetInnerHTML={{ __html: note.content }}
         />
