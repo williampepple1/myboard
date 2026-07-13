@@ -47,8 +47,11 @@ model Plan {
 model User {
   id                String             @id
   name              String?
-  email             String?
+  email             String?            @unique
+  emailVerified     Boolean            @default(false)
   image             String?
+  sessions          Session[]
+  accounts          Account[]
   organizationUsers OrganizationUser[]
   groupMemberships  OrganizationGroupMember[]
   comments          Comment[]          @relation("CommentAuthor")
@@ -264,4 +267,44 @@ model Note {
   author         User          @relation("NoteAuthor", fields: [authorId], references: [id])
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
 }
