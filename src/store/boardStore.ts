@@ -29,6 +29,10 @@ interface BoardState {
 
   isCreateProjectModalOpen: boolean
   setIsCreateProjectModalOpen: (open: boolean) => void
+  isCreateSpaceModalOpen: boolean
+  setIsCreateSpaceModalOpen: (open: boolean) => void
+  isCreatePlanModalOpen: boolean
+  setIsCreatePlanModalOpen: (open: boolean) => void
   isCreateOrgModalOpen: boolean
   setIsCreateOrgModalOpen: (open: boolean) => void
   isInviteModalOpen: boolean
@@ -60,6 +64,10 @@ export const useBoardStore = create<BoardState>((set) => ({
 
   isCreateProjectModalOpen: false,
   setIsCreateProjectModalOpen: (open) => set({ isCreateProjectModalOpen: open }),
+  isCreateSpaceModalOpen: false,
+  setIsCreateSpaceModalOpen: (open) => set({ isCreateSpaceModalOpen: open }),
+  isCreatePlanModalOpen: false,
+  setIsCreatePlanModalOpen: (open) => set({ isCreatePlanModalOpen: open }),
   isCreateOrgModalOpen: false,
   setIsCreateOrgModalOpen: (open) => set({ isCreateOrgModalOpen: open }),
   isInviteModalOpen: false,

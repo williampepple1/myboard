@@ -1,6 +1,6 @@
 'use client'
 
-import { Briefcase, FolderKanban, Users, Plus, Settings, Star, UserPlus } from 'lucide-react'
+import { Briefcase, FolderKanban, Users, Plus, Settings, Star, UserPlus, FileText, Map } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useBoardStore } from '@/store/boardStore'
 import type { Organization } from '@/store/boardStore'
@@ -21,6 +21,8 @@ export default function OrganizationOverview({ org, members, currentUser, member
   const router = useRouter()
   const {
     setIsCreateProjectModalOpen,
+    setIsCreateSpaceModalOpen,
+    setIsCreatePlanModalOpen,
     setIsInviteModalOpen,
     stars,
     setStars,
@@ -135,6 +137,148 @@ export default function OrganizationOverview({ org, members, currentUser, member
                     <div>
                       <p className="font-bold text-gray-700 group-hover:text-[#0052CC] transition-colors">Create your first project</p>
                       <p className="text-sm text-gray-500 mt-1">Get started by setting up a board</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </section>
+
+            {/* Spaces Section */}
+            <section className="pt-4">
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-purple-50 text-purple-600 rounded-lg">
+                    <FileText size={20} strokeWidth={2.5} />
+                  </div>
+                  <h2 className="text-xl font-bold text-gray-800">Active Spaces</h2>
+                </div>
+                <button 
+                  onClick={() => setIsCreateSpaceModalOpen(true)}
+                  className="flex items-center gap-2 text-sm font-semibold text-purple-600 bg-purple-50 hover:bg-purple-100 px-4 py-2 rounded-lg transition-colors active:scale-95"
+                >
+                  <Plus size={16} strokeWidth={2.5} />
+                  New Space
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                {(org.spaces || []).map((space) => {
+                  const starred = stars.some(s => s.entityType === 'SPACE' && s.entityId === space.id)
+                  return (
+                    <div 
+                      key={space.id}
+                      onClick={() => router.push(`/${org.id}/spaces/${space.id}`)}
+                      className="group flex flex-col justify-between p-6 bg-white border border-gray-200 hover:border-purple-300 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer relative overflow-hidden"
+                    >
+                      <div className="relative flex items-start justify-between mb-6">
+                        <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:scale-110 group-hover:bg-purple-100 transition-all duration-300">
+                          <FileText size={24} strokeWidth={2} />
+                        </div>
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation()
+                            await toggleStar(space.id, 'SPACE')
+                            const { stars } = await getUserStarsAndRecents()
+                            setStars(stars)
+                          }}
+                          className={`p-2 rounded-full transition-all duration-300 hover:scale-110 active:scale-90 ${starred ? 'bg-amber-100 text-amber-500' : 'text-gray-400 hover:bg-gray-100 opacity-0 group-hover:opacity-100'}`}
+                          title={starred ? 'Unstar' : 'Star'}
+                        >
+                          <Star size={18} className={starred ? 'fill-amber-400' : ''} />
+                        </button>
+                      </div>
+                      <div className="relative">
+                        <h3 className="text-lg font-bold text-gray-900 group-hover:text-purple-600 transition-colors">{space.name}</h3>
+                        <p className="text-sm font-medium text-gray-500 mt-1 flex items-center gap-1 group-hover:text-purple-600/70 transition-colors">
+                          Open Space <span className="opacity-0 group-hover:opacity-100 transform translate-x-0 group-hover:translate-x-1 transition-all duration-300">→</span>
+                        </p>
+                      </div>
+                    </div>
+                  )
+                })}
+                
+                {(org.spaces || []).length === 0 && (
+                  <div 
+                    onClick={() => setIsCreateSpaceModalOpen(true)}
+                    className="p-8 border-2 border-dashed border-gray-200 hover:border-purple-300 hover:bg-purple-50/50 rounded-2xl flex flex-col items-center justify-center text-center gap-4 cursor-pointer group transition-all duration-300 min-h-[200px]"
+                  >
+                    <div className="w-14 h-14 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center group-hover:bg-purple-100 group-hover:text-purple-600 transition-colors duration-300">
+                      <Plus size={28} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                      <p className="font-bold text-gray-700 group-hover:text-purple-600 transition-colors">Create your first space</p>
+                      <p className="text-sm text-gray-500 mt-1">Get started by setting up a space</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </section>
+
+            {/* Plans Section */}
+            <section className="pt-4">
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                    <Map size={20} strokeWidth={2.5} />
+                  </div>
+                  <h2 className="text-xl font-bold text-gray-800">Active Plans</h2>
+                </div>
+                <button 
+                  onClick={() => setIsCreatePlanModalOpen(true)}
+                  className="flex items-center gap-2 text-sm font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-4 py-2 rounded-lg transition-colors active:scale-95"
+                >
+                  <Plus size={16} strokeWidth={2.5} />
+                  New Plan
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                {(org.plans || []).map((plan) => {
+                  const starred = stars.some(s => s.entityType === 'PLAN' && s.entityId === plan.id)
+                  return (
+                    <div 
+                      key={plan.id}
+                      onClick={() => router.push(`/${org.id}/plans/${plan.id}`)}
+                      className="group flex flex-col justify-between p-6 bg-white border border-gray-200 hover:border-indigo-300 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer relative overflow-hidden"
+                    >
+                      <div className="relative flex items-start justify-between mb-6">
+                        <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:scale-110 group-hover:bg-indigo-100 transition-all duration-300">
+                          <Map size={24} strokeWidth={2} />
+                        </div>
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation()
+                            await toggleStar(plan.id, 'PLAN')
+                            const { stars } = await getUserStarsAndRecents()
+                            setStars(stars)
+                          }}
+                          className={`p-2 rounded-full transition-all duration-300 hover:scale-110 active:scale-90 ${starred ? 'bg-amber-100 text-amber-500' : 'text-gray-400 hover:bg-gray-100 opacity-0 group-hover:opacity-100'}`}
+                          title={starred ? 'Unstar' : 'Star'}
+                        >
+                          <Star size={18} className={starred ? 'fill-amber-400' : ''} />
+                        </button>
+                      </div>
+                      <div className="relative">
+                        <h3 className="text-lg font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">{plan.name}</h3>
+                        <p className="text-sm font-medium text-gray-500 mt-1 flex items-center gap-1 group-hover:text-indigo-600/70 transition-colors">
+                          Open Plan <span className="opacity-0 group-hover:opacity-100 transform translate-x-0 group-hover:translate-x-1 transition-all duration-300">→</span>
+                        </p>
+                      </div>
+                    </div>
+                  )
+                })}
+                
+                {(org.plans || []).length === 0 && (
+                  <div 
+                    onClick={() => setIsCreatePlanModalOpen(true)}
+                    className="p-8 border-2 border-dashed border-gray-200 hover:border-indigo-300 hover:bg-indigo-50/50 rounded-2xl flex flex-col items-center justify-center text-center gap-4 cursor-pointer group transition-all duration-300 min-h-[200px]"
+                  >
+                    <div className="w-14 h-14 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center group-hover:bg-indigo-100 group-hover:text-indigo-600 transition-colors duration-300">
+                      <Plus size={28} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                      <p className="font-bold text-gray-700 group-hover:text-indigo-600 transition-colors">Create your first plan</p>
+                      <p className="text-sm text-gray-500 mt-1">Get started by setting up a plan</p>
                     </div>
                   </div>
                 )}

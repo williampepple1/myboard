@@ -100,6 +100,8 @@ export default function ClientLayout({
     orgs, setOrgs,
     setStars, setRecents,
     isCreateProjectModalOpen, setIsCreateProjectModalOpen,
+    isCreateSpaceModalOpen, setIsCreateSpaceModalOpen,
+    isCreatePlanModalOpen, setIsCreatePlanModalOpen,
     isCreateOrgModalOpen, setIsCreateOrgModalOpen,
     isInviteModalOpen, setIsInviteModalOpen,
   } = useBoardStore()
@@ -170,7 +172,6 @@ export default function ClientLayout({
   }
 
   // ── Create Space ────────────────────────────────────────────────
-  const [isCreateSpaceModalOpen, setIsCreateSpaceModalOpen] = useState(false)
   const [newSpaceName, setNewSpaceName] = useState('')
   const [isCreatingSpace, setIsCreatingSpace] = useState(false)
 
@@ -194,7 +195,6 @@ export default function ClientLayout({
   }
 
   // ── Create Plan ─────────────────────────────────────────────────
-  const [isCreatePlanModalOpen, setIsCreatePlanModalOpen] = useState(false)
   const [newPlanName, setNewPlanName] = useState('')
   const [isCreatingPlan, setIsCreatingPlan] = useState(false)
 
