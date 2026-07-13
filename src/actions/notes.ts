@@ -1,4 +1,5 @@
 'use server'
+import { headers } from "next/headers";
 
 import prisma from '@/lib/prisma'
 import { auth } from '@/lib/auth'
@@ -15,7 +16,7 @@ export async function createNote({
   projectId?: string
   color?: string
 }) {
-  const { data: session } = await auth.getSession()
+  const session = await auth.api.getSession({ headers: await headers() })
   const userId = session?.user?.id
   if (!userId) throw new Error('Not authenticated')
 
@@ -53,7 +54,7 @@ export async function createNote({
 }
 
 export async function deleteNote(id: string) {
-  const { data: session } = await auth.getSession()
+  const session = await auth.api.getSession({ headers: await headers() })
   const userId = session?.user?.id
   if (!userId) throw new Error('Not authenticated')
 
@@ -139,7 +140,7 @@ export async function updateNote(
   id: string,
   data: { content?: string; color?: string }
 ) {
-  const { data: session } = await auth.getSession()
+  const session = await auth.api.getSession({ headers: await headers() })
   const userId = session?.user?.id
   if (!userId) throw new Error('Not authenticated')
 

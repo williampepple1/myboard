@@ -1,4 +1,5 @@
 'use server'
+import { headers } from "next/headers";
 
 import prisma from '@/lib/prisma'
 import { auth } from '@/lib/auth'
@@ -6,7 +7,7 @@ import { sendWelcomeEmail } from '@/lib/email'
 import { type Permission, type RolePermissions } from './permissions'
 export type Priority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
 export type IssueType = 'TASK' | 'BUG' | 'STORY' | 'EPIC'
-async function syncUser(session: NonNullable<Awaited<ReturnType<typeof auth.getSession>>['data']>) {
+async function syncUser(session: NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>) {
   if (!session?.user?.id) return
   await prisma.user.upsert({
     where: { id: session.user.id },
@@ -16,7 +17,7 @@ async function syncUser(session: NonNullable<Awaited<ReturnType<typeof auth.getS
 }
 
 async function requireAuth() {
-  const { data: session } = await auth.getSession()
+  const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user?.id) {
     throw new Error('Authentication required')
   }

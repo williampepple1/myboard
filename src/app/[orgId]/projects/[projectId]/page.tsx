@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import ProjectClient from '@/components/dashboard/ProjectClient'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/prisma'
@@ -6,7 +7,7 @@ export default async function ProjectPage(props: { params: Promise<{ orgId: stri
   const params = await props.params;
   const { orgId, projectId } = params;
   
-  const { data: session } = await auth.getSession()
+  const session = await auth.api.getSession({ headers: await headers() })
   
   let canCreateNote = false
   let canDeleteNote = false

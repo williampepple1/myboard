@@ -1,11 +1,12 @@
 'use server'
+import { headers } from "next/headers";
 
 import prisma from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 import { EntityType } from '@prisma/client'
 
 async function requireUserId() {
-  const { data: session } = await auth.getSession()
+  const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user?.id) {
     throw new Error('Authentication required')
   }

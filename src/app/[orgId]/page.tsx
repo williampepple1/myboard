@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import OrganizationOverview from '@/components/dashboard/OrganizationOverview'
 import { getOrganizations } from '@/actions/board'
 import { auth } from '@/lib/auth'
@@ -14,7 +15,7 @@ export default async function OrgPage(props: { params: Promise<{ orgId: string }
     return <div className="p-8 text-center text-gray-500">Organization not found</div>
   }
 
-  const { data: session } = await auth.getSession()
+  const session = await auth.api.getSession({ headers: await headers() })
 
   const [members, memberCount] = await Promise.all([
     prisma.organizationUser.findMany({

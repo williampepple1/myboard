@@ -1,4 +1,5 @@
 'use server'
+import { headers } from "next/headers";
 
 import prisma from '@/lib/prisma'
 import { auth } from '@/lib/auth'
@@ -54,7 +55,7 @@ export async function inviteUserToOrganization(organizationId: string, email: st
 }
 
 export async function acceptInvitation(token: string) {
-  const { data: session } = await auth.getSession()
+  const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user?.id || !session?.user?.email) {
     return { success: false, message: 'You must be logged in to accept an invitation' }
   }

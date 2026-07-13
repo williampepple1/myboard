@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import { getOrganizations } from '@/actions/board'
 import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
@@ -8,7 +9,7 @@ import { FolderKanban } from 'lucide-react'
 export const dynamic = 'force-dynamic'
 
 export default async function Home() {
-  const { data: session } = await auth.getSession()
+  const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user) {
     redirect('/login')
   }

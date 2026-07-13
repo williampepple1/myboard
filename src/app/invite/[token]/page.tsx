@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import { redirect } from 'next/navigation'
 import prisma from '@/lib/prisma'
 import { auth } from '@/lib/auth'
@@ -24,7 +25,7 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
     return <AcceptInviteClient error="This invitation has expired." />
   }
 
-  const { data: session } = await auth.getSession()
+  const session = await auth.api.getSession({ headers: await headers() })
 
   if (!session?.user) {
     redirect(`/login?redirect=/invite/${token}&mode=signup`)
