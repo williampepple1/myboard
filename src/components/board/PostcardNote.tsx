@@ -70,11 +70,12 @@ export default function PostcardNote({ note, onDelete, canDelete }: PostcardNote
         </button>
       )}
 
-      {/* Note Content */}
       <div className="pr-14 pt-2">
-        <p className="text-gray-800 whitespace-pre-wrap font-medium" style={{ fontFamily: '"Comic Sans MS", "Chalkboard SE", "Marker Felt", sans-serif' }}>
-          {note.content}
-        </p>
+        <div 
+          className="text-gray-800 font-medium prose prose-sm max-w-none prose-p:my-1 prose-headings:my-1" 
+          style={{ fontFamily: '"Comic Sans MS", "Chalkboard SE", "Marker Felt", sans-serif' }}
+          dangerouslySetInnerHTML={{ __html: note.content }}
+        />
       </div>
 
       {/* Author and Date */}

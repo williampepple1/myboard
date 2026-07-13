@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Plus } from 'lucide-react'
 import { getNotes, createNote, deleteNote } from '@/actions/notes'
 import PostcardNote, { NoteType } from './PostcardNote'
+import RichTextEditor from './RichTextEditor'
 
 interface NotesSectionProps {
   organizationId?: string
@@ -96,11 +97,9 @@ export default function NotesSection({
 
       {isAdding && (
         <div className="mb-8 p-4 bg-white border border-border/50 rounded-md shadow-sm max-w-md">
-          <textarea
-            value={newContent}
-            onChange={(e) => setNewContent(e.target.value)}
-            placeholder="Write your note here..."
-            className="w-full p-3 border border-border rounded-md text-sm mb-4 outline-none focus:border-primary resize-none h-32"
+          <RichTextEditor
+            content={newContent}
+            onChange={setNewContent}
           />
           <div className="flex items-center justify-between">
             <div className="flex gap-2">
@@ -124,7 +123,7 @@ export default function NotesSection({
               </button>
               <button
                 onClick={handleCreate}
-                disabled={saving || !newContent.trim()}
+                disabled={saving || !newContent.trim() || newContent === '<p></p>'}
                 className="px-3 py-1.5 text-sm bg-primary text-white hover:bg-primary/90 rounded-md transition-colors disabled:opacity-50"
               >
                 {saving ? 'Saving...' : 'Save Note'}
