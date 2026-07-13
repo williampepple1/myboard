@@ -21,11 +21,11 @@ export default async function PersonalExpensesPage() {
   return (
     <ClientLayout initialOrgs={organizations as unknown as Organization[]}>
       <div className="flex-1 p-6 overflow-y-auto">
-        <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Personal Finances</h1>
+        <h1 className="text-2xl font-bold mb-6 text-gray-900">Personal Finances</h1>
         <ExpenseTracker 
-          expenses={expenses as any} 
-          budgets={budgets as any} 
-          categories={categories as any} 
+          expenses={expenses} 
+          budgets={budgets} 
+          categories={categories} 
           scope={{ userId: session.user.id }} 
         />
       </div>

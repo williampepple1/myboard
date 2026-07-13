@@ -48,11 +48,11 @@ export default async function ProjectExpensesPage(props: { params: Promise<{ org
 
   return (
     <div className="flex-1 p-6 overflow-y-auto">
-      <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Project Finances: {project.name}</h1>
+      <h1 className="text-2xl font-bold mb-6 text-gray-900">Project Finances: {project.name}</h1>
       <ExpenseTracker 
-        expenses={expenses as any} 
-        budgets={budgets as any} 
-        categories={categories as any} 
+        expenses={expenses} 
+        budgets={budgets} 
+        categories={categories} 
         scope={{ projectId, organizationId: orgId }} 
       />
     </div>
