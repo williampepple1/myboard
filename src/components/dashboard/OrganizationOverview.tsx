@@ -26,169 +26,189 @@ export default function OrganizationOverview({ org, members, currentUser, member
   } = useBoardStore()
 
   return (
-    <div className="flex-1 h-full overflow-y-auto bg-background/50 p-8 md:p-12 animate-in fade-in duration-300">
-      <div className="max-w-5xl mx-auto space-y-12">
+    <div className="relative flex-1 h-full overflow-y-auto bg-white animate-in fade-in duration-300">
+      
+      <div className="relative max-w-5xl mx-auto pb-24">
         
-        {/* Header */}
-        <div className="flex items-center justify-between pb-6 border-b border-border/50">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center text-primary shadow-sm">
-              <Briefcase size={32} />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">{org.name}</h1>
-              <p className="text-foreground/50 mt-1">Organization Dashboard</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setIsInviteModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#0C66E4] bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
-            >
-              <UserPlus size={16} />
-              Invite people
-            </button>
-            <button 
-              onClick={() => router.push(`/${org.id}/settings`)}
-              className="p-2 text-foreground/40 hover:text-foreground hover:bg-panel rounded-md transition-colors"
-              title="Organization Settings"
-            >
-              <Settings size={20} />
-            </button>
-          </div>
-        </div>
-
-        {/* Projects Section */}
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2 text-lg font-semibold text-foreground/80">
-              <FolderKanban size={20} className="text-blue-500" />
-              <h2>Projects</h2>
-            </div>
-            <button 
-              onClick={() => setIsCreateProjectModalOpen(true)}
-              className="flex items-center gap-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-md transition-colors"
-            >
-              <Plus size={16} />
-              New Project
-            </button>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {org.projects.map((proj) => {
-              const starred = stars.some(s => s.entityType === 'PROJECT' && s.entityId === proj.id)
-              return (
-                <div 
-                  key={proj.id}
-                  onClick={() => router.push(`/${org.id}/projects/${proj.id}`)}
-                  className="group p-6 bg-white border border-border/50 hover:border-primary/50 rounded-md transition-all cursor-pointer flex flex-col gap-4 relative"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <FolderKanban size={20} />
-                    </div>
-                    <button
-                      onClick={async (e) => {
-                        e.stopPropagation()
-                        await toggleStar(proj.id, 'PROJECT')
-                        const { stars } = await getUserStarsAndRecents()
-                        setStars(stars)
-                      }}
-                      className={`p-1.5 rounded-md transition-colors opacity-0 group-hover:opacity-100 ${starred ? 'opacity-100! bg-yellow-50 text-yellow-500' : 'text-[#6B778C] hover:bg-[#F4F5F7]'}`}
-                      title={starred ? 'Unstar' : 'Star'}
-                    >
-                      <Star size={16} className={starred ? 'fill-yellow-400' : ''} />
-                    </button>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-foreground group-hover:text-blue-600 transition-colors">{proj.name}</h3>
-                    <p className="text-sm text-foreground/50 mt-1">Click to open board</p>
-                  </div>
-                </div>
-              )
-            })}
-            
-            {org.projects.length === 0 && (
-              <div 
-                onClick={() => setIsCreateProjectModalOpen(true)}
-                className="p-6 border-2 border-dashed border-border/50 hover:border-primary/30 rounded-md flex flex-col items-center justify-center text-center gap-3 cursor-pointer group transition-colors min-h-[160px] bg-white/50"
-              >
-                <div className="w-10 h-10 rounded-full bg-primary/5 text-primary/40 flex items-center justify-center group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                  <Plus size={20} />
-                </div>
-                <div>
-                  <p className="font-medium text-foreground/70">Create your first project</p>
-                  <p className="text-sm text-foreground/40 mt-1">Get started by setting up a board</p>
-                </div>
+        {/* Crisp Header */}
+        <div className="sticky top-0 z-10 bg-white border-b border-gray-100 px-8 md:px-12 py-8 mb-12">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+            <div className="flex items-center gap-5">
+              <div className="w-16 h-16 rounded-2xl bg-[#0052CC] flex items-center justify-center text-white shadow-md shadow-blue-500/10 shrink-0 transform hover:scale-105 transition-transform duration-300">
+                <Briefcase size={28} strokeWidth={2.5} />
               </div>
-            )}
-          </div>
-        </section>
-
-        {/* Members Section */}
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2 text-lg font-semibold text-foreground/80">
-              <Users size={20} className="text-green-500" />
-              <h2>Members</h2>
+              <div>
+                <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
+                  {org.name}
+                </h1>
+                <p className="text-gray-500 font-medium mt-1">Organization Dashboard</p>
+              </div>
             </div>
-            <button
-              onClick={() => setIsInviteModalOpen(true)}
-              className="flex items-center gap-2 text-sm font-medium text-green-600 bg-green-50 hover:bg-green-100 px-3 py-1.5 rounded-md transition-colors"
-            >
-              <Plus size={16} />
-              Invite
-            </button>
-          </div>
-          
-          <div className="bg-white border border-border/50 rounded-md overflow-hidden">
-            <div className="divide-y divide-border/50">
-              {(members ?? []).map(member => {
-                const isMe = member.id === currentUser?.id
-                const initials = (member.name || 'U').charAt(0).toUpperCase()
-                const colors = ['bg-blue-500', 'bg-purple-500', 'bg-green-500', 'bg-orange-500', 'bg-pink-500']
-                const colorIdx = member.id.split('').reduce((a, c) => a + c.charCodeAt(0), 0) % colors.length
-                return (
-                  <div key={member.id} className="flex items-center justify-between p-4 hover:bg-panel/50 transition-colors">
-                    <div className="flex items-center gap-4">
-                      <div className={`w-10 h-10 rounded-full ${colors[colorIdx]} flex items-center justify-center text-white font-bold shadow-inner`}>
-                        {initials}
-                      </div>
-                      <div>
-                        <p className="font-medium text-foreground">{member.name || 'Unknown'}{isMe ? ' (You)' : ''}</p>
-                        <p className="text-xs text-foreground/50">{member.email || ''}</p>
-                      </div>
-                    </div>
-                    <span className="px-2.5 py-1 text-xs font-medium bg-slate-100 text-slate-600 rounded-md capitalize">{member.role.toLowerCase()}</span>
-                  </div>
-                )
-              })}
-            </div>
-            <div className="px-4 py-2 border-t border-border/50 bg-panel/30">
-              <p className="text-xs text-foreground/50">{memberCount ?? 0} member{(memberCount ?? 0) !== 1 ? 's' : ''}</p>
-            </div>
-            <div className="p-4 border-t border-border/50">
+            
+            <div className="flex items-center gap-3">
               <button
                 onClick={() => setIsInviteModalOpen(true)}
-                className="w-full flex items-center justify-center gap-2 py-2 text-sm text-[#0C66E4] hover:bg-blue-50 rounded-md transition-colors font-medium"
+                className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-[#0052CC] hover:bg-[#0047B3] rounded-xl shadow-sm active:scale-95 transition-all duration-200"
               >
-                <UserPlus size={16} />
-                Invite people to {org.name}
+                <UserPlus size={18} />
+                Invite Members
+              </button>
+              <button 
+                onClick={() => router.push(`/${org.id}/settings`)}
+                className="p-2.5 text-gray-500 hover:text-gray-900 bg-white hover:bg-gray-50 border border-gray-200 rounded-xl shadow-sm active:scale-95 transition-all duration-200"
+                title="Organization Settings"
+              >
+                <Settings size={20} />
               </button>
             </div>
           </div>
-        </section>
+        </div>
 
-        {/* Notes Section */}
-        <section>
-          <NotesSection 
-            organizationId={org.id} 
-            canCreate={canCreateNote}
-            canDelete={canDeleteNote}
-            currentUser={currentUser}
-          />
-        </section>
+        <div className="px-8 md:px-12 space-y-16">
+          
+          {/* Projects Section */}
+          <section>
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-50 text-[#0052CC] rounded-lg">
+                  <FolderKanban size={20} strokeWidth={2.5} />
+                </div>
+                <h2 className="text-xl font-bold text-gray-800">Active Projects</h2>
+              </div>
+              <button 
+                onClick={() => setIsCreateProjectModalOpen(true)}
+                className="flex items-center gap-2 text-sm font-semibold text-[#0052CC] bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-lg transition-colors active:scale-95"
+              >
+                <Plus size={16} strokeWidth={2.5} />
+                New Project
+              </button>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {org.projects.map((proj) => {
+                const starred = stars.some(s => s.entityType === 'PROJECT' && s.entityId === proj.id)
+                return (
+                  <div 
+                    key={proj.id}
+                    onClick={() => router.push(`/${org.id}/projects/${proj.id}`)}
+                    className="group flex flex-col justify-between p-6 bg-white border border-gray-200 hover:border-[#0052CC]/30 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer relative overflow-hidden"
+                  >
+                    <div className="relative flex items-start justify-between mb-6">
+                      <div className="w-12 h-12 rounded-xl bg-blue-50 text-[#0052CC] flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-100 transition-all duration-300">
+                        <FolderKanban size={24} strokeWidth={2} />
+                      </div>
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation()
+                          await toggleStar(proj.id, 'PROJECT')
+                          const { stars } = await getUserStarsAndRecents()
+                          setStars(stars)
+                        }}
+                        className={`p-2 rounded-full transition-all duration-300 hover:scale-110 active:scale-90 ${starred ? 'bg-amber-100 text-amber-500' : 'text-gray-400 hover:bg-gray-100 opacity-0 group-hover:opacity-100'}`}
+                        title={starred ? 'Unstar' : 'Star'}
+                      >
+                        <Star size={18} className={starred ? 'fill-amber-400' : ''} />
+                      </button>
+                    </div>
+                    <div className="relative">
+                      <h3 className="text-lg font-bold text-gray-900 group-hover:text-[#0052CC] transition-colors">{proj.name}</h3>
+                      <p className="text-sm font-medium text-gray-500 mt-1 flex items-center gap-1 group-hover:text-[#0052CC]/70 transition-colors">
+                        Open Board <span className="opacity-0 group-hover:opacity-100 transform translate-x-0 group-hover:translate-x-1 transition-all duration-300">→</span>
+                      </p>
+                    </div>
+                  </div>
+                )
+              })}
+              
+              {org.projects.length === 0 && (
+                <div 
+                  onClick={() => setIsCreateProjectModalOpen(true)}
+                  className="p-8 border-2 border-dashed border-gray-200 hover:border-[#0052CC]/40 hover:bg-blue-50/50 rounded-2xl flex flex-col items-center justify-center text-center gap-4 cursor-pointer group transition-all duration-300 min-h-[200px]"
+                >
+                  <div className="w-14 h-14 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center group-hover:bg-blue-100 group-hover:text-[#0052CC] transition-colors duration-300">
+                    <Plus size={28} strokeWidth={2.5} />
+                  </div>
+                  <div>
+                    <p className="font-bold text-gray-700 group-hover:text-[#0052CC] transition-colors">Create your first project</p>
+                    <p className="text-sm text-gray-500 mt-1">Get started by setting up a board</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
 
+          {/* Members Section */}
+          <section>
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
+                  <Users size={20} strokeWidth={2.5} />
+                </div>
+                <h2 className="text-xl font-bold text-gray-800">Team Members</h2>
+              </div>
+              <button
+                onClick={() => setIsInviteModalOpen(true)}
+                className="flex items-center gap-2 text-sm font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-4 py-2 rounded-lg transition-colors active:scale-95"
+              >
+                <Plus size={16} strokeWidth={2.5} />
+                Invite
+              </button>
+            </div>
+            
+            <div className="bg-white border border-gray-200 shadow-sm rounded-2xl overflow-hidden">
+              <div className="divide-y divide-gray-100">
+                {(members ?? []).map(member => {
+                  const isMe = member.id === currentUser?.id
+                  const initials = (member.name || 'U').charAt(0).toUpperCase()
+                  // Solid vibrant colors for avatars
+                  const colors = [
+                    'bg-[#0052CC]', 
+                    'bg-[#5243AA]', 
+                    'bg-[#00875A]', 
+                    'bg-[#FF8B00]', 
+                    'bg-[#E34935]'
+                  ]
+                  const colorIdx = member.id.split('').reduce((a, c) => a + c.charCodeAt(0), 0) % colors.length
+                  return (
+                    <div key={member.id} className="flex items-center justify-between p-5 hover:bg-gray-50 transition-colors group">
+                      <div className="flex items-center gap-4">
+                        <div className={`w-12 h-12 rounded-full ${colors[colorIdx]} flex items-center justify-center text-white text-lg font-bold shadow-sm transform group-hover:scale-105 transition-transform duration-300`}>
+                          {initials}
+                        </div>
+                        <div>
+                          <p className="font-bold text-gray-900">{member.name || 'Unknown'}{isMe && <span className="ml-2 text-xs font-semibold text-[#0052CC] bg-blue-50 px-2 py-0.5 rounded-full">You</span>}</p>
+                          <p className="text-sm font-medium text-gray-500 mt-0.5">{member.email || ''}</p>
+                        </div>
+                      </div>
+                      <span className="px-3 py-1.5 text-xs font-bold bg-gray-100 text-gray-600 rounded-lg capitalize border border-gray-200 shadow-sm">{member.role.toLowerCase()}</span>
+                    </div>
+                  )
+                })}
+              </div>
+              <div className="flex items-center justify-between p-5 border-t border-gray-100 bg-gray-50">
+                <p className="text-sm font-medium text-gray-500">{memberCount ?? 0} team member{(memberCount ?? 0) !== 1 ? 's' : ''}</p>
+                <button
+                  onClick={() => setIsInviteModalOpen(true)}
+                  className="flex items-center gap-2 text-sm font-bold text-[#0052CC] hover:text-[#0047B3] transition-colors"
+                >
+                  <UserPlus size={16} />
+                  Add more people
+                </button>
+              </div>
+            </div>
+          </section>
+
+          {/* Notes Section */}
+          <section className="pt-4">
+            <NotesSection 
+              organizationId={org.id} 
+              canCreate={canCreateNote}
+              canDelete={canDeleteNote}
+              currentUser={currentUser}
+            />
+          </section>
+
+        </div>
       </div>
     </div>
   )
