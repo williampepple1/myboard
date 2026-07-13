@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from '@/lib/theme';
 import "./globals.css";
@@ -26,7 +26,20 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "MyBoard | Planning & Roadmaps",
     description: "A modern project management and planning tool with Kanban boards, Spaces, and Roadmaps.",
-  }
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Myboard",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0052CC",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
