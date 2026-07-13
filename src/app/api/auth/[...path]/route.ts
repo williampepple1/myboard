@@ -5,8 +5,8 @@ import { NextRequest } from 'next/server';
 const { GET: authGET, POST: authPOST } = auth.handler();
 
 function stripSecureInDev(handler: any) {
-  return async (req: NextRequest) => {
-    const res = await handler(req);
+  return async (req: NextRequest, ctx: any) => {
+    const res = await handler(req, ctx);
     if (process.env.NODE_ENV === 'development' && res) {
       const setCookies = res.headers.getSetCookie();
       if (setCookies && setCookies.length > 0) {
