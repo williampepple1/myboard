@@ -126,9 +126,10 @@ export default function LoginPage() {
     setIsLoading(true)
     setError('')
     try {
+      const absoluteRedirectUrl = `${window.location.origin}${redirectTo.startsWith('/') ? '' : '/'}${redirectTo}`
       await authClient.signIn.social({
         provider: 'google',
-        callbackURL: redirectTo
+        callbackURL: absoluteRedirectUrl
       })
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to authenticate with Google')
