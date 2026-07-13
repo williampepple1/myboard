@@ -245,7 +245,7 @@ export default function ClientLayout({
   return (
     <div className="flex flex-col w-full h-screen overflow-hidden bg-background text-foreground">
       {/* Top bar */}
-      <header className="h-14 border-b border-border bg-white flex items-center justify-between px-4 shrink-0 z-10 relative">
+      <header className="h-14 border-b border-border bg-white flex items-center justify-between px-4 shrink-0 z-50 relative">
         <div className="flex items-center gap-6">
           {/* Hamburger – mobile only */}
           <button
