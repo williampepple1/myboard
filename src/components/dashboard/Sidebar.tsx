@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { Plus, Briefcase, FolderKanban, Clock, Star, FileText, Map, ChevronDown, ChevronRight, X, Wallet } from 'lucide-react'
+import { Plus, Briefcase, FolderKanban, Clock, Star, FileText, Map, ChevronDown, ChevronRight, X, Wallet, Video } from 'lucide-react'
 import { useBoardStore } from '@/store/boardStore'
 import type { Organization } from '@/store/boardStore'
 import { toggleStar, getUserStarsAndRecents } from '@/actions/stars'
@@ -28,6 +28,7 @@ export default function Sidebar({
   const selectedProjectId = params.projectId as string | undefined
   const selectedSpaceId = params.spaceId as string | undefined
   const selectedPlanId = params.planId as string | undefined
+  const pathname = usePathname()
 
   const selectedOrg = orgs.find(o => o.id === selectedOrgId)
   const { stars, recents, setStars, setIsCreateOrgModalOpen } = useBoardStore()
@@ -291,13 +292,20 @@ export default function Sidebar({
 
       {/* Org Finances Link */}
       {selectedOrg && (
-        <div className="px-3 mt-4 animate-in fade-in">
+        <div className="px-3 mt-4 animate-in fade-in space-y-0.5">
           <Link 
             href={`/${selectedOrg.id}/expenses`}
             onClick={onClose}
-            className={`w-full flex items-center gap-3 px-3 py-1.5 text-sm font-medium rounded-md transition-colors text-[#42526E] hover:bg-[#F4F5F7]`}
+            className={`w-full flex items-center gap-3 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${!selectedProjectId && !selectedSpaceId && !selectedPlanId && pathname.includes('/expenses') ? 'bg-[#E9F2FF] text-primary' : 'text-[#42526E] hover:bg-[#F4F5F7]'}`}
           >
             <Wallet size={16} /> Org Finances
+          </Link>
+          <Link 
+            href={`/${selectedOrg.id}/meetings`}
+            onClick={onClose}
+            className={`w-full flex items-center gap-3 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${!selectedProjectId && !selectedSpaceId && !selectedPlanId && pathname.includes('/meetings') ? 'bg-[#E9F2FF] text-primary' : 'text-[#42526E] hover:bg-[#F4F5F7]'}`}
+          >
+            <Video size={16} /> Meetings
           </Link>
         </div>
       )}

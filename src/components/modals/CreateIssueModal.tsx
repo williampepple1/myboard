@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
-import { X, CheckSquare, Bug, Bookmark, ArrowUp, ChevronUp, ChevronDown, Check } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { X, CheckSquare, Bug, Bookmark, ArrowUp, ChevronUp, ChevronDown, Check, User } from 'lucide-react'
 import type { Priority, IssueType } from '@/actions/board'
+import { getOrgMembersForAssignee } from '@/actions/tasks'
 
 interface Column {
   id: string
@@ -14,8 +15,11 @@ interface CreateIssueModalProps {
   onClose: () => void
   columns: Column[]
   defaultColumnId?: string
-  onSubmit: (data: { title: string, description: string, issueType: IssueType, priority: Priority, columnId: string }) => Promise<void>
+  orgId: string
+  onSubmit: (data: { title: string, description: string, issueType: IssueType, priority: Priority, columnId: string, assigneeId?: string }) => Promise<void>
 }
+
+type MemberItem = { user: { id: string; name: string | null; email: string | null } }
 
 const ISSUE_TYPE_ICONS = {
   TASK: <CheckSquare size={16} className="text-blue-500" />,
@@ -31,13 +35,21 @@ const PRIORITY_ICONS = {
   LOW: <ChevronDown size={16} className="text-blue-400" />
 }
 
-export default function CreateIssueModal({ isOpen, onClose, columns, defaultColumnId, onSubmit }: CreateIssueModalProps) {
+export default function CreateIssueModal({ isOpen, onClose, columns, defaultColumnId, orgId, onSubmit }: CreateIssueModalProps) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [issueType, setIssueType] = useState<IssueType>('TASK')
   const [priority, setPriority] = useState<Priority>('MEDIUM')
   const [columnId, setColumnId] = useState(defaultColumnId || (columns.length > 0 ? columns[0].id : ''))
+  const [assigneeId, setAssigneeId] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [members, setMembers] = useState<MemberItem[]>([])
+
+  useEffect(() => {
+    if (isOpen && orgId) {
+      getOrgMembersForAssignee(orgId).then(setMembers)
+    }
+  }, [isOpen, orgId])
 
   if (!isOpen) return null
 
@@ -47,11 +59,12 @@ export default function CreateIssueModal({ isOpen, onClose, columns, defaultColu
 
     setIsSubmitting(true)
     try {
-      await onSubmit({ title: title.trim(), description: description.trim(), issueType, priority, columnId })
+      await onSubmit({ title: title.trim(), description: description.trim(), issueType, priority, columnId, assigneeId: assigneeId || undefined })
       setTitle('')
       setDescription('')
       setIssueType('TASK')
       setPriority('MEDIUM')
+      setAssigneeId('')
       onClose()
     } catch (error) {
       console.error("Failed to create issue:", error)
@@ -133,22 +146,45 @@ export default function CreateIssueModal({ isOpen, onClose, columns, defaultColu
             />
           </div>
 
-          <div>
-            <label className="text-sm font-medium text-foreground/80 mb-1 block">Priority</label>
-            <div className="relative w-1/2">
-              <select
-                value={priority}
-                onChange={(e) => setPriority(e.target.value as Priority)}
-                className="w-full p-2.5 pl-9 bg-background border border-border rounded-md text-sm focus:ring-2 focus:ring-primary/20 outline-none appearance-none"
-                required
-              >
-                <option value="LOW">Low</option>
-                <option value="MEDIUM">Medium</option>
-                <option value="HIGH">High</option>
-                <option value="URGENT">Urgent</option>
-              </select>
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                {PRIORITY_ICONS[priority]}
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <label className="text-sm font-medium text-foreground/80 mb-1 block">Priority</label>
+              <div className="relative">
+                <select
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value as Priority)}
+                  className="w-full p-2.5 pl-9 bg-background border border-border rounded-md text-sm focus:ring-2 focus:ring-primary/20 outline-none appearance-none"
+                  required
+                >
+                  <option value="LOW">Low</option>
+                  <option value="MEDIUM">Medium</option>
+                  <option value="HIGH">High</option>
+                  <option value="URGENT">Urgent</option>
+                </select>
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                  {PRIORITY_ICONS[priority]}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex-1">
+              <label className="text-sm font-medium text-foreground/80 mb-1 block">Assignee</label>
+              <div className="relative">
+                <select
+                  value={assigneeId}
+                  onChange={(e) => setAssigneeId(e.target.value)}
+                  className="w-full p-2.5 pl-9 bg-background border border-border rounded-md text-sm focus:ring-2 focus:ring-primary/20 outline-none appearance-none"
+                >
+                  <option value="">Unassigned</option>
+                  {members.map(m => (
+                    <option key={m.user.id} value={m.user.id}>
+                      {m.user.name || m.user.email}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-foreground/50">
+                  <User size={16} />
+                </div>
               </div>
             </div>
           </div>

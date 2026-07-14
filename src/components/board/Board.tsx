@@ -174,8 +174,8 @@ export default function Board({ groupBy = 'none' }: { groupBy?: GroupBy }) {
     setIsCreateModalOpen(true)
   }
 
-  const handleCreateSubmit = async (data: { title: string, description: string, issueType: IssueType, priority: Priority, columnId: string }) => {
-    const newTask = await createTask(data.columnId, project.id, data.title, data.description, data.priority, data.issueType)
+  const handleCreateSubmit = async (data: { title: string, description: string, issueType: IssueType, priority: Priority, columnId: string, assigneeId?: string }) => {
+    const newTask = await createTask(data.columnId, project.id, data.title, data.description, data.priority, data.issueType, data.assigneeId)
     setProjectData((prev) => {
       if (!prev) return prev
       return {
@@ -297,6 +297,7 @@ export default function Board({ groupBy = 'none' }: { groupBy?: GroupBy }) {
         onClose={() => setIsCreateModalOpen(false)}
         columns={project.columns.map(c => ({ id: c.id, name: c.name }))}
         defaultColumnId={createModalColumnId}
+        orgId={project.organizationId}
         onSubmit={handleCreateSubmit}
       />
 

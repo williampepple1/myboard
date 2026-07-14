@@ -145,7 +145,8 @@ export async function createTask(
   title: string, 
   description?: string, 
   priority?: Priority, 
-  issueType?: IssueType
+  issueType?: IssueType,
+  assigneeId?: string
 ) {
   const count = await prisma.task.count({ where: { columnId } })
   return prisma.task.create({
@@ -157,6 +158,7 @@ export async function createTask(
       columnId,
       projectId,
       order: count,
+      assigneeId: assigneeId || null,
     }
   })
 }

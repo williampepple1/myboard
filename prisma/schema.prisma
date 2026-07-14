@@ -20,6 +20,7 @@ model Organization {
   plans             Plan[]
   projects          Project[]
   spaces            Space[]
+  meetings          Meeting[]
 }
 
 model Space {
@@ -66,6 +67,8 @@ model User {
   organizationUsers OrganizationUser[]
   sessions          Session[]
   assignedTasks     Task[]                    @relation("TaskAssignee")
+  createdMeetings   Meeting[]                 @relation("MeetingCreator")
+  attendedMeetings  MeetingAttendee[]         @relation("MeetingAttendeeUser")
 }
 
 model OrganizationRole {
@@ -370,4 +373,29 @@ enum BudgetPeriod {
   WEEKLY
   MONTHLY
   YEARLY
+}
+
+model Meeting {
+  id              String   @id @default(cuid())
+  title           String
+  description     String?
+  scheduledAt     DateTime
+  meetingUrl      String?
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  creatorId       String
+  creator         User         @relation("MeetingCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  attendees       MeetingAttendee[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model MeetingAttendee {
+  id        String   @id @default(cuid())
+  meetingId String
+  userId    String?
+  email     String
+  status    String   @default("PENDING") // PENDING, ACCEPTED, DECLINED
+  meeting   Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  user      User?    @relation("MeetingAttendeeUser", fields: [userId], references: [id], onDelete: SetNull)
 }

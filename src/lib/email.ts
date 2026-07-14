@@ -223,3 +223,55 @@ export async function sendVerificationEmail({
     textContent: `Verify your email address: ${url}`,
   })
 }
+
+export async function sendMeetingInviteEmail({
+  to,
+  meetingTitle,
+  meetingDate,
+  meetingTime,
+  meetingUrl,
+  organizationName,
+  inviterName,
+}: {
+  to: string
+  meetingTitle: string
+  meetingDate: string
+  meetingTime: string
+  meetingUrl?: string
+  organizationName: string
+  inviterName: string
+}) {
+  const body = `
+    <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#172B4D;">You're invited to a meeting!</h1>
+    <p style="margin:0 0 24px;font-size:15px;color:#44546F;line-height:1.6;">
+      <strong>${inviterName}</strong> has invited you to a meeting in <strong>${organizationName}</strong>.
+    </p>
+
+    <div style="margin-top:16px;margin-bottom:32px;padding:16px;background:#ffffff;border:1px solid #EBECF0;border-radius:8px;">
+      <h2 style="margin:0 0 12px;font-size:18px;font-weight:600;color:#172B4D;">${meetingTitle}</h2>
+      <p style="margin:0 0 8px;font-size:14px;color:#44546F;">📅 <strong>Date:</strong> ${meetingDate}</p>
+      <p style="margin:0 0 8px;font-size:14px;color:#44546F;">⏰ <strong>Time:</strong> ${meetingTime}</p>
+    </div>
+    
+    ${meetingUrl ? `
+    <table cellpadding="0" cellspacing="0" style="margin:0 0 32px;">
+      <tr>
+        <td style="background:#4338CA;border-radius:8px;">
+          <a href="${meetingUrl}" style="display:inline-block;padding:13px 28px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;">
+            Join Meeting &rarr;
+          </a>
+        </td>
+      </tr>
+    </table>
+    <p style="margin:0 0 6px;font-size:13px;color:#97A0AF;">Or copy this link into your browser:</p>
+    <p style="margin:0;font-size:13px;color:#4338CA;word-break:break-all;">${meetingUrl}</p>
+    ` : ''}
+  `
+
+  return sendEmail({
+    to,
+    subject: `Meeting Invite: ${meetingTitle}`,
+    htmlContent: emailLayout(body),
+    textContent: `You've been invited to ${meetingTitle} on ${meetingDate} at ${meetingTime}. ${meetingUrl ? 'Link: ' + meetingUrl : ''}`,
+  })
+}
