@@ -7,7 +7,6 @@ import { createOrganization, createProject, createSpace, createPlan } from '@/ac
 import { getUserStarsAndRecents } from '@/actions/stars'
 import { inviteUserToOrganization } from '@/actions/invite'
 import { useBoardStore } from '@/store/boardStore'
-import { authClient } from '@/lib/auth-client'
 import UserMenu from '@/components/shared/UserMenu'
 
 import TopNav from './TopNav'
@@ -83,9 +82,11 @@ function ModalActions({ onCancel, loading, submitLabel }: { onCancel: () => void
 // ─── Main ClientLayout ─────────────────────────────────────────────
 export default function ClientLayout({ 
   initialOrgs,
+  user,
   children
 }: { 
   initialOrgs: Organization[],
+  user?: { name?: string | null; email?: string | null } | null,
   children: React.ReactNode
 }) {
   const router = useRouter()
@@ -108,10 +109,7 @@ export default function ClientLayout({
 
   const selectedOrg = orgs.find(o => o.id === orgId)
 
-  // Session
-  const { data: session } = authClient.useSession()
-  const user = session?.user
-
+  // Session is passed as a prop
   const [toast, setToast] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const showToast = (msg: string) => setToast(msg)

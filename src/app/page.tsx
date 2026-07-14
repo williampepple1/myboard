@@ -21,7 +21,7 @@ export default async function Home() {
 
   return (
     <div className="flex-1 flex overflow-hidden">
-      <ClientLayout initialOrgs={organizations as unknown as Organization[]}>
+      <ClientLayout initialOrgs={organizations as unknown as Organization[]} user={session.user}>
         <div className="flex flex-col items-center justify-center h-full text-[#6B778C] gap-4 animate-in fade-in">
           <FolderKanban size={48} className="opacity-20" />
           <p>Select or create an organization to start planning.</p>

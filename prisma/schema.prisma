@@ -7,27 +7,27 @@ datasource db {
 }
 
 model Organization {
-  id          String        @id @default(uuid())
-  name        String
-  users       OrganizationUser[]
-  invitations Invitation[]
-  roles       OrganizationRole[]
-  groups      OrganizationGroup[]
-  projects    Project[]
-  spaces      Space[]
-  plans       Plan[]
-  notes       Note[]
-  budgets     Budget[]
-  expenses    Expense[]
+  id                String              @id @default(uuid())
+  name              String
+  budgets           Budget[]
+  expenses          Expense[]
   expenseCategories ExpenseCategory[]
+  invitations       Invitation[]
+  notes             Note[]
+  groups            OrganizationGroup[]
+  roles             OrganizationRole[]
+  users             OrganizationUser[]
+  plans             Plan[]
+  projects          Project[]
+  spaces            Space[]
 }
 
 model Space {
   id             String       @id @default(uuid())
   name           String
   organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   pages          Page[]
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 }
 
 model Page {
@@ -35,9 +35,9 @@ model Page {
   title     String
   content   String?
   spaceId   String
-  space     Space    @relation(fields: [spaceId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  space     Space    @relation(fields: [spaceId], references: [id], onDelete: Cascade)
 }
 
 model Plan {
@@ -48,68 +48,68 @@ model Plan {
 }
 
 model User {
-  id                String             @id
+  id                String                    @id
   name              String?
-  email             String?            @unique
-  emailVerified     Boolean            @default(false)
+  email             String?                   @unique
+  emailVerified     Boolean                   @default(false)
   image             String?
-  sessions          Session[]
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
   accounts          Account[]
-  organizationUsers OrganizationUser[]
-  groupMemberships  OrganizationGroupMember[]
-  comments          Comment[]          @relation("CommentAuthor")
-  notifications     Notification[]
-  assignedTasks     Task[]             @relation("TaskAssignee")
-  notes             Note[]             @relation("NoteAuthor")
   budgets           Budget[]
+  comments          Comment[]                 @relation("CommentAuthor")
   expenses          Expense[]
   expenseCategories ExpenseCategory[]
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
+  notes             Note[]                    @relation("NoteAuthor")
+  notifications     Notification[]
+  groupMemberships  OrganizationGroupMember[]
+  organizationUsers OrganizationUser[]
+  sessions          Session[]
+  assignedTasks     Task[]                    @relation("TaskAssignee")
 }
 
 model OrganizationRole {
-  id               String             @id @default(uuid())
-  organizationId   String
-  organization     Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  name             String
-  description      String?
-  isDefault        Boolean            @default(false)
-  canManageSettings Boolean           @default(false)
-  canManageRoles    Boolean           @default(false)
-  canManageGroups   Boolean           @default(false)
-  canInviteMembers  Boolean           @default(false)
-  canRemoveMembers  Boolean           @default(false)
-  canCreateProject  Boolean           @default(false)
-  canDeleteProject  Boolean           @default(false)
-  canCreateTask     Boolean           @default(false)
-  canDeleteTask     Boolean           @default(false)
-  canEditTask       Boolean           @default(false)
-  canCreateNote     Boolean           @default(false)
-  canDeleteNote     Boolean           @default(false)
-  canEditNote       Boolean           @default(false)
-  canViewFinance    Boolean           @default(false)
-  canManageFinance  Boolean           @default(false)
+  id                String             @id @default(uuid())
+  organizationId    String
+  name              String
+  description       String?
+  isDefault         Boolean            @default(false)
+  canManageSettings Boolean            @default(false)
+  canManageRoles    Boolean            @default(false)
+  canManageGroups   Boolean            @default(false)
+  canInviteMembers  Boolean            @default(false)
+  canRemoveMembers  Boolean            @default(false)
+  canCreateProject  Boolean            @default(false)
+  canDeleteProject  Boolean            @default(false)
+  canCreateTask     Boolean            @default(false)
+  canDeleteTask     Boolean            @default(false)
+  canEditTask       Boolean            @default(false)
+  canCreateNote     Boolean            @default(false)
+  canDeleteNote     Boolean            @default(false)
+  canEditNote       Boolean            @default(false)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  canManageFinance  Boolean            @default(false)
+  canViewFinance    Boolean            @default(false)
+  organization      Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   members           OrganizationUser[]
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
 }
 
 model OrganizationGroup {
-  id             String                   @id @default(uuid())
+  id             String                    @id @default(uuid())
   organizationId String
-  organization   Organization             @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   name           String
   description    String?
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
+  organization   Organization              @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   members        OrganizationGroupMember[]
-  createdAt      DateTime                 @default(now())
-  updatedAt      DateTime                 @updatedAt
 }
 
 model OrganizationGroupMember {
   groupId String
-  group   OrganizationGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
   userId  String
+  group   OrganizationGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
   user    User              @relation(fields: [userId], references: [id])
 
   @@id([groupId, userId])
@@ -117,11 +117,11 @@ model OrganizationGroupMember {
 
 model OrganizationUser {
   userId         String
-  user           User             @relation(fields: [userId], references: [id])
   organizationId String
-  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   roleId         String
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   role           OrganizationRole @relation(fields: [roleId], references: [id])
+  user           User             @relation(fields: [userId], references: [id])
 
   @@id([userId, organizationId])
 }
@@ -130,54 +130,40 @@ model Invitation {
   id             String       @id @default(uuid())
   email          String
   organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   token          String       @unique @default(uuid())
   inviterUserId  String?
   inviterName    String?
   acceptedAt     DateTime?
   createdAt      DateTime     @default(now())
   expiresAt      DateTime
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 }
 
 model Project {
   id             String       @id @default(uuid())
   name           String
   organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  columns        Column[]
-  tasks          Task[]
-  notes          Note[]
   budgets        Budget[]
+  columns        Column[]
   expenses       Expense[]
+  notes          Note[]
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  tasks          Task[]
 }
 
 model Column {
   id        String  @id @default(uuid())
-  name      String // e.g. To Do, In Progress, Done
+  name      String
   order     Int
   projectId String
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   tasks     Task[]
 }
 
-enum Priority {
-  LOW
-  MEDIUM
-  HIGH
-  URGENT
-}
-
-enum IssueType {
-  TASK
-  BUG
-  STORY
-  EPIC
-}
-
 model Label {
-  id    String @id @default(uuid())
+  id    String      @id @default(uuid())
   name  String
-  color String @default("#0C66E4")
+  color String      @default("#0C66E4")
   tasks TaskLabel[]
 
   @@unique([name, color])
@@ -185,9 +171,9 @@ model Label {
 
 model TaskLabel {
   taskId  String
-  task    Task  @relation(fields: [taskId], references: [id], onDelete: Cascade)
   labelId String
-  label   Label @relation(fields: [labelId], references: [id], onDelete: Cascade)
+  label   Label  @relation(fields: [labelId], references: [id], onDelete: Cascade)
+  task    Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
 
   @@id([taskId, labelId])
 }
@@ -196,53 +182,46 @@ model Comment {
   id        String   @id @default(uuid())
   content   String
   taskId    String
-  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
   authorId  String
-  author    User     @relation("CommentAuthor", fields: [authorId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  author    User     @relation("CommentAuthor", fields: [authorId], references: [id])
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
 }
 
 model Notification {
   id        String   @id @default(uuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
   title     String
   message   String?
   link      String?
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Task {
-  id          String    @id @default(uuid())
-  title       String
-  description String?
-  order       Int
-  priority    Priority  @default(MEDIUM)
-  issueType   IssueType @default(TASK)
-  dueDate     DateTime?
-  completed   Boolean   @default(false)
+  id           String      @id @default(uuid())
+  title        String
+  description  String?
+  order        Int
+  priority     Priority    @default(MEDIUM)
+  issueType    IssueType   @default(TASK)
+  dueDate      DateTime?
+  completed    Boolean     @default(false)
   parentTaskId String?
-  parentTask   Task?    @relation("Subtasks", fields: [parentTaskId], references: [id])
-  subtasks     Task[]   @relation("Subtasks")
-  labels      TaskLabel[]
-  comments    Comment[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  columnId    String
-  column      Column    @relation(fields: [columnId], references: [id], onDelete: Cascade)
-  projectId   String
-  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  assigneeId  String?
-  assignee    User?     @relation("TaskAssignee", fields: [assigneeId], references: [id])
-}
-
-enum EntityType {
-  PROJECT
-  SPACE
-  PLAN
-  TASK
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  columnId     String
+  projectId    String
+  assigneeId   String?
+  comments     Comment[]
+  assignee     User?       @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  column       Column      @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  parentTask   Task?       @relation("Subtasks", fields: [parentTaskId], references: [id])
+  subtasks     Task[]      @relation("Subtasks")
+  project      Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  labels       TaskLabel[]
 }
 
 model UserStar {
@@ -270,27 +249,25 @@ model Note {
   content        String
   color          String?
   organizationId String?
-  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   projectId      String?
-  project        Project?      @relation(fields: [projectId], references: [id], onDelete: Cascade)
   authorId       String
-  author         User          @relation("NoteAuthor", fields: [authorId], references: [id])
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
+  author         User          @relation("NoteAuthor", fields: [authorId], references: [id])
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  project        Project?      @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 model Session {
   id        String   @id
   expiresAt DateTime
-  token     String
+  token     String   @unique
   createdAt DateTime
   updatedAt DateTime
   ipAddress String?
   userAgent String?
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([token])
 }
 
 model Account {
@@ -298,7 +275,6 @@ model Account {
   accountId             String
   providerId            String
   userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   accessToken           String?
   refreshToken          String?
   idToken               String?
@@ -308,6 +284,7 @@ model Account {
   password              String?
   createdAt             DateTime
   updatedAt             DateTime
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Verification {
@@ -319,12 +296,6 @@ model Verification {
   updatedAt  DateTime?
 }
 
-enum BudgetPeriod {
-  WEEKLY
-  MONTHLY
-  YEARLY
-}
-
 model Budget {
   id             String        @id @default(uuid())
   name           String
@@ -333,32 +304,27 @@ model Budget {
   period         BudgetPeriod
   startDate      DateTime?
   endDate        DateTime?
-
   userId         String?
-  user           User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
   organizationId String?
-  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   projectId      String?
-  project        Project?      @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  project        Project?      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user           User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model ExpenseCategory {
   id             String        @id @default(uuid())
   name           String
   color          String        @default("#000000")
-  
   userId         String?
-  user           User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
   organizationId String?
-  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  expenses       Expense[]
-
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
+  expenses       Expense[]
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Expense {
@@ -367,17 +333,41 @@ model Expense {
   currency       String           @default("USD")
   description    String?
   date           DateTime         @default(now())
-
   categoryId     String?
-  category       ExpenseCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-
   userId         String?
-  user           User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
   organizationId String?
-  organization   Organization?    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   projectId      String?
-  project        Project?         @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
+  category       ExpenseCategory? @relation(fields: [categoryId], references: [id])
+  organization   Organization?    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  project        Project?         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user           User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum IssueType {
+  TASK
+  BUG
+  STORY
+  EPIC
+}
+
+enum EntityType {
+  PROJECT
+  SPACE
+  PLAN
+  TASK
+}
+
+enum BudgetPeriod {
+  WEEKLY
+  MONTHLY
+  YEARLY
 }

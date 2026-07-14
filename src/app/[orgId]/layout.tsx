@@ -20,7 +20,7 @@ export default async function OrgLayout({
   const organizations = await getOrganizations()
   
   return (
-    <ClientLayout initialOrgs={organizations as unknown as Organization[]}>
+    <ClientLayout initialOrgs={organizations as unknown as Organization[]} user={session.user}>
       {children}
     </ClientLayout>
   )
