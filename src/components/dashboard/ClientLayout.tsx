@@ -71,7 +71,7 @@ function ModalActions({ onCancel, loading, submitLabel }: { onCancel: () => void
       <button
         type="submit"
         disabled={loading}
-        className="px-4 py-2 bg-[#0C66E4] hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-60 flex items-center gap-2"
+        className="px-4 py-2 bg-[#4338CA] hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-60 flex items-center gap-2"
       >
         {loading && <div className="w-4 h-4 border-2 border-white/50 border-t-white rounded-full animate-spin" />}
         {submitLabel}

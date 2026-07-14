@@ -68,7 +68,7 @@ function GroupDropdown({ current, onChange }: { current: GroupBy; onChange: (v: 
         onClick={() => setOpen(v => !v)}
         className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
           open || current !== 'none'
-            ? 'bg-[#0C66E4] text-white'
+            ? 'bg-[#4338CA] text-white'
             : 'text-[#42526E] bg-[#F4F5F7] hover:bg-[#EBECF0]'
         }`}
       >
@@ -86,7 +86,7 @@ function GroupDropdown({ current, onChange }: { current: GroupBy; onChange: (v: 
             >
               <span className="text-[#6B778C]">{opt.icon}</span>
               <span className="flex-1 text-left">{opt.label}</span>
-              {current === opt.value && <Check size={14} className="text-[#0C66E4]" />}
+              {current === opt.value && <Check size={14} className="text-[#4338CA]" />}
             </button>
           ))}
         </div>

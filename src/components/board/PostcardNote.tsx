@@ -100,7 +100,7 @@ export default function PostcardNote({ note, onDelete, onEdit, canDelete, canEdi
           {canEdit && onEdit && (
             <button
               onClick={() => setIsEditing(true)}
-              className="p-1.5 bg-white text-[#0052CC] hover:bg-blue-50 rounded-full shadow-md border border-gray-100 transition-colors"
+              className="p-1.5 bg-white text-[#3730A3] hover:bg-blue-50 rounded-full shadow-md border border-gray-100 transition-colors"
               title="Edit note"
             >
               <Pencil size={14} />
@@ -149,7 +149,7 @@ export default function PostcardNote({ note, onDelete, onEdit, canDelete, canEdi
               <button
                 onClick={handleSave}
                 disabled={isSaving || !editContent.trim() || editContent === '<p></p>'}
-                className="px-3 py-1.5 text-xs font-semibold bg-[#0052CC] text-white hover:bg-[#0047B3] rounded-md transition-colors disabled:opacity-50"
+                className="px-3 py-1.5 text-xs font-semibold bg-[#3730A3] text-white hover:bg-[#0047B3] rounded-md transition-colors disabled:opacity-50"
               >
                 {isSaving ? 'Saving...' : 'Save'}
               </button>

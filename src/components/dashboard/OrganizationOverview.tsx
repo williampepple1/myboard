@@ -37,7 +37,7 @@ export default function OrganizationOverview({ org, members, currentUser, member
         <div className="sticky top-0 z-10 bg-white border-b border-gray-100 px-8 md:px-12 py-8 mb-12">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 max-w-7xl mx-auto">
             <div className="flex items-center gap-5">
-              <div className="w-16 h-16 rounded-2xl bg-[#0052CC] flex items-center justify-center text-white shadow-md shadow-blue-500/10 shrink-0 transform hover:scale-105 transition-transform duration-300">
+              <div className="w-16 h-16 rounded-2xl bg-[#3730A3] flex items-center justify-center text-white shadow-md shadow-blue-500/10 shrink-0 transform hover:scale-105 transition-transform duration-300">
                 <Briefcase size={28} strokeWidth={2.5} />
               </div>
               <div>
@@ -51,7 +51,7 @@ export default function OrganizationOverview({ org, members, currentUser, member
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setIsInviteModalOpen(true)}
-                className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-[#0052CC] hover:bg-[#0047B3] rounded-xl shadow-sm active:scale-95 transition-all duration-200"
+                className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-[#3730A3] hover:bg-[#0047B3] rounded-xl shadow-sm active:scale-95 transition-all duration-200"
               >
                 <UserPlus size={18} />
                 Invite Members
@@ -76,14 +76,14 @@ export default function OrganizationOverview({ org, members, currentUser, member
             <section>
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-50 text-[#0052CC] rounded-lg">
+                  <div className="p-2 bg-blue-50 text-[#3730A3] rounded-lg">
                     <FolderKanban size={20} strokeWidth={2.5} />
                   </div>
                   <h2 className="text-xl font-bold text-gray-800">Active Projects</h2>
                 </div>
                 <button 
                   onClick={() => setIsCreateProjectModalOpen(true)}
-                  className="flex items-center gap-2 text-sm font-semibold text-[#0052CC] bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-lg transition-colors active:scale-95"
+                  className="flex items-center gap-2 text-sm font-semibold text-[#3730A3] bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-lg transition-colors active:scale-95"
                 >
                   <Plus size={16} strokeWidth={2.5} />
                   New Project
@@ -97,10 +97,10 @@ export default function OrganizationOverview({ org, members, currentUser, member
                     <div 
                       key={proj.id}
                       onClick={() => router.push(`/${org.id}/projects/${proj.id}`)}
-                      className="group flex flex-col justify-between p-6 bg-white border border-gray-200 hover:border-[#0052CC]/30 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer relative overflow-hidden"
+                      className="group flex flex-col justify-between p-6 bg-white border border-gray-200 hover:border-[#3730A3]/30 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer relative overflow-hidden"
                     >
                       <div className="relative flex items-start justify-between mb-6">
-                        <div className="w-12 h-12 rounded-xl bg-blue-50 text-[#0052CC] flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-100 transition-all duration-300">
+                        <div className="w-12 h-12 rounded-xl bg-blue-50 text-[#3730A3] flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-100 transition-all duration-300">
                           <FolderKanban size={24} strokeWidth={2} />
                         </div>
                         <button
@@ -117,8 +117,8 @@ export default function OrganizationOverview({ org, members, currentUser, member
                         </button>
                       </div>
                       <div className="relative">
-                        <h3 className="text-lg font-bold text-gray-900 group-hover:text-[#0052CC] transition-colors">{proj.name}</h3>
-                        <p className="text-sm font-medium text-gray-500 mt-1 flex items-center gap-1 group-hover:text-[#0052CC]/70 transition-colors">
+                        <h3 className="text-lg font-bold text-gray-900 group-hover:text-[#3730A3] transition-colors">{proj.name}</h3>
+                        <p className="text-sm font-medium text-gray-500 mt-1 flex items-center gap-1 group-hover:text-[#3730A3]/70 transition-colors">
                           Open Board <span className="opacity-0 group-hover:opacity-100 transform translate-x-0 group-hover:translate-x-1 transition-all duration-300">→</span>
                         </p>
                       </div>
@@ -129,13 +129,13 @@ export default function OrganizationOverview({ org, members, currentUser, member
                 {org.projects.length === 0 && (
                   <div 
                     onClick={() => setIsCreateProjectModalOpen(true)}
-                    className="p-8 border-2 border-dashed border-gray-200 hover:border-[#0052CC]/40 hover:bg-blue-50/50 rounded-2xl flex flex-col items-center justify-center text-center gap-4 cursor-pointer group transition-all duration-300 min-h-[200px]"
+                    className="p-8 border-2 border-dashed border-gray-200 hover:border-[#3730A3]/40 hover:bg-blue-50/50 rounded-2xl flex flex-col items-center justify-center text-center gap-4 cursor-pointer group transition-all duration-300 min-h-[200px]"
                   >
-                    <div className="w-14 h-14 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center group-hover:bg-blue-100 group-hover:text-[#0052CC] transition-colors duration-300">
+                    <div className="w-14 h-14 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center group-hover:bg-blue-100 group-hover:text-[#3730A3] transition-colors duration-300">
                       <Plus size={28} strokeWidth={2.5} />
                     </div>
                     <div>
-                      <p className="font-bold text-gray-700 group-hover:text-[#0052CC] transition-colors">Create your first project</p>
+                      <p className="font-bold text-gray-700 group-hover:text-[#3730A3] transition-colors">Create your first project</p>
                       <p className="text-sm text-gray-500 mt-1">Get started by setting up a board</p>
                     </div>
                   </div>
@@ -323,7 +323,7 @@ export default function OrganizationOverview({ org, members, currentUser, member
                     const initials = (member.name || 'U').charAt(0).toUpperCase()
                     // Solid vibrant colors for avatars
                     const colors = [
-                      'bg-[#0052CC]', 
+                      'bg-[#3730A3]', 
                       'bg-[#5243AA]', 
                       'bg-[#00875A]', 
                       'bg-[#FF8B00]', 
@@ -339,7 +339,7 @@ export default function OrganizationOverview({ org, members, currentUser, member
                           <div className="min-w-0 pr-2">
                             <p className="font-bold text-gray-900 truncate flex items-center">
                               <span className="truncate">{member.name || 'Unknown'}</span>
-                              {isMe && <span className="ml-2 shrink-0 text-xs font-semibold text-[#0052CC] bg-blue-50 px-2 py-0.5 rounded-full">You</span>}
+                              {isMe && <span className="ml-2 shrink-0 text-xs font-semibold text-[#3730A3] bg-blue-50 px-2 py-0.5 rounded-full">You</span>}
                             </p>
                             <p className="text-sm font-medium text-gray-500 mt-0.5 truncate">{member.email || ''}</p>
                           </div>
@@ -353,7 +353,7 @@ export default function OrganizationOverview({ org, members, currentUser, member
                   <p className="text-sm font-medium text-gray-500">{memberCount ?? 0} member{(memberCount ?? 0) !== 1 ? 's' : ''}</p>
                   <button
                     onClick={() => setIsInviteModalOpen(true)}
-                    className="flex items-center gap-2 text-sm font-bold text-[#0052CC] hover:text-[#0047B3] transition-colors"
+                    className="flex items-center gap-2 text-sm font-bold text-[#3730A3] hover:text-[#0047B3] transition-colors"
                   >
                     <UserPlus size={16} />
                     Add more

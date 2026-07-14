@@ -110,7 +110,7 @@ export async function getUnreadNotificationCount(userId: string) {
   return prisma.notification.count({ where: { userId, read: false } })
 }
 
-const LABEL_COLORS = ['#0C66E4', '#22A06B', '#E34935', '#F5CD47', '#8C6BDF', '#E76E99', '#4BCE97', '#6B778C']
+const LABEL_COLORS = ['#4338CA', '#22A06B', '#E34935', '#F5CD47', '#8C6BDF', '#E76E99', '#4BCE97', '#6B778C']
 
 export async function getSubtasks(taskId: string) {
   return prisma.task.findMany({

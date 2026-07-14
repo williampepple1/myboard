@@ -115,7 +115,7 @@ export default function Sidebar({
         <Link
           href={selectedOrgId ? `/${selectedOrgId}` : '/'}
           onClick={onClose}
-          className={`w-full flex items-center gap-3 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${!selectedProjectId && !selectedSpaceId && !selectedPlanId && selectedOrgId ? 'bg-[#E9F2FF] text-[#0C66E4]' : 'text-[#42526E] hover:bg-[#F4F5F7]'}`}
+          className={`w-full flex items-center gap-3 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${!selectedProjectId && !selectedSpaceId && !selectedPlanId && selectedOrgId ? 'bg-[#E9F2FF] text-[#4338CA]' : 'text-[#42526E] hover:bg-[#F4F5F7]'}`}
         >
           <Briefcase size={16} /> For you
         </Link>
@@ -204,9 +204,9 @@ export default function Sidebar({
                 href={`/${org.id}`}
                 key={org.id}
                 onClick={onClose}
-                className={`w-full text-left px-3 py-1.5 rounded-md flex items-center gap-3 text-sm transition-all ${isSelected ? 'bg-[#E9F2FF] text-[#0C66E4] font-medium' : 'text-[#42526E] hover:bg-[#F4F5F7]'}`}
+                className={`w-full text-left px-3 py-1.5 rounded-md flex items-center gap-3 text-sm transition-all ${isSelected ? 'bg-[#E9F2FF] text-[#4338CA] font-medium' : 'text-[#42526E] hover:bg-[#F4F5F7]'}`}
               >
-                <Briefcase size={16} className={isSelected ? 'text-[#0C66E4]' : 'text-[#6B778C]'} />
+                <Briefcase size={16} className={isSelected ? 'text-[#4338CA]' : 'text-[#6B778C]'} />
                 <span className="truncate">{org.name}</span>
               </Link>
             )
@@ -233,9 +233,9 @@ export default function Sidebar({
                   href={`/${selectedOrg.id}/projects/${proj.id}`}
                   key={proj.id}
                   onClick={onClose}
-                  className={`group w-full text-left px-3 py-1.5 rounded-md flex items-center gap-3 text-sm transition-all ${isSelected ? 'bg-[#E9F2FF] text-[#0C66E4] font-medium' : 'text-[#42526E] hover:bg-[#F4F5F7]'}`}
+                  className={`group w-full text-left px-3 py-1.5 rounded-md flex items-center gap-3 text-sm transition-all ${isSelected ? 'bg-[#E9F2FF] text-[#4338CA] font-medium' : 'text-[#42526E] hover:bg-[#F4F5F7]'}`}
                 >
-                  <FolderKanban size={16} className={`shrink-0 ${isSelected ? 'text-[#0C66E4]' : 'text-[#6B778C]'}`} />
+                  <FolderKanban size={16} className={`shrink-0 ${isSelected ? 'text-[#4338CA]' : 'text-[#6B778C]'}`} />
                   <span className="truncate flex-1">{proj.name}</span>
                   <button
                     onClick={(e) => handleToggleStar(e, proj.id, 'PROJECT')}
@@ -270,9 +270,9 @@ export default function Sidebar({
                   href={`/${selectedOrg.id}/spaces/${space.id}`}
                   key={space.id}
                   onClick={onClose}
-                  className={`group w-full text-left px-3 py-1.5 rounded-md flex items-center gap-3 text-sm transition-all ${isSelected ? 'bg-[#E9F2FF] text-[#0C66E4] font-medium' : 'text-[#42526E] hover:bg-[#F4F5F7]'}`}
+                  className={`group w-full text-left px-3 py-1.5 rounded-md flex items-center gap-3 text-sm transition-all ${isSelected ? 'bg-[#E9F2FF] text-[#4338CA] font-medium' : 'text-[#42526E] hover:bg-[#F4F5F7]'}`}
                 >
-                  <FileText size={16} className={`shrink-0 ${isSelected ? 'text-[#0C66E4]' : 'text-[#6B778C]'}`} />
+                  <FileText size={16} className={`shrink-0 ${isSelected ? 'text-[#4338CA]' : 'text-[#6B778C]'}`} />
                   <span className="truncate flex-1">{space.name}</span>
                   <button
                     onClick={(e) => handleToggleStar(e, space.id, 'SPACE')}
@@ -320,9 +320,9 @@ export default function Sidebar({
                   href={`/${selectedOrg.id}/plans/${plan.id}`}
                   key={plan.id}
                   onClick={onClose}
-                  className={`group w-full text-left px-3 py-1.5 rounded-md flex items-center gap-3 text-sm transition-all ${isSelected ? 'bg-[#E9F2FF] text-[#0C66E4] font-medium' : 'text-[#42526E] hover:bg-[#F4F5F7]'}`}
+                  className={`group w-full text-left px-3 py-1.5 rounded-md flex items-center gap-3 text-sm transition-all ${isSelected ? 'bg-[#E9F2FF] text-[#4338CA] font-medium' : 'text-[#42526E] hover:bg-[#F4F5F7]'}`}
                 >
-                  <Map size={16} className={`shrink-0 ${isSelected ? 'text-[#0C66E4]' : 'text-[#6B778C]'}`} />
+                  <Map size={16} className={`shrink-0 ${isSelected ? 'text-[#4338CA]' : 'text-[#6B778C]'}`} />
                   <span className="truncate flex-1">{plan.name}</span>
                   <button
                     onClick={(e) => handleToggleStar(e, plan.id, 'PLAN')}

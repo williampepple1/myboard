@@ -249,7 +249,7 @@ export default function OrgSettingsPage() {
               <button
                 onClick={handleCreateGroup}
                 disabled={!newGroupName.trim()}
-                className="flex items-center gap-2 px-4 py-2.5 bg-[#0C66E4] hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2.5 bg-[#4338CA] hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
               >
                 <Plus size={16} /> Create
               </button>

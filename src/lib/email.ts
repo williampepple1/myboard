@@ -56,9 +56,9 @@ function emailLayout(body: string) {
         <table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
           <!-- Header -->
           <tr>
-            <td style="background:#0C66E4;padding:28px 40px;text-align:left;">
+            <td style="background:#4338CA;padding:28px 40px;text-align:left;">
               <span style="display:inline-flex;align-items:center;gap:10px;">
-                <span style="display:inline-block;width:32px;height:32px;background:#fff;border-radius:6px;text-align:center;line-height:32px;font-weight:800;font-size:18px;color:#0C66E4;">M</span>
+                <span style="display:inline-block;width:32px;height:32px;background:#fff;border-radius:6px;text-align:center;line-height:32px;font-weight:800;font-size:18px;color:#4338CA;">M</span>
                 <span style="font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">MyBoard</span>
               </span>
             </td>
@@ -106,7 +106,7 @@ export async function sendInvitationEmail({
 
     <table cellpadding="0" cellspacing="0" style="margin:0 0 32px;">
       <tr>
-        <td style="background:#0C66E4;border-radius:8px;">
+        <td style="background:#4338CA;border-radius:8px;">
           <a href="${acceptUrl}" style="display:inline-block;padding:13px 28px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;">
             Accept Invitation &rarr;
           </a>
@@ -115,7 +115,7 @@ export async function sendInvitationEmail({
     </table>
 
     <p style="margin:0 0 6px;font-size:13px;color:#97A0AF;">Or copy this link into your browser:</p>
-    <p style="margin:0;font-size:13px;color:#0C66E4;word-break:break-all;">${acceptUrl}</p>
+    <p style="margin:0;font-size:13px;color:#4338CA;word-break:break-all;">${acceptUrl}</p>
 
     <div style="margin-top:32px;padding:16px;background:#F4F5F7;border-radius:8px;">
       <p style="margin:0;font-size:13px;color:#44546F;line-height:1.6;">
@@ -151,7 +151,7 @@ export async function sendWelcomeEmail({
 
     <table cellpadding="0" cellspacing="0" style="margin:0 0 32px;">
       <tr>
-        <td style="background:#0C66E4;border-radius:8px;">
+        <td style="background:#4338CA;border-radius:8px;">
           <a href="${dashboardUrl}" style="display:inline-block;padding:13px 28px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;">
             Go to Dashboard &rarr;
           </a>
@@ -204,7 +204,7 @@ export async function sendVerificationEmail({
 
     <table cellpadding="0" cellspacing="0" style="margin:0 0 32px;">
       <tr>
-        <td style="background:#0C66E4;border-radius:8px;">
+        <td style="background:#4338CA;border-radius:8px;">
           <a href="${url}" style="display:inline-block;padding:13px 28px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;">
             Verify Email &rarr;
           </a>
@@ -213,7 +213,7 @@ export async function sendVerificationEmail({
     </table>
 
     <p style="margin:0 0 6px;font-size:13px;color:#97A0AF;">Or copy this link into your browser:</p>
-    <p style="margin:0;font-size:13px;color:#0C66E4;word-break:break-all;">${url}</p>
+    <p style="margin:0;font-size:13px;color:#4338CA;word-break:break-all;">${url}</p>
   `
 
   return sendEmail({

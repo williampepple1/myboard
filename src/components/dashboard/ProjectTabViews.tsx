@@ -47,7 +47,7 @@ export function SummaryView({ columns }: TabViewProps) {
         {/* Hero stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
-            { label: 'Total issues', value: allTasks.length, icon: <CheckSquare size={20} className="text-[#0C66E4]" /> },
+            { label: 'Total issues', value: allTasks.length, icon: <CheckSquare size={20} className="text-[#4338CA]" /> },
             { label: 'In progress', value: columns.find(c => c.name.toLowerCase().includes('progress'))?.tasks.length ?? 0, icon: <Clock size={20} className="text-orange-500" /> },
             { label: 'Bugs', value: allTasks.filter(t => t.issueType === 'BUG').length, icon: <Bug size={20} className="text-red-500" /> },
             { label: 'Done', value: doneCount, icon: <BarChart3 size={20} className="text-green-500" /> },
@@ -68,11 +68,11 @@ export function SummaryView({ columns }: TabViewProps) {
         <div className="bg-white rounded-xl border border-border p-6">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-semibold text-[#172B4D]">Overall Progress</h3>
-            <span className="text-sm font-bold text-[#0C66E4]">{progressPct}%</span>
+            <span className="text-sm font-bold text-[#4338CA]">{progressPct}%</span>
           </div>
           <div className="h-2.5 bg-[#DFE1E6] rounded-full overflow-hidden">
             <div
-              className="h-full bg-[#0C66E4] rounded-full transition-all duration-700"
+              className="h-full bg-[#4338CA] rounded-full transition-all duration-700"
               style={{ width: `${progressPct}%` }}
             />
           </div>
@@ -91,7 +91,7 @@ export function SummaryView({ columns }: TabViewProps) {
                     <span className="text-[#6B778C]">{s.count} ({s.percent}%)</span>
                   </div>
                   <div className="h-2 bg-[#F4F5F7] rounded-full overflow-hidden">
-                    <div className="h-full bg-[#0C66E4]/70 rounded-full" style={{ width: `${s.percent}%` }} />
+                    <div className="h-full bg-[#4338CA]/70 rounded-full" style={{ width: `${s.percent}%` }} />
                   </div>
                 </div>
               ))}
@@ -172,7 +172,7 @@ export function ListView({ columns, onTaskClick }: TabViewProps) {
               <td className="px-4 py-3">
                 <div className="flex items-center gap-2">
                   {ISSUE_TYPE_ICONS[task.issueType]}
-                  <span className="font-medium text-[#172B4D] group-hover:text-[#0C66E4] transition-colors">{task.title}</span>
+                  <span className="font-medium text-[#172B4D] group-hover:text-[#4338CA] transition-colors">{task.title}</span>
                 </div>
               </td>
               <td className="px-4 py-3">
@@ -236,7 +236,7 @@ export function TimelineView({ columns }: TabViewProps) {
               {weeks.map((week, wi) => (
                 <div key={wi}>
                   <div className="relative mb-3">
-                    <div className="absolute left-[-2.15rem] top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border-2 border-[#0C66E4] bg-white" />
+                    <div className="absolute left-[-2.15rem] top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border-2 border-[#4338CA] bg-white" />
                     <h3 className="text-xs font-bold text-[#6B778C] uppercase tracking-wider">{week.label}</h3>
                   </div>
                   {week.tasks.length === 0 ? (
@@ -278,7 +278,7 @@ export function CodeView({ projectName }: TabViewProps) {
               <p className="text-sm text-[#6B778C]">Link this project to a GitHub or GitLab repository.</p>
             </div>
           </div>
-          <button className="px-4 py-2 bg-[#0C66E4] hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
+          <button className="px-4 py-2 bg-[#4338CA] hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
             Connect GitHub
           </button>
         </div>
@@ -315,7 +315,7 @@ export function FormsView() {
       <div className="max-w-3xl mx-auto space-y-6">
         <div className="bg-white rounded-xl border border-border p-6">
           <div className="flex items-center gap-3 mb-5">
-            <Zap size={22} className="text-[#0C66E4]" />
+            <Zap size={22} className="text-[#4338CA]" />
             <div>
               <h3 className="font-semibold text-[#172B4D]">Intake Form</h3>
               <p className="text-sm text-[#6B778C]">Share this form to collect issue submissions from your team.</p>
@@ -325,7 +325,7 @@ export function FormsView() {
           <div className="space-y-4">
             {['Title', 'Description', 'Priority', 'Assignee'].map(field => (
               <div key={field} className="flex items-center gap-3 p-3 bg-[#F8F9FA] rounded-lg border border-border">
-                <div className="w-2 h-2 rounded-full bg-[#0C66E4]" />
+                <div className="w-2 h-2 rounded-full bg-[#4338CA]" />
                 <span className="text-sm font-medium text-[#172B4D] flex-1">{field}</span>
                 <span className="text-xs text-[#6B778C] bg-white border border-border px-2 py-0.5 rounded">Required</span>
               </div>
@@ -333,7 +333,7 @@ export function FormsView() {
           </div>
 
           <div className="mt-6 flex gap-3">
-            <button className="px-4 py-2 bg-[#0C66E4] hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
+            <button className="px-4 py-2 bg-[#4338CA] hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
               Copy form link
             </button>
             <button className="px-4 py-2 border border-border hover:bg-[#F4F5F7] text-[#172B4D] text-sm font-medium rounded-lg transition-colors">
@@ -364,17 +364,17 @@ export function DocsView({ projectName }: TabViewProps) {
       <div className="max-w-3xl mx-auto space-y-4">
         <div className="flex items-center justify-between mb-2">
           <h3 className="font-semibold text-[#172B4D]">Project documents</h3>
-          <button className="px-3 py-1.5 bg-[#0C66E4] hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
+          <button className="px-3 py-1.5 bg-[#4338CA] hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
             + New page
           </button>
         </div>
         {docs.map((doc, i) => (
-          <div key={i} className="bg-white rounded-xl border border-border p-5 flex items-center gap-4 cursor-pointer hover:border-[#0C66E4]/30 transition-colors group">
-            <div className="w-10 h-10 rounded-lg bg-blue-50 text-[#0C66E4] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+          <div key={i} className="bg-white rounded-xl border border-border p-5 flex items-center gap-4 cursor-pointer hover:border-[#4338CA]/30 transition-colors group">
+            <div className="w-10 h-10 rounded-lg bg-blue-50 text-[#4338CA] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
               <FileText size={20} />
             </div>
             <div className="flex-1">
-              <p className="font-medium text-[#172B4D] group-hover:text-[#0C66E4] transition-colors">{projectName} — {doc.title}</p>
+              <p className="font-medium text-[#172B4D] group-hover:text-[#4338CA] transition-colors">{projectName} — {doc.title}</p>
               <p className="text-sm text-[#6B778C] mt-0.5">{doc.desc}</p>
             </div>
             <span className="text-xs text-[#6B778C] shrink-0">Updated {doc.updated}</span>
