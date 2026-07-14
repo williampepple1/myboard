@@ -15,6 +15,8 @@ export default function LoginPage() {
   const [name, setName] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [isResending, setIsResending] = useState(false)
+  const [resendSuccess, setResendSuccess] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -69,6 +71,23 @@ export default function LoginPage() {
     }
   }
 
+  const handleResendVerification = async () => {
+    setIsResending(true)
+    setError('')
+    setResendSuccess(false)
+    try {
+      await authClient.sendVerificationEmail({
+        email,
+        callbackURL: '/'
+      })
+      setResendSuccess(true)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to resend verification email')
+    } finally {
+      setIsResending(false)
+    }
+  }
+
   if (needsVerification) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6">
@@ -95,12 +114,35 @@ export default function LoginPage() {
             <span className="font-medium text-xs leading-relaxed">Please click the link in the email to verify your account before logging in.</span>
           </div>
 
-          <div className="text-center w-full">
+          {error && (
+            <div className="w-full mb-6 p-4 bg-red-50 border border-red-100 text-red-600 rounded-2xl text-sm flex items-start gap-2.5">
+              <AlertCircle size={18} className="mt-0.5 shrink-0 text-red-500" />
+              <span className="font-medium text-xs leading-relaxed">{error}</span>
+            </div>
+          )}
+
+          {resendSuccess && (
+            <div className="w-full mb-6 p-4 bg-green-50 border border-green-100 text-green-700 rounded-2xl text-sm flex items-center justify-center gap-2">
+              <span className="font-medium text-xs">Verification email resent successfully!</span>
+            </div>
+          )}
+
+          <div className="text-center w-full flex flex-col gap-3">
+            <button
+              onClick={handleResendVerification}
+              disabled={isResending || resendSuccess}
+              className="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold py-3 rounded-2xl transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed shadow-sm text-sm"
+            >
+              {isResending && <Loader2 size={16} className="animate-spin" />}
+              <span>{resendSuccess ? 'Email sent' : 'Resend verification email'}</span>
+            </button>
+
             <button
               onClick={() => {
                 setNeedsVerification(false)
                 setIsLogin(true)
                 setError('')
+                setResendSuccess(false)
               }}
               className="text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
             >
