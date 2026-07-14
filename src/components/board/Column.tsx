@@ -15,7 +15,7 @@ export default function Column({ column, onAddTask, onTaskClick, readOnly = fals
   // Colour coding — status columns get a top border, grouped columns get colour by name
   let topBorderColor = 'border-t-transparent'
   const lowerName = column.name.toLowerCase()
-  if (lowerName === 'in progress') topBorderColor = 'border-t-[#4338CA]'
+  if (lowerName === 'in progress') topBorderColor = 'border-t-primary'
   else if (lowerName === 'in review') topBorderColor = 'border-t-[#E34935]'
   else if (lowerName === 'done') topBorderColor = 'border-t-[#22A06B]'
   // Priority colours

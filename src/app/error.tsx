@@ -13,7 +13,7 @@ export default function ErrorPage({ error, reset }: { error: Error & { digest?: 
         <p className="text-sm text-foreground/60 mb-6">{error.message || 'An unexpected error occurred.'}</p>
         <button
           onClick={reset}
-          className="px-5 py-2.5 bg-[#4338CA] hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+          className="px-5 py-2.5 bg-primary hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
         >
           Try again
         </button>

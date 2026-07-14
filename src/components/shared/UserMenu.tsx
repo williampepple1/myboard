@@ -1,11 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { LogOut } from 'lucide-react'
+import { LogOut, Settings } from 'lucide-react'
 import { authClient } from '@/lib/auth-client'
+import SettingsModal from '@/components/modals/SettingsModal'
 
 export default function UserMenu({ name, email }: { name?: string | null, email?: string | null }) {
   const [isOpen, setIsOpen] = useState(false)
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const displayName = name || email?.split('@')[0] || 'User'
 
   const handleSignOut = async () => {
@@ -37,6 +39,11 @@ export default function UserMenu({ name, email }: { name?: string | null, email?
               <p className="text-sm font-medium text-foreground truncate">{name || 'User'}</p>
               <p className="text-xs text-foreground/50 truncate">{email}</p>
             </div>
+            <button onClick={() => { setIsSettingsOpen(true); setIsOpen(false); }}
+              className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-slate-100 rounded-lg transition-colors flex items-center gap-2 mb-1">
+              <Settings size={16} className="text-foreground/60" />
+              Settings
+            </button>
             <button onClick={handleSignOut}
               className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2">
               <LogOut size={16} />
@@ -44,6 +51,10 @@ export default function UserMenu({ name, email }: { name?: string | null, email?
             </button>
           </div>
         </>
+      )}
+
+      {isSettingsOpen && (
+        <SettingsModal onClose={() => setIsSettingsOpen(false)} />
       )}
     </div>
   )

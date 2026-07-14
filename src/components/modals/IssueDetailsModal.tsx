@@ -48,7 +48,7 @@ export default function IssueDetailsModal({ isOpen, onClose, task, columns, onTa
   const [newSubtask, setNewSubtask] = useState('')
   const [showNewLabel, setShowNewLabel] = useState(false)
   const [newLabelName, setNewLabelName] = useState('')
-  const [newLabelColor, setNewLabelColor] = useState('#4338CA')
+  const [newLabelColor, setNewLabelColor] = useState("var(--primary)")
 
   useEffect(() => {
     if (!task || !orgId) return

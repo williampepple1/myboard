@@ -12,7 +12,7 @@ export default function PlanView({ planName, planId }: { planName: string, planI
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold text-[#172b4d] flex items-center gap-3">
-            <Map size={32} className="text-[#4338CA]" />
+            <Map size={32} className="text-primary" />
             {planName}
           </h1>
           <button 
@@ -32,7 +32,7 @@ export default function PlanView({ planName, planId }: { planName: string, planI
             <Map size={48} className="text-[#A5ADBA] mb-4" />
             <h3 className="text-lg font-medium text-[#172b4d] mb-2">No timeline events yet</h3>
             <p className="text-sm text-[#6B778C] mb-6 max-w-sm">Create your first milestone or epic to start planning your timeline.</p>
-            <button className="px-4 py-2 bg-[#4338CA] hover:bg-[#3730A3] text-white rounded-md text-sm font-medium transition-colors">
+            <button className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-md text-sm font-medium transition-colors">
               Create milestone
             </button>
           </div>

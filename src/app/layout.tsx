@@ -35,7 +35,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#3730A3",
+  themeColor: "var(--primary-hover)",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -53,6 +53,24 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                var theme = localStorage.getItem('myboard-theme');
+                if (theme) {
+                  var parsed = JSON.parse(theme);
+                  if (parsed.state) {
+                    document.documentElement.style.setProperty('--primary', parsed.state.primary);
+                    document.documentElement.style.setProperty('--primary-hover', parsed.state.primaryHover);
+                  }
+                }
+              } catch (e) {}
+            `,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col">
         <ThemeProvider>{children}</ThemeProvider>
       </body>
