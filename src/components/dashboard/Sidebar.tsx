@@ -95,8 +95,8 @@ export default function Sidebar({
 
   return (
     <div className={`
-      fixed md:relative inset-y-0 left-0 z-40
-      w-[260px] bg-white border-r border-border py-4 px-0 flex flex-col shrink-0 overflow-y-auto h-full
+      fixed md:relative top-14 bottom-0 md:inset-y-0 left-0 z-40
+      w-[260px] bg-white border-r border-border py-4 px-0 flex flex-col shrink-0 overflow-y-auto md:h-full
       transition-transform duration-300 ease-in-out
       ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
     `}>
