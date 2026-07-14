@@ -148,8 +148,9 @@ export async function createTask(
   issueType?: IssueType,
   assigneeId?: string
 ) {
+  const session = await auth.api.getSession({ headers: await headers() })
   const count = await prisma.task.count({ where: { columnId } })
-  return prisma.task.create({
+  const task = await prisma.task.create({
     data: {
       title,
       description: description || null,
@@ -161,6 +162,19 @@ export async function createTask(
       assigneeId: assigneeId || null,
     }
   })
+
+  if (assigneeId && session?.user?.id && assigneeId !== session.user.id) {
+    await prisma.notification.create({
+      data: {
+        userId: assigneeId,
+        title: 'New Task Assigned',
+        message: `${session.user.name || 'Someone'} assigned you a new task: ${title}`,
+        link: `/project/${projectId}?task=${task.id}` // A rough link, assuming this might be useful
+      }
+    })
+  }
+
+  return task
 }
 
 export async function updateTaskDetails(

@@ -56,11 +56,27 @@ export async function createLabel(name: string, color: string) {
 }
 
 export async function setTaskAssignee(taskId: string, assigneeId: string | null, organizationId: string) {
-  await requirePermission(organizationId, 'canEditTask')
-  return prisma.task.update({
+  const { session } = await requirePermission(organizationId, 'canEditTask')
+  
+  const existingTask = await prisma.task.findUnique({ where: { id: taskId } })
+  const updatedTask = await prisma.task.update({
     where: { id: taskId },
     data: { assigneeId },
   })
+
+  // If assignee is added/changed to a user other than the current user
+  if (assigneeId && assigneeId !== existingTask?.assigneeId && assigneeId !== session.user.id) {
+    await prisma.notification.create({
+      data: {
+        userId: assigneeId,
+        title: 'Task Assigned',
+        message: `${session.user.name || 'Someone'} assigned you to a task: ${updatedTask.title}`,
+        link: `/project/${updatedTask.projectId}?task=${taskId}`
+      }
+    })
+  }
+
+  return updatedTask
 }
 
 export async function setTaskDueDate(taskId: string, dueDate: Date | null, organizationId: string) {

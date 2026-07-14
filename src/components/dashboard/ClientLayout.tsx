@@ -9,6 +9,7 @@ import { getUserStarsAndRecents } from '@/actions/stars'
 import { inviteUserToOrganization } from '@/actions/invite'
 import { useBoardStore } from '@/store/boardStore'
 import UserMenu from '@/components/shared/UserMenu'
+import NotificationsDropdown from '@/components/shared/NotificationsDropdown'
 
 import TopNav from './TopNav'
 import Sidebar from './Sidebar'
@@ -278,7 +279,7 @@ export default function ClientLayout({
             />
           </div>
           <div className="flex items-center gap-2 text-foreground/60">
-            <button className="p-1.5 hover:bg-slate-100 rounded-full transition-colors"><Bell size={20} /></button>
+            <NotificationsDropdown />
             <button className="p-1.5 hover:bg-slate-100 rounded-full transition-colors"><HelpCircle size={20} /></button>
             <UserMenu name={user?.name} email={user?.email} />
           </div>
