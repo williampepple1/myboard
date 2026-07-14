@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { useParams, useRouter } from 'next/navigation'
 import { Search, Bell, HelpCircle, CheckCircle2, X, Menu, AlertCircle } from 'lucide-react'
 import { createOrganization, createProject, createSpace, createPlan } from '@/actions/board'
@@ -257,7 +258,7 @@ export default function ClientLayout({
             className="flex items-center gap-2 text-primary cursor-pointer hover:opacity-80 transition-opacity"
             onClick={() => router.push('/')}
           >
-            <div className="w-6 h-6 rounded bg-[#0c66e4] text-white flex items-center justify-center font-bold text-sm">M</div>
+            <Image src="/myboard-logo.svg" alt="Myboard Logo" width={24} height={24} className="w-6 h-6 object-contain" />
             <span className="font-bold text-xl tracking-tight text-[#172b4d]">Myboard</span>
           </div>
           <TopNav 
