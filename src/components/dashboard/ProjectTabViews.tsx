@@ -278,7 +278,7 @@ export function CodeView({ projectName }: TabViewProps) {
               <p className="text-sm text-[#6B778C]">Link this project to a GitHub or GitLab repository.</p>
             </div>
           </div>
-          <button className="px-4 py-2 bg-primary hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
+          <button className="px-4 py-2 bg-primary hover:bg-primary-hover text-white text-sm font-medium rounded-lg transition-colors">
             Connect GitHub
           </button>
         </div>
@@ -333,7 +333,7 @@ export function FormsView() {
           </div>
 
           <div className="mt-6 flex gap-3">
-            <button className="px-4 py-2 bg-primary hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
+            <button className="px-4 py-2 bg-primary hover:bg-primary-hover text-white text-sm font-medium rounded-lg transition-colors">
               Copy form link
             </button>
             <button className="px-4 py-2 border border-border hover:bg-[#F4F5F7] text-[#172B4D] text-sm font-medium rounded-lg transition-colors">
@@ -364,13 +364,13 @@ export function DocsView({ projectName }: TabViewProps) {
       <div className="max-w-3xl mx-auto space-y-4">
         <div className="flex items-center justify-between mb-2">
           <h3 className="font-semibold text-[#172B4D]">Project documents</h3>
-          <button className="px-3 py-1.5 bg-primary hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
+          <button className="px-3 py-1.5 bg-primary hover:bg-primary-hover text-white text-sm font-medium rounded-lg transition-colors">
             + New page
           </button>
         </div>
         {docs.map((doc, i) => (
           <div key={i} className="bg-white rounded-xl border border-border p-5 flex items-center gap-4 cursor-pointer hover:border-primary/30 transition-colors group">
-            <div className="w-10 h-10 rounded-lg bg-blue-50 text-primary flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+            <div className="w-10 h-10 rounded-lg bg-primary/5 text-primary flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
               <FileText size={20} />
             </div>
             <div className="flex-1">

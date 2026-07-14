@@ -25,7 +25,7 @@ export default function UserMenu({ name, email }: { name?: string | null, email?
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 hover:bg-black/5 px-2 py-1.5 rounded-lg transition-colors focus:outline-none"
       >
-        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-primary font-semibold text-sm">
+        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
           {displayName.charAt(0).toUpperCase()}
         </div>
         <span className="text-sm font-medium text-foreground/80 pr-1 hidden sm:block">{displayName}</span>

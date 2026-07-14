@@ -143,7 +143,7 @@ export default function ExpenseTracker({ expenses, budgets, scope }: FinanceData
                   setIsCustomCurrency(false);
                   if (!customCurrencyValue) setSelectedCurrency("USD");
                 }}
-                className="text-xs text-blue-600  hover:underline"
+                className="text-xs text-primary  hover:underline"
               >
                 Done
               </button>
@@ -185,7 +185,7 @@ export default function ExpenseTracker({ expenses, budgets, scope }: FinanceData
             onClick={() => setActiveTab(tab as "overview" | "expenses" | "budgets")}
             className={`pb-3 text-sm font-medium capitalize ${
               activeTab === tab
-                ? "text-blue-600 border-b-2 border-blue-600"
+                ? "text-primary border-b-2 border-primary"
                 : "text-gray-500 hover:text-gray-700 :text-gray-300"
             }`}
           >
@@ -234,7 +234,7 @@ export default function ExpenseTracker({ expenses, budgets, scope }: FinanceData
               <h3 className="text-lg font-medium text-gray-900 ">All Expenses</h3>
               <button 
                 onClick={() => setShowExpenseForm(!showExpenseForm)}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium"
+                className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover text-sm font-medium"
               >
                 <Plus className="w-4 h-4" /> Add Expense
               </button>
@@ -258,7 +258,7 @@ export default function ExpenseTracker({ expenses, budgets, scope }: FinanceData
                 </div>
                 <div className="flex justify-end gap-2">
                   <button type="button" onClick={() => setShowExpenseForm(false)} className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900  :text-white">Cancel</button>
-                  <button type="submit" className="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700">Save</button>
+                  <button type="submit" className="px-4 py-2 bg-primary text-white text-sm rounded-md hover:bg-primary-hover">Save</button>
                 </div>
               </form>
             )}
@@ -305,7 +305,7 @@ export default function ExpenseTracker({ expenses, budgets, scope }: FinanceData
               <h3 className="text-lg font-medium text-gray-900 ">Budgets</h3>
               <button 
                 onClick={() => setShowBudgetForm(!showBudgetForm)}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium"
+                className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover text-sm font-medium"
               >
                 <Plus className="w-4 h-4" /> Add Budget
               </button>
@@ -333,7 +333,7 @@ export default function ExpenseTracker({ expenses, budgets, scope }: FinanceData
                 </div>
                 <div className="flex justify-end gap-2">
                   <button type="button" onClick={() => setShowBudgetForm(false)} className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900  :text-white">Cancel</button>
-                  <button type="submit" className="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700">Save</button>
+                  <button type="submit" className="px-4 py-2 bg-primary text-white text-sm rounded-md hover:bg-primary-hover">Save</button>
                 </div>
               </form>
             )}

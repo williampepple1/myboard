@@ -98,7 +98,7 @@ export default function NotesSection({
         {canCreate && !isAdding && (
           <button
             onClick={() => setIsAdding(true)}
-            className="flex items-center gap-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-md transition-colors"
+            className="flex items-center gap-2 text-sm font-medium text-primary bg-primary/5 hover:bg-primary/10 px-3 py-1.5 rounded-md transition-colors"
           >
             <Plus size={16} />
             Add Note

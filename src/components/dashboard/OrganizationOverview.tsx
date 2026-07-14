@@ -76,14 +76,14 @@ export default function OrganizationOverview({ org, members, currentUser, member
             <section>
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-50 text-primary-hover rounded-lg">
+                  <div className="p-2 bg-primary/5 text-primary-hover rounded-lg">
                     <FolderKanban size={20} strokeWidth={2.5} />
                   </div>
                   <h2 className="text-xl font-bold text-gray-800">Active Projects</h2>
                 </div>
                 <button 
                   onClick={() => setIsCreateProjectModalOpen(true)}
-                  className="flex items-center gap-2 text-sm font-semibold text-primary-hover bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-lg transition-colors active:scale-95"
+                  className="flex items-center gap-2 text-sm font-semibold text-primary-hover bg-primary/5 hover:bg-primary/10 px-4 py-2 rounded-lg transition-colors active:scale-95"
                 >
                   <Plus size={16} strokeWidth={2.5} />
                   New Project
@@ -100,7 +100,7 @@ export default function OrganizationOverview({ org, members, currentUser, member
                       className="group flex flex-col justify-between p-6 bg-white border border-gray-200 hover:border-primary-hover/30 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer relative overflow-hidden"
                     >
                       <div className="relative flex items-start justify-between mb-6">
-                        <div className="w-12 h-12 rounded-xl bg-blue-50 text-primary-hover flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-100 transition-all duration-300">
+                        <div className="w-12 h-12 rounded-xl bg-primary/5 text-primary-hover flex items-center justify-center group-hover:scale-110 group-hover:bg-primary/10 transition-all duration-300">
                           <FolderKanban size={24} strokeWidth={2} />
                         </div>
                         <button
@@ -129,9 +129,9 @@ export default function OrganizationOverview({ org, members, currentUser, member
                 {org.projects.length === 0 && (
                   <div 
                     onClick={() => setIsCreateProjectModalOpen(true)}
-                    className="p-8 border-2 border-dashed border-gray-200 hover:border-primary-hover/40 hover:bg-blue-50/50 rounded-2xl flex flex-col items-center justify-center text-center gap-4 cursor-pointer group transition-all duration-300 min-h-[200px]"
+                    className="p-8 border-2 border-dashed border-gray-200 hover:border-primary-hover/40 hover:bg-primary/5/50 rounded-2xl flex flex-col items-center justify-center text-center gap-4 cursor-pointer group transition-all duration-300 min-h-[200px]"
                   >
-                    <div className="w-14 h-14 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center group-hover:bg-blue-100 group-hover:text-primary-hover transition-colors duration-300">
+                    <div className="w-14 h-14 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center group-hover:bg-primary/10 group-hover:text-primary-hover transition-colors duration-300">
                       <Plus size={28} strokeWidth={2.5} />
                     </div>
                     <div>
@@ -339,7 +339,7 @@ export default function OrganizationOverview({ org, members, currentUser, member
                           <div className="min-w-0 pr-2">
                             <p className="font-bold text-gray-900 truncate flex items-center">
                               <span className="truncate">{member.name || 'Unknown'}</span>
-                              {isMe && <span className="ml-2 shrink-0 text-xs font-semibold text-primary-hover bg-blue-50 px-2 py-0.5 rounded-full">You</span>}
+                              {isMe && <span className="ml-2 shrink-0 text-xs font-semibold text-primary-hover bg-primary/5 px-2 py-0.5 rounded-full">You</span>}
                             </p>
                             <p className="text-sm font-medium text-gray-500 mt-0.5 truncate">{member.email || ''}</p>
                           </div>

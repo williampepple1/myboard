@@ -22,7 +22,7 @@ interface CreateIssueModalProps {
 type MemberItem = { user: { id: string; name: string | null; email: string | null } }
 
 const ISSUE_TYPE_ICONS = {
-  TASK: <CheckSquare size={16} className="text-blue-500" />,
+  TASK: <CheckSquare size={16} className="text-primary" />,
   BUG: <Bug size={16} className="text-red-500" />,
   STORY: <Bookmark size={16} className="text-green-500" />,
   EPIC: <CheckSquare size={16} className="text-purple-500" />
@@ -200,7 +200,7 @@ export default function CreateIssueModal({ isOpen, onClose, columns, defaultColu
             <button
               type="submit"
               disabled={isSubmitting || !title.trim()}
-              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2 bg-primary hover:bg-primary text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               {isSubmitting ? (
                 <div className="w-4 h-4 border-2 border-white/50 border-t-white rounded-full animate-spin" />

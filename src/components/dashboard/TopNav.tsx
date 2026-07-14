@@ -166,7 +166,7 @@ export default function TopNav({
                 <>
                   <div className="px-3 py-1 text-xs font-bold text-[#6B778C] uppercase tracking-wider">{currentOrg.name} Members</div>
                   <div className="px-4 py-2 text-sm text-foreground flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-primary font-bold text-xs">U</div>
+                    <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">U</div>
                     You (Owner)
                   </div>
                   <div className="border-t border-border mt-2 pt-2">

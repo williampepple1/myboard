@@ -15,7 +15,7 @@ export default function AcceptInviteClient({ error }: { error: string }) {
         <p className="text-sm text-foreground/60 mb-6">{error}</p>
         <Link
           href="/login"
-          className="inline-block px-5 py-2.5 bg-primary hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+          className="inline-block px-5 py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-medium rounded-lg transition-colors"
         >
           Go to login
         </Link>

@@ -100,7 +100,7 @@ export default function PostcardNote({ note, onDelete, onEdit, canDelete, canEdi
           {canEdit && onEdit && (
             <button
               onClick={() => setIsEditing(true)}
-              className="p-1.5 bg-white text-primary-hover hover:bg-blue-50 rounded-full shadow-md border border-gray-100 transition-colors"
+              className="p-1.5 bg-white text-primary-hover hover:bg-primary/5 rounded-full shadow-md border border-gray-100 transition-colors"
               title="Edit note"
             >
               <Pencil size={14} />

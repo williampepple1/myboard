@@ -213,7 +213,7 @@ export default function OrgSettingsPage() {
                     <h3 className="font-semibold text-foreground">{role.name}</h3>
                     {role.description && <p className="text-sm text-foreground/50 mt-0.5">{role.description}</p>}
                   </div>
-                  {role.isDefault && <span className="px-2 py-1 text-xs font-medium bg-blue-50 text-blue-600 rounded">Default</span>}
+                  {role.isDefault && <span className="px-2 py-1 text-xs font-medium bg-primary/5 text-primary rounded">Default</span>}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {(Object.keys(PERMISSION_LABELS) as Permission[]).map(perm => (
@@ -249,7 +249,7 @@ export default function OrgSettingsPage() {
               <button
                 onClick={handleCreateGroup}
                 disabled={!newGroupName.trim()}
-                className="flex items-center gap-2 px-4 py-2.5 bg-primary hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
               >
                 <Plus size={16} /> Create
               </button>

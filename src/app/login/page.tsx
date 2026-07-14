@@ -95,7 +95,7 @@ export default function LoginPage() {
           
           {/* Brand Logo */}
           <div className="flex flex-col items-center justify-center gap-2 mb-8">
-            <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xl shadow-sm">
+            <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xl shadow-sm">
               M
             </div>
             <span className="text-xl font-bold tracking-tight text-slate-800">MyBoard</span>
@@ -109,8 +109,8 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <div className="w-full p-4 bg-blue-50 border border-blue-100 text-blue-700 rounded-2xl text-sm flex items-start gap-2.5 mb-8">
-            <AlertCircle size={18} className="mt-0.5 shrink-0 text-blue-600" />
+          <div className="w-full p-4 bg-primary/5 border border-primary/20 text-primary rounded-2xl text-sm flex items-start gap-2.5 mb-8">
+            <AlertCircle size={18} className="mt-0.5 shrink-0 text-primary" />
             <span className="font-medium text-xs leading-relaxed">Please click the link in the email to verify your account before logging in.</span>
           </div>
 
@@ -144,7 +144,7 @@ export default function LoginPage() {
                 setError('')
                 setResendSuccess(false)
               }}
-              className="text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+              className="text-sm font-semibold text-primary hover:text-primary transition-colors"
             >
               Return to login
             </button>
@@ -160,7 +160,7 @@ export default function LoginPage() {
         
         {/* Brand Logo */}
         <div className="flex flex-col items-center justify-center gap-2 mb-6">
-          <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xl shadow-sm">
+          <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xl shadow-sm">
             M
           </div>
           <span className="text-xl font-bold tracking-tight text-slate-800">MyBoard</span>
@@ -227,7 +227,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-2xl transition-all flex items-center justify-center gap-2 mt-6 disabled:opacity-70 disabled:cursor-not-allowed shadow-sm"
+            className="w-full bg-primary hover:bg-primary-hover text-white font-semibold py-3 rounded-2xl transition-all flex items-center justify-center gap-2 mt-6 disabled:opacity-70 disabled:cursor-not-allowed shadow-sm"
           >
             {isLoading && <Loader2 size={16} className="animate-spin" />}
             <span>{isLogin ? 'Log in' : 'Sign up'}</span>
@@ -261,7 +261,7 @@ export default function LoginPage() {
               setIsLogin(!isLogin)
               setError('')
             }}
-            className="text-blue-600 hover:text-blue-700 font-bold focus:outline-none transition-colors"
+            className="text-primary hover:text-primary font-bold focus:outline-none transition-colors"
           >
             {isLogin ? 'Sign up' : 'Log in'}
           </button>

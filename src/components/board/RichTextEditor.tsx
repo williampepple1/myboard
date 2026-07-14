@@ -31,7 +31,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <button
         onClick={() => editor.chain().focus().toggleBold().run()}
         disabled={!editor.can().chain().focus().toggleBold().run()}
-        className={`p-1.5 rounded hover:bg-panel transition-colors ${editor.isActive('bold') ? 'bg-panel text-blue-600' : 'text-foreground/70'}`}
+        className={`p-1.5 rounded hover:bg-panel transition-colors ${editor.isActive('bold') ? 'bg-panel text-primary' : 'text-foreground/70'}`}
         title="Bold"
       >
         <Bold size={16} />
@@ -39,7 +39,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <button
         onClick={() => editor.chain().focus().toggleItalic().run()}
         disabled={!editor.can().chain().focus().toggleItalic().run()}
-        className={`p-1.5 rounded hover:bg-panel transition-colors ${editor.isActive('italic') ? 'bg-panel text-blue-600' : 'text-foreground/70'}`}
+        className={`p-1.5 rounded hover:bg-panel transition-colors ${editor.isActive('italic') ? 'bg-panel text-primary' : 'text-foreground/70'}`}
         title="Italic"
       >
         <Italic size={16} />
@@ -47,7 +47,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <button
         onClick={() => editor.chain().focus().toggleStrike().run()}
         disabled={!editor.can().chain().focus().toggleStrike().run()}
-        className={`p-1.5 rounded hover:bg-panel transition-colors ${editor.isActive('strike') ? 'bg-panel text-blue-600' : 'text-foreground/70'}`}
+        className={`p-1.5 rounded hover:bg-panel transition-colors ${editor.isActive('strike') ? 'bg-panel text-primary' : 'text-foreground/70'}`}
         title="Strikethrough"
       >
         <Strikethrough size={16} />
