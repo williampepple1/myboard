@@ -51,7 +51,7 @@ export default function OrganizationOverview({ org, members, currentUser, member
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setIsInviteModalOpen(true)}
-                className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-primary-hover hover:bg-[#0047B3] rounded-xl shadow-sm active:scale-95 transition-all duration-200"
+                className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-primary hover:bg-primary-hover rounded-xl shadow-sm active:scale-95 transition-all duration-200"
               >
                 <UserPlus size={18} />
                 Invite Members
@@ -353,7 +353,7 @@ export default function OrganizationOverview({ org, members, currentUser, member
                   <p className="text-sm font-medium text-gray-500">{memberCount ?? 0} member{(memberCount ?? 0) !== 1 ? 's' : ''}</p>
                   <button
                     onClick={() => setIsInviteModalOpen(true)}
-                    className="flex items-center gap-2 text-sm font-bold text-primary-hover hover:text-[#0047B3] transition-colors"
+                    className="flex items-center gap-2 text-sm font-bold text-primary-hover hover:text-primary transition-colors"
                   >
                     <UserPlus size={16} />
                     Add more

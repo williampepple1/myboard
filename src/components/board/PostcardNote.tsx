@@ -149,7 +149,7 @@ export default function PostcardNote({ note, onDelete, onEdit, canDelete, canEdi
               <button
                 onClick={handleSave}
                 disabled={isSaving || !editContent.trim() || editContent === '<p></p>'}
-                className="px-3 py-1.5 text-xs font-semibold bg-primary-hover text-white hover:bg-[#0047B3] rounded-md transition-colors disabled:opacity-50"
+                className="px-3 py-1.5 text-xs font-semibold bg-primary text-white hover:bg-primary-hover rounded-md transition-colors disabled:opacity-50"
               >
                 {isSaving ? 'Saving...' : 'Save'}
               </button>
