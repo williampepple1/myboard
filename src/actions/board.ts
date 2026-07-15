@@ -78,7 +78,26 @@ export async function createOrganization(name: string) {
   const org = await prisma.organization.create({ data: { name } })
 
   const adminRole = await prisma.organizationRole.create({
-    data: { name: 'Admin', description: 'Full access to everything', organizationId: org.id, canManageSettings: true, canManageRoles: true, canManageGroups: true, canInviteMembers: true, canRemoveMembers: true, canCreateProject: true, canDeleteProject: true, canCreateTask: true, canDeleteTask: true, canEditTask: true },
+    data: { 
+      name: 'Admin', 
+      description: 'Full access to everything', 
+      organizationId: org.id, 
+      canManageSettings: true, 
+      canManageRoles: true, 
+      canManageGroups: true, 
+      canInviteMembers: true, 
+      canRemoveMembers: true, 
+      canCreateProject: true, 
+      canDeleteProject: true, 
+      canCreateTask: true, 
+      canDeleteTask: true, 
+      canEditTask: true,
+      canCreateNote: true,
+      canEditNote: true,
+      canDeleteNote: true,
+      canManageFinance: true,
+      canViewFinance: true
+    },
   })
   await prisma.organizationRole.create({
     data: { name: 'Member', description: 'Can create and edit tasks and projects', organizationId: org.id, isDefault: true, canCreateProject: true, canCreateTask: true, canDeleteTask: true, canEditTask: true },
