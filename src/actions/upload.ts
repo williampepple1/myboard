@@ -3,22 +3,7 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3"
 import prisma from "@/lib/prisma"
 
-// Get these from env variables
-const R2_ACCOUNT_ID = process.env.R2_ACCOUNT_ID || ''
-const R2_ACCESS_KEY_ID = process.env.R2_ACCESS_KEY_ID || ''
-const R2_SECRET_ACCESS_KEY = process.env.R2_SECRET_ACCESS_KEY || ''
-const R2_BUCKET_NAME = process.env.R2_BUCKET_NAME || ''
-// Must be your connected custom domain (e.g. https://images.yourdomain.com)
-const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL || ''
-
-const S3 = new S3Client({
-  region: "auto",
-  endpoint: `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-  credentials: {
-    accessKeyId: R2_ACCESS_KEY_ID,
-    secretAccessKey: R2_SECRET_ACCESS_KEY,
-  },
-})
+// S3 initialization moved inside the function to prevent module-level crashes
 
 export async function uploadOrganizationLogo(orgId: string, formData: FormData) {
   try {
@@ -27,9 +12,24 @@ export async function uploadOrganizationLogo(orgId: string, formData: FormData) 
       throw new Error("No file provided")
     }
 
+    const R2_ACCOUNT_ID = process.env.R2_ACCOUNT_ID || ''
+    const R2_ACCESS_KEY_ID = process.env.R2_ACCESS_KEY_ID || ''
+    const R2_SECRET_ACCESS_KEY = process.env.R2_SECRET_ACCESS_KEY || ''
+    const R2_BUCKET_NAME = process.env.R2_BUCKET_NAME || ''
+    const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL || ''
+
     if (!R2_ACCOUNT_ID || !R2_ACCESS_KEY_ID || !R2_SECRET_ACCESS_KEY || !R2_BUCKET_NAME || !R2_PUBLIC_URL) {
       throw new Error("Cloudflare R2 is not fully configured. Please ensure R2_PUBLIC_URL and all other credentials are in your environment variables.")
     }
+
+    const S3 = new S3Client({
+      region: "auto",
+      endpoint: `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+      credentials: {
+        accessKeyId: R2_ACCESS_KEY_ID,
+        secretAccessKey: R2_SECRET_ACCESS_KEY,
+      },
+    })
 
     const buffer = Buffer.from(await file.arrayBuffer())
     const extension = file.name.split('.').pop()
