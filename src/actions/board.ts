@@ -63,6 +63,13 @@ export async function getOrganizations() {
   })
 }
 
+export async function getOrganization(organizationId: string) {
+  await requireOrgMember(organizationId)
+  return prisma.organization.findUnique({
+    where: { id: organizationId }
+  })
+}
+
 export async function createOrganization(name: string) {
   const session = await requireAuth()
 

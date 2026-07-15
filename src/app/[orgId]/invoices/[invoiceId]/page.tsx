@@ -1,6 +1,5 @@
 import { getInvoice } from "@/actions/invoices";
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import PrintButton from "./PrintButton";
@@ -41,8 +40,9 @@ export default async function InvoiceDetailPage(props: { params: Promise<{ orgId
         <div className="flex justify-between items-start mb-12 border-b border-gray-100 pb-8">
           <div>
             {invoice.organization.logoUrl ? (
-              <div className="relative h-12 mb-4">
-                <Image src={invoice.organization.logoUrl} alt={invoice.organization.name} fill className="object-contain object-left" />
+              <div className="relative h-12 mb-4 flex items-start justify-start">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={invoice.organization.logoUrl} alt={invoice.organization.name} className="h-full object-contain" />
               </div>
             ) : (
               <h2 className="text-2xl font-extrabold text-gray-900 mb-2">{invoice.organization.name}</h2>

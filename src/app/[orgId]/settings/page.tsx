@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { Shield, Users, UserPlus, Plus, X, Settings, Trash2, AlertCircle } from 'lucide-react'
-import { getOrgMembers, getOrgRoles, getOrgGroups, updateMemberRole, removeMember, updateRole, createGroup, deleteGroup, addGroupMember, removeGroupMember } from '@/actions/board'
+import { Shield, Users, UserPlus, Plus, X, Settings, Trash2, AlertCircle, Upload, Loader2 } from 'lucide-react'
+import { getOrganization, getOrgMembers, getOrgRoles, getOrgGroups, updateMemberRole, removeMember, updateRole, createGroup, deleteGroup, addGroupMember, removeGroupMember } from '@/actions/board'
+import { uploadOrganizationLogo } from '@/actions/upload'
 import { PERMISSION_LABELS, type Permission } from '@/actions/permissions'
 import type { OrganizationRole, OrganizationGroup, OrganizationGroupMember, User } from '@prisma/client'
 
-type Tab = 'members' | 'roles' | 'groups'
+type Tab = 'general' | 'members' | 'roles' | 'groups'
 
 type MemberWithUser = Awaited<ReturnType<typeof getOrgMembers>>[number]
 type RoleWithMeta = OrganizationRole
@@ -17,7 +18,8 @@ export default function OrgSettingsPage() {
   const params = useParams()
   const orgId = params.orgId as string
 
-  const [tab, setTab] = useState<Tab>('members')
+  const [tab, setTab] = useState<Tab>('general')
+  const [orgDetails, setOrgDetails] = useState<{ id: string, name: string, logoUrl: string | null } | null>(null)
   const [members, setMembers] = useState<MemberWithUser[]>([])
   const [roles, setRoles] = useState<RoleWithMeta[]>([])
   const [groups, setGroups] = useState<GroupWithMembers[]>([])
@@ -107,11 +109,13 @@ export default function OrgSettingsPage() {
   useEffect(() => {
     let mounted = true
     Promise.all([
+      getOrganization(orgId),
       getOrgMembers(orgId),
       getOrgRoles(orgId),
       getOrgGroups(orgId),
-    ]).then(([m, r, g]) => {
+    ]).then(([o, m, r, g]) => {
       if (!mounted) return
+      if (o) setOrgDetails(o)
       setMembers(m)
       setRoles(r)
       setGroups(g)
@@ -123,6 +127,27 @@ export default function OrgSettingsPage() {
     })
     return () => { mounted = false }
   }, [orgId])
+
+  const [uploadingLogo, setUploadingLogo] = useState(false)
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploadingLogo(true)
+    setError('')
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const res = await uploadOrganizationLogo(orgId, formData)
+      if (res.success && orgDetails) {
+        setOrgDetails({ ...orgDetails, logoUrl: res.url })
+      }
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to upload logo')
+    } finally {
+      setUploadingLogo(false)
+    }
+  }
 
   if (loading) {
     return <div className="flex-1 flex items-center justify-center"><div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" /></div>
@@ -148,6 +173,7 @@ export default function OrgSettingsPage() {
         {/* Tabs */}
         <div className="flex items-center gap-1 mb-6 border-b border-border">
           {([
+            { key: 'general', label: 'General', icon: <Settings size={16} /> },
             { key: 'members', label: 'Members', icon: <Users size={16} /> },
             { key: 'roles', label: 'Roles', icon: <Shield size={16} /> },
             { key: 'groups', label: 'Groups', icon: <UserPlus size={16} /> },
@@ -164,6 +190,64 @@ export default function OrgSettingsPage() {
             </button>
           ))}
         </div>
+
+        {/* ── General Tab ── */}
+        {tab === 'general' && orgDetails && (
+          <div className="space-y-6">
+            <div className="bg-white border border-border/50 rounded-md p-6">
+              <h3 className="font-semibold text-foreground mb-4">Organization Profile</h3>
+              
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-foreground/80 mb-2">Organization Name</label>
+                <input 
+                  type="text" 
+                  value={orgDetails.name}
+                  disabled
+                  className="w-full max-w-md px-4 py-2 bg-gray-50 border border-border rounded-md text-gray-500 cursor-not-allowed"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground/80 mb-2">Organization Logo</label>
+                <p className="text-xs text-foreground/50 mb-4">Upload a logo to display on your invoices and dashboard.</p>
+                <div className="flex items-center gap-6">
+                  {/* Logo Preview */}
+                  <div className="w-24 h-24 rounded-xl border border-border bg-gray-50 flex items-center justify-center overflow-hidden shrink-0 relative group">
+                    {orgDetails.logoUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={orgDetails.logoUrl} alt="Logo" className="w-full h-full object-contain" />
+                    ) : (
+                      <span className="text-gray-400 font-medium">No Logo</span>
+                    )}
+                  </div>
+
+                  {/* Upload Button */}
+                  <div>
+                    <label className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-hover text-white text-sm font-medium rounded-lg cursor-pointer transition-colors w-fit relative overflow-hidden">
+                      {uploadingLogo ? (
+                        <>
+                          <Loader2 size={16} className="animate-spin" /> Uploading...
+                        </>
+                      ) : (
+                        <>
+                          <Upload size={16} /> Upload New Logo
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                            onChange={handleLogoUpload}
+                            disabled={uploadingLogo}
+                          />
+                        </>
+                      )}
+                    </label>
+                    <p className="text-xs text-foreground/50 mt-2">Recommended: 256x256px PNG or JPG.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ── Members Tab ── */}
         {tab === 'members' && (
