@@ -1,6 +1,6 @@
 'use client'
 
-import { Briefcase, FolderKanban, Users, Plus, Settings, Star, UserPlus, FileText, Map } from 'lucide-react'
+import { Briefcase, FolderKanban, Users, Plus, Settings, Star, UserPlus, FileText, Map, Receipt } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useBoardStore } from '@/store/boardStore'
 import type { Organization } from '@/store/boardStore'
@@ -282,6 +282,33 @@ export default function OrganizationOverview({ org, members, currentUser, member
                     </div>
                   </div>
                 )}
+              </div>
+            </section>
+
+            {/* Invoices Section */}
+            <section className="pt-4">
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-sky-50 text-sky-600 rounded-lg">
+                    <Receipt size={20} strokeWidth={2.5} />
+                  </div>
+                  <h2 className="text-xl font-bold text-gray-800">Invoices</h2>
+                </div>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => router.push(`/${org.id}/invoices`)}
+                    className="flex items-center gap-2 text-sm font-semibold text-gray-600 bg-gray-50 hover:bg-gray-100 px-4 py-2 rounded-lg transition-colors active:scale-95"
+                  >
+                    View All
+                  </button>
+                  <button 
+                    onClick={() => router.push(`/${org.id}/invoices/new`)}
+                    className="flex items-center gap-2 text-sm font-semibold text-sky-600 bg-sky-50 hover:bg-sky-100 px-4 py-2 rounded-lg transition-colors active:scale-95"
+                  >
+                    <Plus size={16} strokeWidth={2.5} />
+                    New Invoice
+                  </button>
+                </div>
               </div>
             </section>
 

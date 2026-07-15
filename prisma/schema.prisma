@@ -9,6 +9,7 @@ datasource db {
 model Organization {
   id                String              @id @default(uuid())
   name              String
+  logoUrl           String?
   budgets           Budget[]
   expenses          Expense[]
   expenseCategories ExpenseCategory[]
@@ -21,6 +22,7 @@ model Organization {
   projects          Project[]
   spaces            Space[]
   meetings          Meeting[]
+  invoices          Invoice[]
 }
 
 model Space {
@@ -152,6 +154,7 @@ model Project {
   notes          Note[]
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   tasks          Task[]
+  invoices       Invoice[]
 }
 
 model Column {
@@ -367,6 +370,7 @@ enum EntityType {
   SPACE
   PLAN
   TASK
+  INVOICE
 }
 
 enum BudgetPeriod {
@@ -398,4 +402,46 @@ model MeetingAttendee {
   status    String   @default("PENDING") // PENDING, ACCEPTED, DECLINED
   meeting   Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
   user      User?    @relation("MeetingAttendeeUser", fields: [userId], references: [id], onDelete: SetNull)
+}
+
+model Invoice {
+  id             String        @id @default(uuid())
+  invoiceNumber  String        @unique
+  amount         Float
+  currency       String        @default("USD")
+  status         InvoiceStatus @default(DRAFT)
+  issueDate      DateTime      @default(now())
+  dueDate        DateTime?
+  billTo         String?
+  notes          String?
+  taxRate        Float?        @default(0)
+  discount       Float?        @default(0)
+  
+  organizationId String
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  projectId      String?
+  project        Project?      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  items          InvoiceItem[]
+  
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model InvoiceItem {
+  id          String  @id @default(uuid())
+  description String
+  quantity    Int
+  unitPrice   Float
+  invoiceId   String
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELLED
 }
