@@ -12,6 +12,11 @@ export async function uploadOrganizationLogo(orgId: string, formData: FormData) 
       throw new Error("No file provided")
     }
 
+    const MAX_FILE_SIZE = 2 * 1024 * 1024 // 2MB
+    if (file.size > MAX_FILE_SIZE) {
+      throw new Error("File size exceeds the 2MB limit.")
+    }
+
     const R2_ACCOUNT_ID = process.env.R2_ACCOUNT_ID || ''
     const R2_ACCESS_KEY_ID = process.env.R2_ACCESS_KEY_ID || ''
     const R2_SECRET_ACCESS_KEY = process.env.R2_SECRET_ACCESS_KEY || ''

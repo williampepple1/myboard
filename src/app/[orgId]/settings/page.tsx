@@ -133,6 +133,11 @@ export default function OrgSettingsPage() {
     const file = e.target.files?.[0]
     if (!file) return
 
+    if (file.size > 2 * 1024 * 1024) {
+      setError('File size must be less than 2MB.')
+      return
+    }
+
     setUploadingLogo(true)
     setError('')
     try {
