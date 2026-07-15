@@ -19,18 +19,19 @@ import TaskCard from './TaskCard'
 import CreateIssueModal from '@/components/modals/CreateIssueModal'
 import IssueDetailsModal from '@/components/modals/IssueDetailsModal'
 import { createTask, updateTaskColumn, type Priority, type IssueType } from '@/actions/board'
-import type { Project, Column as PrismaColumn } from '@prisma/client'
+import type { Project, Column as PrismaColumn, User } from '@prisma/client'
 import type { Task } from '@/components/modals/IssueDetailsModal'
 import { useBoardStore } from '@/store/boardStore'
 
 export type ColumnWithTasks = PrismaColumn & { tasks: Task[] }
-export type ProjectWithColumns = Project & { columns: ColumnWithTasks[] }
+export type ProjectWithColumns = Project & { columns: ColumnWithTasks[]; assignee?: User | null }
 
 type GroupBy = 'none' | 'priority' | 'type'
 
-export default function Board({ groupBy = 'none' }: { groupBy?: GroupBy }) {
+export default function Board({ groupBy = 'none', currentUser }: { groupBy?: GroupBy, currentUser?: { id: string } }) {
   const project = useBoardStore(s => s.projectData)
   const setProjectData = useBoardStore(s => s.setProjectData)
+  const filterAssignedToMe = useBoardStore(s => s.filterAssignedToMe)
 
   const [activeTask, setActiveTask] = useState<Task | null>(null)
   
@@ -228,7 +229,13 @@ export default function Board({ groupBy = 'none' }: { groupBy?: GroupBy }) {
   }
 
   // Derive display columns based on groupBy
-  const allTasks = project.columns.flatMap(c => c.tasks)
+  // Apply assign to me filter
+  const filteredColumns = project.columns.map(c => ({
+    ...c,
+    tasks: c.tasks.filter(t => !filterAssignedToMe || (currentUser && t.assigneeId === currentUser.id))
+  }))
+
+  const allTasks = filteredColumns.flatMap(c => c.tasks)
 
   const PRIORITY_ORDER = ['URGENT', 'HIGH', 'MEDIUM', 'LOW'] as const
   const TYPE_ORDER = ['BUG', 'STORY', 'EPIC', 'TASK'] as const
@@ -253,7 +260,7 @@ export default function Board({ groupBy = 'none' }: { groupBy?: GroupBy }) {
           order: TYPE_ORDER.indexOf(ty),
           tasks: allTasks.filter(t => t.issueType === ty),
         } as ColumnWithTasks))
-    : project.columns
+    : filteredColumns
 
   // When grouped, disable drag-and-drop (read-only view)
   const isGrouped = groupBy !== 'none'
@@ -281,7 +288,7 @@ export default function Board({ groupBy = 'none' }: { groupBy?: GroupBy }) {
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
-        {project.columns.map((col) => (
+        {filteredColumns.map((col) => (
           <Column key={col.id} column={col} onAddTask={() => handleAddTask(col.id)} onTaskClick={(task) => setSelectedTask(task)} />
         ))}
         

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ChevronDown, Star, Clock, UserPlus } from 'lucide-react'
+import { ChevronDown, Star, Clock, UserPlus, CheckCircle2 } from 'lucide-react'
 import { useBoardStore } from '@/store/boardStore'
 import type { Organization } from '@/store/boardStore'
 
@@ -135,16 +135,26 @@ export default function TopNav({
       <div className="relative">
         <button 
           onClick={() => toggleMenu('filters')}
-          className={`flex items-center gap-1 px-3 py-1.5 rounded-md transition-colors ${openMenu === 'filters' ? 'bg-primary/10 text-primary' : 'hover:bg-slate-100 hover:text-foreground'}`}
+          className={`flex items-center gap-1 px-3 py-1.5 rounded-md transition-colors ${openMenu === 'filters' || useBoardStore.getState().filterAssignedToMe ? 'bg-primary/10 text-primary' : 'hover:bg-slate-100 hover:text-foreground'}`}
         >
           Filters
+          {useBoardStore.getState().filterAssignedToMe && <span className="w-2 h-2 rounded-full bg-primary ml-1" />}
           <ChevronDown size={14} className={`transition-transform ${openMenu === 'filters' ? 'rotate-180' : ''}`} />
         </button>
         {openMenu === 'filters' && (
           <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-border shadow-lg rounded-md py-2 z-50">
-            <div className="px-4 py-3 text-sm text-[#6B778C] italic">
-              Filters will apply to the active board. (Coming soon)
-            </div>
+            <div className="px-3 py-1 text-xs font-bold text-[#6B778C] uppercase tracking-wider">Quick Filters</div>
+            <button
+              onClick={() => {
+                const store = useBoardStore.getState()
+                store.setFilterAssignedToMe(!store.filterAssignedToMe)
+                setOpenMenu(null)
+              }}
+              className="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center justify-between"
+            >
+              <span>Assigned to me</span>
+              {useBoardStore.getState().filterAssignedToMe && <CheckCircle2 size={16} className="text-primary" />}
+            </button>
           </div>
         )}
       </div>

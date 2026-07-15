@@ -7,7 +7,7 @@ export type UserRecent = { id: string; userId: string; entityId: string; entityT
 export type Space = { id: string; name: string }
 export type Plan = { id: string; name: string }
 export type Organization = { id: string; name: string; projects: Project[]; spaces: Space[]; plans: Plan[] }
-export type Project = { id: string; name: string }
+export type Project = { id: string; name: string; assigneeId?: string | null }
 
 interface BoardState {
   orgs: Organization[]
@@ -40,6 +40,9 @@ interface BoardState {
 
   boardGroupBy: 'none' | 'priority' | 'type'
   setBoardGroupBy: (g: 'none' | 'priority' | 'type') => void
+
+  filterAssignedToMe: boolean
+  setFilterAssignedToMe: (f: boolean) => void
 }
 
 export const useBoardStore = create<BoardState>((set) => ({
@@ -74,5 +77,8 @@ export const useBoardStore = create<BoardState>((set) => ({
   setIsInviteModalOpen: (open) => set({ isInviteModalOpen: open }),
 
   boardGroupBy: 'none',
-  setBoardGroupBy: (g) => set({ boardGroupBy: g })
+  setBoardGroupBy: (g) => set({ boardGroupBy: g }),
+
+  filterAssignedToMe: false,
+  setFilterAssignedToMe: (f) => set({ filterAssignedToMe: f })
 }))

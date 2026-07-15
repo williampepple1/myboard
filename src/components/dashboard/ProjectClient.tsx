@@ -4,10 +4,11 @@ import { useEffect, useRef, useMemo, useState } from 'react'
 import {
   Briefcase, Search, SlidersHorizontal, Share2, Maximize2,
   Minimize2, MoreHorizontal, Star, Check, Link2,
-  LayoutGrid, Flag, Tag, Printer, Download
+  LayoutGrid, Flag, Tag, Printer, Download, UserPlus, X
 } from 'lucide-react'
 import Board, { type ProjectWithColumns, type ColumnWithTasks } from '@/components/board/Board'
-import { getProjectData } from '@/actions/board'
+import { getProjectData, getOrgMembers, updateProjectAssignee } from '@/actions/board'
+import type { OrganizationUser, User, OrganizationRole } from '@prisma/client'
 import { toggleStar, getUserStarsAndRecents, recordRecentView } from '@/actions/stars'
 import { useBoardStore } from '@/store/boardStore'
 import { useKeyboardShortcuts } from '@/lib/shortcuts'
@@ -214,6 +215,18 @@ export default function ProjectClient({ projectId, canCreateNote = false, canDel
   const [loading, setLoading] = useState(true)
   const [fullscreen, setFullscreen] = useState(false)
   const [activeTab, setActiveTab] = useState<ExtendedTab>('Board')
+  type OrgMember = OrganizationUser & { user: User, role: OrganizationRole }
+  const [orgMembers, setOrgMembers] = useState<OrgMember[]>([])
+  const [assigneeDropdownOpen, setAssigneeDropdownOpen] = useState(false)
+  const assigneeDropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (assigneeDropdownRef.current && !assigneeDropdownRef.current.contains(e.target as Node)) setAssigneeDropdownOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
 
   useEffect(() => {
     let isMounted = true
@@ -226,6 +239,11 @@ export default function ProjectClient({ projectId, canCreateNote = false, canDel
 
         const data = await getProjectData(projectId)
         if (isMounted) setProjectData(data as ProjectWithColumns)
+
+        if (data) {
+          const members = await getOrgMembers(data.organizationId)
+          if (isMounted) setOrgMembers(members)
+        }
       } catch (e) {
         console.error('Failed to load project', e)
       } finally {
@@ -297,6 +315,84 @@ export default function ProjectClient({ projectId, canCreateNote = false, canDel
                 <Star size={18} className={isStarred ? 'fill-yellow-500' : ''} />
               </button>
             </Tooltip>
+            
+            {/* Assignee Dropdown */}
+            <div className="relative ml-4" ref={assigneeDropdownRef}>
+              <button 
+                onClick={() => setAssigneeDropdownOpen(v => !v)}
+                className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-[#42526E] hover:bg-[#F4F5F7] rounded-md transition-colors border border-transparent hover:border-border"
+              >
+                <div className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] text-slate-700 font-bold overflow-hidden">
+                  {projectData.assignee ? (
+                    <span className="uppercase">{(projectData.assignee.name || 'U').charAt(0)}</span>
+                  ) : (
+                    <UserPlus size={12} className="text-[#6B778C]" />
+                  )}
+                </div>
+                <span>{projectData.assignee?.name || 'Unassigned'}</span>
+              </button>
+              
+              {assigneeDropdownOpen && (
+                <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-border shadow-xl rounded-xl py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <p className="px-3 py-1 text-[11px] font-bold text-[#6B778C] uppercase tracking-wider mb-1">Assign Project To</p>
+                  
+                  <button
+                    onClick={async () => {
+                      setAssigneeDropdownOpen(false)
+                      try {
+                        await updateProjectAssignee(projectData.id, null)
+                        setProjectData({ ...projectData, assigneeId: null, assignee: null } as ProjectWithColumns)
+                      } catch (e) {
+                        console.error('Failed to unassign', e)
+                      }
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-2 text-sm text-[#172B4D] hover:bg-[#F4F5F7] transition-colors"
+                  >
+                    <div className="w-6 h-6 rounded-full border border-dashed border-[#6B778C] flex items-center justify-center">
+                      <X size={12} className="text-[#6B778C]" />
+                    </div>
+                    <span className="flex-1 text-left text-[#6B778C]">Unassigned</span>
+                    {!projectData.assigneeId && <Check size={14} className="text-primary" />}
+                  </button>
+
+                  <div className="border-t border-border my-1"></div>
+
+                  <div className="max-h-60 overflow-y-auto">
+                    {orgMembers.map(member => (
+                      <button
+                        key={member.user.id}
+                        onClick={async () => {
+                          setAssigneeDropdownOpen(false)
+                          try {
+                            await updateProjectAssignee(projectData.id, member.user.id)
+                            setProjectData({ ...projectData, assigneeId: member.user.id, assignee: member.user } as ProjectWithColumns)
+                          } catch (e) {
+                            console.error('Failed to assign', e)
+                          }
+                        }}
+                        className="w-full flex items-center gap-3 px-3 py-2 text-sm text-[#172B4D] hover:bg-[#F4F5F7] transition-colors"
+                      >
+                        <div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px] text-slate-700 font-bold overflow-hidden">
+                          {member.user.image ? (
+                            <>
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={member.user.image} alt={member.user.name || 'User avatar'} className="w-full h-full object-cover" />
+                            </>
+                          ) : (
+                            <span className="uppercase">{(member.user.name || 'U').charAt(0)}</span>
+                          )}
+                        </div>
+                        <div className="flex-1 text-left flex flex-col">
+                          <span className="font-medium truncate">{member.user.name}</span>
+                          <span className="text-xs text-[#6B778C] truncate">{member.user.email}</span>
+                        </div>
+                        {projectData.assigneeId === member.user.id && <Check size={14} className="text-primary" />}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -369,7 +465,7 @@ export default function ProjectClient({ projectId, canCreateNote = false, canDel
       {/* Tab content */}
       {activeTab === 'Board' && (
         <div className="flex-1 overflow-hidden relative">
-          <Board groupBy={boardGroupBy} />
+          <Board groupBy={boardGroupBy} currentUser={currentUser} />
         </div>
       )}
       {activeTab === 'Summary' && (

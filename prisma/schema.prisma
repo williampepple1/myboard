@@ -69,6 +69,7 @@ model User {
   organizationUsers OrganizationUser[]
   sessions          Session[]
   assignedTasks     Task[]                    @relation("TaskAssignee")
+  assignedProjects  Project[]                 @relation("ProjectAssignee")
   createdMeetings   Meeting[]                 @relation("MeetingCreator")
   attendedMeetings  MeetingAttendee[]         @relation("MeetingAttendeeUser")
 }
@@ -155,6 +156,8 @@ model Project {
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   tasks          Task[]
   invoices       Invoice[]
+  assigneeId     String?
+  assignee       User?        @relation("ProjectAssignee", fields: [assigneeId], references: [id])
 }
 
 model Column {

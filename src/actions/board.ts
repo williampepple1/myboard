@@ -111,6 +111,7 @@ export async function getProjectData(projectId: string) {
       where: { id: projectId },
       include: {
         organization: { select: { id: true } },
+        assignee: true,
         columns: {
           orderBy: { order: 'asc' },
           include: {
@@ -129,12 +130,13 @@ export async function getProjectData(projectId: string) {
   }
 }
 
-export async function createProject(organizationId: string, name: string) {
+export async function createProject(organizationId: string, name: string, assigneeId?: string) {
   await requirePermission(organizationId, 'canCreateProject')
   return prisma.project.create({
     data: {
       name,
       organizationId,
+      assigneeId: assigneeId || null,
       columns: {
         create: [
           { name: 'To Do', order: 0 },
@@ -231,6 +233,13 @@ export async function updateProject(projectId: string, data: { name?: string }) 
   if (!project) throw new Error('Project not found')
   await requireOrgMember(project.organizationId)
   return prisma.project.update({ where: { id: projectId }, data })
+}
+
+export async function updateProjectAssignee(projectId: string, assigneeId: string | null) {
+  const project = await prisma.project.findUnique({ where: { id: projectId }, select: { organizationId: true } })
+  if (!project) throw new Error('Project not found')
+  await requirePermission(project.organizationId, 'canCreateProject') // Using canCreateProject as proxy for project admin right now
+  return prisma.project.update({ where: { id: projectId }, data: { assigneeId } })
 }
 
 export async function deleteProject(projectId: string) {

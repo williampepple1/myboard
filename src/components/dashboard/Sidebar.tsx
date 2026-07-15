@@ -10,11 +10,12 @@ import { toggleStar, getUserStarsAndRecents } from '@/actions/stars'
 
 export default function Sidebar({ 
   orgs, 
-  onOpenCreateProject, 
-  onOpenCreateSpace, 
+  onOpenCreateProject,
+  onOpenCreateSpace,
   onOpenCreatePlan,
   isOpen = false,
   onClose = () => {},
+  user,
 }: { 
   orgs: Organization[], 
   onOpenCreateProject: () => void,
@@ -22,6 +23,7 @@ export default function Sidebar({
   onOpenCreatePlan: () => void,
   isOpen?: boolean,
   onClose?: () => void,
+  user?: { id?: string | null } | null
 }) {
   const params = useParams()
   const selectedOrgId = params.orgId as string | undefined
@@ -31,7 +33,7 @@ export default function Sidebar({
   const pathname = usePathname()
 
   const selectedOrg = orgs.find(o => o.id === selectedOrgId)
-  const { stars, recents, setStars, setIsCreateOrgModalOpen } = useBoardStore()
+  const { stars, recents, setStars, setIsCreateOrgModalOpen, filterAssignedToMe } = useBoardStore()
 
   const [recentOpen, setRecentOpen] = useState(false)
   const [starredOpen, setStarredOpen] = useState(false)
@@ -226,7 +228,7 @@ export default function Sidebar({
             </button>
           </div>
           <div className="space-y-0.5">
-            {selectedOrg.projects.map(proj => {
+            {selectedOrg.projects.filter(proj => !filterAssignedToMe || (user?.id && proj.assigneeId === user.id)).map(proj => {
               const isSelected = selectedProjectId === proj.id
               const starred = isStarred(proj.id)
               return (

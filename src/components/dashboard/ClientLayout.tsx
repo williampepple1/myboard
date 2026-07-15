@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useParams, useRouter } from 'next/navigation'
-import { Search, Bell, HelpCircle, CheckCircle2, X, Menu, AlertCircle } from 'lucide-react'
+import { Search, HelpCircle, CheckCircle2, X, Menu, AlertCircle } from 'lucide-react'
 import { createOrganization, createProject, createSpace, createPlan } from '@/actions/board'
 import { getUserStarsAndRecents } from '@/actions/stars'
 import { inviteUserToOrganization } from '@/actions/invite'
@@ -88,7 +88,7 @@ export default function ClientLayout({
   children
 }: { 
   initialOrgs: Organization[],
-  user?: { name?: string | null; email?: string | null } | null,
+  user?: { id?: string | null; name?: string | null; email?: string | null } | null,
   children: React.ReactNode
 }) {
   const router = useRouter()
@@ -302,6 +302,7 @@ export default function ClientLayout({
           onOpenCreatePlan={() => { setIsCreatePlanModalOpen(true); setSidebarOpen(false) }}
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
+          user={user}
         />
         <div className="flex-1 bg-white overflow-hidden flex flex-col relative min-w-0">
           {children}
