@@ -5,7 +5,7 @@ import { LogOut, Settings } from 'lucide-react'
 import { authClient } from '@/lib/auth-client'
 import SettingsModal from '@/components/modals/SettingsModal'
 
-export default function UserMenu({ name, email }: { name?: string | null, email?: string | null }) {
+export default function UserMenu({ name, email, image }: { name?: string | null, email?: string | null, image?: string | null }) {
   const [isOpen, setIsOpen] = useState(false)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const displayName = name || email?.split('@')[0] || 'User'
@@ -25,8 +25,13 @@ export default function UserMenu({ name, email }: { name?: string | null, email?
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 hover:bg-black/5 px-2 py-1.5 rounded-lg transition-colors focus:outline-none"
       >
-        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
-          {displayName.charAt(0).toUpperCase()}
+        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm overflow-hidden border border-primary/20">
+          {image ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img src={image} alt={displayName} className="w-full h-full object-cover" />
+          ) : (
+            displayName.charAt(0).toUpperCase()
+          )}
         </div>
         <span className="text-sm font-medium text-foreground/80 pr-1 hidden sm:block">{displayName}</span>
       </button>

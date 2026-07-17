@@ -88,7 +88,7 @@ export default function ClientLayout({
   children
 }: { 
   initialOrgs: Organization[],
-  user?: { id?: string | null; name?: string | null; email?: string | null } | null,
+  user?: { id?: string | null; name?: string | null; email?: string | null; image?: string | null } | null,
   children: React.ReactNode
 }) {
   const router = useRouter()
@@ -281,7 +281,7 @@ export default function ClientLayout({
           <div className="flex items-center gap-2 text-foreground/60">
             <NotificationsDropdown />
             <button className="p-1.5 hover:bg-slate-100 rounded-full transition-colors"><HelpCircle size={20} /></button>
-            <UserMenu name={user?.name} email={user?.email} />
+            <UserMenu name={user?.name} email={user?.email} image={user?.image} />
           </div>
         </div>
       </header>
