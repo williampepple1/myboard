@@ -42,6 +42,88 @@ function Tooltip({ label, children }: { label: string; children: React.ReactNode
   )
 }
 
+// ─── Filter dropdown ─────────────────────────────────────────────────────
+function FilterDropdown() {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const filterIssueType = useBoardStore(s => s.filterIssueType)
+  const setFilterIssueType = useBoardStore(s => s.setFilterIssueType)
+  const filterPriority = useBoardStore(s => s.filterPriority)
+  const setFilterPriority = useBoardStore(s => s.setFilterPriority)
+  
+  const hasActiveFilters = filterIssueType !== null || filterPriority !== null
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  return (
+    <div ref={ref} className="relative">
+      <Tooltip label="Filter board">
+        <button
+          onClick={() => setOpen(v => !v)}
+          className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+            open || hasActiveFilters
+              ? 'bg-primary text-white'
+              : 'text-[#42526E] bg-[#F4F5F7] hover:bg-[#EBECF0]'
+          }`}
+        >
+          <SlidersHorizontal size={14} /> Filter
+        </button>
+      </Tooltip>
+      
+      {open && (
+        <div className="absolute top-full right-0 mt-1.5 w-64 bg-white border border-border shadow-xl rounded-xl py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+          <p className="px-3 py-1 text-[11px] font-bold text-[#6B778C] uppercase tracking-wider">Type</p>
+          <div className="flex gap-1 px-3 pb-2 mb-2 border-b border-border">
+            {['TASK', 'BUG', 'STORY', 'EPIC'].map(type => (
+              <button
+                key={type}
+                onClick={() => setFilterIssueType(filterIssueType === type ? null : type)}
+                className={`flex-1 text-[10px] py-1 rounded transition-colors ${
+                  filterIssueType === type ? 'bg-primary text-white' : 'bg-[#F4F5F7] text-[#42526E] hover:bg-[#EBECF0]'
+                }`}
+              >
+                {type.charAt(0) + type.slice(1).toLowerCase()}
+              </button>
+            ))}
+          </div>
+
+          <p className="px-3 py-1 text-[11px] font-bold text-[#6B778C] uppercase tracking-wider">Priority</p>
+          <div className="flex gap-1 px-3 pb-2">
+            {['LOW', 'MEDIUM', 'HIGH', 'URGENT'].map(priority => (
+              <button
+                key={priority}
+                onClick={() => setFilterPriority(filterPriority === priority ? null : priority)}
+                className={`flex-1 text-[10px] py-1 rounded transition-colors ${
+                  filterPriority === priority ? 'bg-primary text-white' : 'bg-[#F4F5F7] text-[#42526E] hover:bg-[#EBECF0]'
+                }`}
+              >
+                {priority.charAt(0) + priority.slice(1).toLowerCase()}
+              </button>
+            ))}
+          </div>
+          
+          {hasActiveFilters && (
+            <div className="px-3 pt-2 mt-1 border-t border-border">
+              <button
+                onClick={() => { setFilterIssueType(null); setFilterPriority(null) }}
+                className="w-full text-center text-xs text-[#42526E] hover:text-primary transition-colors"
+              >
+                Clear Filters
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Group dropdown ─────────────────────────────────────────────────────
 type GroupBy = 'none' | 'priority' | 'type'
 
@@ -211,7 +293,7 @@ function MoreMenu({ projectName, columns: allColumns }: { projectName: string; c
 
 // ─── Main component ──────────────────────────────────────────────────────
 export default function ProjectClient({ projectId, canCreateNote = false, canDeleteNote = false, canEditNote = false, currentUser }: { projectId: string, canCreateNote?: boolean, canDeleteNote?: boolean, canEditNote?: boolean, currentUser?: { id: string, role?: string } }) {
-  const { projectData, setProjectData, stars, setStars, setRecents, boardGroupBy, setBoardGroupBy, filterAssigneeId, setFilterAssigneeId } = useBoardStore()
+  const { projectData, setProjectData, stars, setStars, setRecents, boardGroupBy, setBoardGroupBy, filterAssigneeId, setFilterAssigneeId, searchQuery, setSearchQuery } = useBoardStore()
   const [loading, setLoading] = useState(true)
   const [fullscreen, setFullscreen] = useState(false)
   const [activeTab, setActiveTab] = useState<ExtendedTab>('Board')
@@ -423,11 +505,13 @@ export default function ProjectClient({ projectId, canCreateNote = false, canDel
       {activeTab === 'Board' && (
         <div className="px-4 sm:px-8 py-3 flex flex-wrap items-center gap-3 justify-between shrink-0">
           <div className="flex items-center gap-3 flex-wrap">
-            <div className="relative">
-              <Search size={16} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#6B778C]" />
+            <div className="relative group hidden sm:block">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B778C] group-hover:text-primary transition-colors" size={16} />
               <input
                 type="text"
                 placeholder="Search board"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-36 sm:w-48 pl-9 pr-3 py-1.5 bg-white border border-[#DFE1E6] hover:bg-[#F4F5F7] focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary rounded-md text-sm outline-none transition-all"
               />
             </div>
@@ -455,11 +539,7 @@ export default function ProjectClient({ projectId, canCreateNote = false, canDel
                 )
               })}
             </div>
-            <Tooltip label="Filter board">
-              <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-[#42526E] bg-[#F4F5F7] hover:bg-[#EBECF0] rounded-md transition-colors">
-                <SlidersHorizontal size={14} /> Filter
-              </button>
-            </Tooltip>
+            <FilterDropdown />
           </div>
 
           <div className="flex items-center gap-2">

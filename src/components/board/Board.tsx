@@ -32,6 +32,9 @@ export default function Board({ groupBy = 'none', currentUser }: { groupBy?: Gro
   const project = useBoardStore(s => s.projectData)
   const setProjectData = useBoardStore(s => s.setProjectData)
   const filterAssigneeId = useBoardStore(s => s.filterAssigneeId)
+  const searchQuery = useBoardStore(s => s.searchQuery)
+  const filterIssueType = useBoardStore(s => s.filterIssueType)
+  const filterPriority = useBoardStore(s => s.filterPriority)
 
   const [activeTask, setActiveTask] = useState<Task | null>(null)
   
@@ -232,7 +235,13 @@ export default function Board({ groupBy = 'none', currentUser }: { groupBy?: Gro
   // Apply assign to me filter
   const filteredColumns = project.columns.map(c => ({
     ...c,
-    tasks: c.tasks.filter(t => !filterAssigneeId || (filterAssigneeId === 'ME' && currentUser ? t.assigneeId === currentUser.id : t.assigneeId === filterAssigneeId))
+    tasks: c.tasks.filter(t => {
+      if (filterAssigneeId && !(filterAssigneeId === 'ME' && currentUser ? t.assigneeId === currentUser.id : t.assigneeId === filterAssigneeId)) return false;
+      if (searchQuery && !t.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+      if (filterIssueType && t.issueType !== filterIssueType) return false;
+      if (filterPriority && t.priority !== filterPriority) return false;
+      return true;
+    })
   }))
 
   const allTasks = filteredColumns.flatMap(c => c.tasks)

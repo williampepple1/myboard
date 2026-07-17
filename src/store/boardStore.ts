@@ -43,6 +43,13 @@ interface BoardState {
 
   filterAssigneeId: string | null
   setFilterAssigneeId: (id: string | null) => void
+
+  searchQuery: string
+  setSearchQuery: (q: string) => void
+  filterIssueType: string | null
+  setFilterIssueType: (t: string | null) => void
+  filterPriority: string | null
+  setFilterPriority: (p: string | null) => void
 }
 
 export const useBoardStore = create<BoardState>((set) => ({
@@ -80,5 +87,12 @@ export const useBoardStore = create<BoardState>((set) => ({
   setBoardGroupBy: (g) => set({ boardGroupBy: g }),
 
   filterAssigneeId: null,
-  setFilterAssigneeId: (id) => set({ filterAssigneeId: id })
+  setFilterAssigneeId: (id) => set({ filterAssigneeId: id }),
+
+  searchQuery: '',
+  setSearchQuery: (q) => set({ searchQuery: q }),
+  filterIssueType: null,
+  setFilterIssueType: (t) => set({ filterIssueType: t }),
+  filterPriority: null,
+  setFilterPriority: (p) => set({ filterPriority: p }),
 }))
