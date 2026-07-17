@@ -211,7 +211,7 @@ function MoreMenu({ projectName, columns: allColumns }: { projectName: string; c
 
 // ─── Main component ──────────────────────────────────────────────────────
 export default function ProjectClient({ projectId, canCreateNote = false, canDeleteNote = false, canEditNote = false, currentUser }: { projectId: string, canCreateNote?: boolean, canDeleteNote?: boolean, canEditNote?: boolean, currentUser?: { id: string, role?: string } }) {
-  const { projectData, setProjectData, stars, setStars, setRecents, boardGroupBy, setBoardGroupBy } = useBoardStore()
+  const { projectData, setProjectData, stars, setStars, setRecents, boardGroupBy, setBoardGroupBy, filterAssigneeId, setFilterAssigneeId } = useBoardStore()
   const [loading, setLoading] = useState(true)
   const [fullscreen, setFullscreen] = useState(false)
   const [activeTab, setActiveTab] = useState<ExtendedTab>('Board')
@@ -431,13 +431,29 @@ export default function ProjectClient({ projectId, canCreateNote = false, canDel
                 className="w-36 sm:w-48 pl-9 pr-3 py-1.5 bg-white border border-[#DFE1E6] hover:bg-[#F4F5F7] focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary rounded-md text-sm outline-none transition-all"
               />
             </div>
-            <div className="hidden sm:flex items-center gap-1">
-              <div className="w-8 h-8 rounded-full bg-slate-200 border-2 border-white z-10 flex items-center justify-center overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="avatar" />
-              </div>
-              <div className="w-8 h-8 rounded-full bg-slate-800 border-2 border-white -ml-3 z-20 flex items-center justify-center text-xs text-white">M</div>
-              <div className="w-8 h-8 rounded-full bg-orange-400 border-2 border-white -ml-3 z-30 flex items-center justify-center text-xs text-white font-medium">ME</div>
+            <div className="hidden sm:flex items-center">
+              {orgMembers.map((member, i) => {
+                const isSelected = filterAssigneeId === member.user.id || (filterAssigneeId === 'ME' && currentUser?.id === member.user.id);
+                const isFaded = filterAssigneeId && !isSelected;
+                return (
+                  <button
+                    key={member.user.id}
+                    onClick={() => setFilterAssigneeId(isSelected ? null : member.user.id)}
+                    className={`w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-xs font-medium overflow-hidden transition-all hover:-translate-y-1 ${
+                      i > 0 ? '-ml-2' : ''
+                    } ${isSelected ? 'ring-2 ring-primary ring-offset-1 z-40' : ''} ${isFaded ? 'opacity-50 grayscale' : 'opacity-100'} bg-slate-200 text-slate-700`}
+                    style={{ zIndex: isSelected ? 40 : 30 - i }}
+                    title={member.user.name || member.user.email || undefined}
+                  >
+                    {member.user.image ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img src={member.user.image} alt={member.user.name || 'avatar'} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="uppercase">{(member.user.name || member.user.email || 'U').charAt(0)}</span>
+                    )}
+                  </button>
+                )
+              })}
             </div>
             <Tooltip label="Filter board">
               <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-[#42526E] bg-[#F4F5F7] hover:bg-[#EBECF0] rounded-md transition-colors">

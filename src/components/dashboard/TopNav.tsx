@@ -135,10 +135,10 @@ export default function TopNav({
       <div className="relative">
         <button 
           onClick={() => toggleMenu('filters')}
-          className={`flex items-center gap-1 px-3 py-1.5 rounded-md transition-colors ${openMenu === 'filters' || useBoardStore.getState().filterAssignedToMe ? 'bg-primary/10 text-primary' : 'hover:bg-slate-100 hover:text-foreground'}`}
+          className={`flex items-center gap-1 px-3 py-1.5 rounded-md transition-colors ${openMenu === 'filters' || useBoardStore.getState().filterAssigneeId === 'ME' ? 'bg-primary/10 text-primary' : 'hover:bg-slate-100 hover:text-foreground'}`}
         >
           Filters
-          {useBoardStore.getState().filterAssignedToMe && <span className="w-2 h-2 rounded-full bg-primary ml-1" />}
+          {useBoardStore.getState().filterAssigneeId === 'ME' && <span className="w-2 h-2 rounded-full bg-primary ml-1" />}
           <ChevronDown size={14} className={`transition-transform ${openMenu === 'filters' ? 'rotate-180' : ''}`} />
         </button>
         {openMenu === 'filters' && (
@@ -147,13 +147,13 @@ export default function TopNav({
             <button
               onClick={() => {
                 const store = useBoardStore.getState()
-                store.setFilterAssignedToMe(!store.filterAssignedToMe)
+                store.setFilterAssigneeId(store.filterAssigneeId === 'ME' ? null : 'ME')
                 setOpenMenu(null)
               }}
               className="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center justify-between"
             >
               <span>Assigned to me</span>
-              {useBoardStore.getState().filterAssignedToMe && <CheckCircle2 size={16} className="text-primary" />}
+              {useBoardStore.getState().filterAssigneeId === 'ME' && <CheckCircle2 size={16} className="text-primary" />}
             </button>
           </div>
         )}

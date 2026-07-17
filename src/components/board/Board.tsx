@@ -31,7 +31,7 @@ type GroupBy = 'none' | 'priority' | 'type'
 export default function Board({ groupBy = 'none', currentUser }: { groupBy?: GroupBy, currentUser?: { id: string } }) {
   const project = useBoardStore(s => s.projectData)
   const setProjectData = useBoardStore(s => s.setProjectData)
-  const filterAssignedToMe = useBoardStore(s => s.filterAssignedToMe)
+  const filterAssigneeId = useBoardStore(s => s.filterAssigneeId)
 
   const [activeTask, setActiveTask] = useState<Task | null>(null)
   
@@ -232,7 +232,7 @@ export default function Board({ groupBy = 'none', currentUser }: { groupBy?: Gro
   // Apply assign to me filter
   const filteredColumns = project.columns.map(c => ({
     ...c,
-    tasks: c.tasks.filter(t => !filterAssignedToMe || (currentUser && t.assigneeId === currentUser.id))
+    tasks: c.tasks.filter(t => !filterAssigneeId || (filterAssigneeId === 'ME' && currentUser ? t.assigneeId === currentUser.id : t.assigneeId === filterAssigneeId))
   }))
 
   const allTasks = filteredColumns.flatMap(c => c.tasks)

@@ -41,8 +41,8 @@ interface BoardState {
   boardGroupBy: 'none' | 'priority' | 'type'
   setBoardGroupBy: (g: 'none' | 'priority' | 'type') => void
 
-  filterAssignedToMe: boolean
-  setFilterAssignedToMe: (f: boolean) => void
+  filterAssigneeId: string | null
+  setFilterAssigneeId: (id: string | null) => void
 }
 
 export const useBoardStore = create<BoardState>((set) => ({
@@ -79,6 +79,6 @@ export const useBoardStore = create<BoardState>((set) => ({
   boardGroupBy: 'none',
   setBoardGroupBy: (g) => set({ boardGroupBy: g }),
 
-  filterAssignedToMe: false,
-  setFilterAssignedToMe: (f) => set({ filterAssignedToMe: f })
+  filterAssigneeId: null,
+  setFilterAssigneeId: (id) => set({ filterAssigneeId: id })
 }))
